@@ -1,3 +1,6 @@
+import { mindTrackerModalTemplate } from '../templates';
+import { generateCalendar } from '../../utils/generate-calendar';
+
 export default class CalendarPage {
 
     constructor() {
@@ -63,76 +66,25 @@ export default class CalendarPage {
       `;
     }
 
-    generateCalendar(date) {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        
-        const monthDisplay = document.getElementById('monthDisplay');
-        monthDisplay.textContent = `${this.monthNames[month]} ${year}`;
-        
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        
-        const firstDayIndex = firstDay.getDay();
-        const lastDate = lastDay.getDate();
-        const prevLastDay = new Date(year, month, 0);
-        const prevLastDate = prevLastDay.getDate();
-        
-        const calendarDays = document.getElementById('calendarDays');
-        let days = '';
-
-        for (let x = firstDayIndex; x > 0; x--) {
-            days += `
-                <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-30">
-                    <span class="text-sm text-gray-400">${prevLastDate - x + 1}</span>
-                </div>`;
-        }
-        
-        for (let i = 1; i <= lastDate; i++) {
-            const isToday = i === new Date().getDate() && 
-                           month === new Date().getMonth() && 
-                           year === new Date().getFullYear();
-            
-            const todayClass = isToday 
-                ? 'bg-blue-50 text-blue-600 font-semibold' 
-                : 'hover:bg-gray-50';
-            
-            days += `
-                <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-30 ${todayClass}" data-date="${year}-${month + 1}-${i}">
-                    <span class="text-sm ${isToday ? 'text-blue-600' : 'text-gray-700'}">${i}</span>
-                </div>`;
-        }
-
-        const remainingDays = 35 - (firstDayIndex + lastDate);
-        for (let j = 1; j <= remainingDays; j++) {
-            days += `
-                <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-30">
-                    <span class="text-sm text-gray-400">${j}</span>
-                </div>`;
-        }
-
-        calendarDays.innerHTML = days;
-    }
-
     async afterRender() {
-        this.generateCalendar(this.currentDate);
+        generateCalendar(this.currentDate, this.monthNames);
 
         document.getElementById('prevMonth').addEventListener('click', () => {
             this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-            this.generateCalendar(this.currentDate);
+            generateCalendar(this.currentDate, this.monthNames);
         });
 
         document.getElementById('nextMonth').addEventListener('click', () => {
             this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-            this.generateCalendar(this.currentDate);
+            generateCalendar(this.currentDate, this.monthNames);
         });
 
         document.getElementById('todayBtn').addEventListener('click', () => {
             this.currentDate = new Date();
-            this.generateCalendar(this.currentDate);
+            generateCalendar(this.currentDate, this.monthNames);
         });
 
-         document.getElementById('calendarDays').addEventListener('click', (e) => {
+        document.getElementById('calendarDays').addEventListener('click', (e) => {
             const dayElement = e.target.closest('div[data-date]');
             if (dayElement) {
                 document.querySelectorAll('div[data-date]').forEach(el => {
@@ -141,5 +93,63 @@ export default class CalendarPage {
                 dayElement.classList.add('bg-blue-100');
             }
         });
+
+        if (!document.getElementById('mindTrackerModal')) {
+            document.body.insertAdjacentHTML('beforeend', mindTrackerModalTemplate());
+        }
+
+        const modal = document.getElementById('mindTrackerModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const mindTrackerForm = document.getElementById('mindTrackerForm');
+
+        document.getElementById('calendarDays').addEventListener('click', (e) => {
+            const dayElement = e.target.closest('div[data-date]');
+            if (dayElement) {
+                document.querySelectorAll('div[data-date]').forEach(el => {
+                    el.classList.remove('bg-blue-100');
+                });
+                dayElement.classList.add('bg-blue-100');
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                const dateStr = dayElement.getAttribute('data-date');
+                const dateObj = new Date(dateStr);
+                const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                modalTitle.textContent = `Mind Tracker — Hari ini, ${formattedDate}`;
+            }
+        });
+
+        if (mindTrackerForm) {
+            mindTrackerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(mindTrackerForm);
+                const mood = formData.get('mood');
+                const progress = formData.get('progress');
+                console.log('Mood:', mood);
+                console.log('Progress:', progress);
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                mindTrackerForm.reset();
+            });
+        }
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        });
     }
+
+
 }
