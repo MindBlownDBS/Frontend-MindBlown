@@ -125,16 +125,47 @@ export default class CalendarPage {
         });
 
         if (mindTrackerForm) {
-            mindTrackerForm.addEventListener('submit', (e) => {
+            mindTrackerForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(mindTrackerForm);
-                const mood = formData.get('mood');
-                const progress = formData.get('progress');
-                console.log('Mood:', mood);
-                console.log('Progress:', progress);
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                mindTrackerForm.reset();
+                const dateStr = modalTitle.textContent.split('—')[1].trim();
+                
+                const [_, day, month, year] = dateStr.match(/(\d+)\s+(\w+)\s+(\d+)/);
+                const monthMap = {
+                    'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3,
+                    'Mei': 4, 'Juni': 5, 'Juli': 6, 'Agustus': 7,
+                    'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
+                };
+
+                const data = {
+                    date: new Date(year, monthMap[month], day).toISOString(),
+                    mood: formData.get('mood'),
+                    progress: formData.get('progress')
+                };
+
+                try {
+                    const response = await fetch('http://localhost:5000/mindTracker', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (!result.error) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                        mindTrackerForm.reset();
+                        alert(result.message);
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error('Error saving mind tracker:', error);
+                    alert(error.message || 'Terjadi kesalahan server');
+                }
             });
         }
 
