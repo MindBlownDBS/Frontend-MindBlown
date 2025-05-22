@@ -144,10 +144,16 @@ export default class CalendarPage {
                 };
 
                 try {
+                    const accessToken = localStorage.getItem('accessToken');
+                    
+                    if (!accessToken) {
+                        throw new Error('Anda belum login. Silakan login terlebih dahulu.');
+                    }
                     const response = await fetch('http://localhost:5000/mindTracker', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
                         },
                         body: JSON.stringify(data)
                     });
