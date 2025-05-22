@@ -2,9 +2,10 @@ export default class HomePage {
   async render() {
     return `
       <section class="ml-16 min-h-screen flex">
-        <div class="w-full flex items-end pb-20"> 
+        <div class="w-full flex items-center pb-20"> 
             <div class="max-w-2xl w-full mx-auto text-center">
-                <h1 class="text-primary text-3xl font-bold mb-4">Hai, aku MindBlown!</h1>
+                <img src="images/logo.png" alt="Logo" class="w-22 h-22 mx-auto mb-10 mt-30">
+                <h1 class="text-primary text-3xl font-semibold mb-1">Hai, aku MindBlown!</h1>
                 <p class="text-secondary mb-8">Apa pun yang kamu rasain sekarang, itu valid. Mau cerita sedikit?</p>
                 
                 <div class="relative">
