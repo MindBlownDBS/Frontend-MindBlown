@@ -5,15 +5,17 @@ import NotificationPage from '../pages/notification/notification-page';
 import ProfilePage from '../pages/profile/profile-page';
 import LoginPage from '../pages/auth/login/login-page';
 import RegisterPage from '../pages/auth/register/register-page';
+import { checkAuthenticatedRoute, checkUnauthenticatedRouteOnly } from '../utils/auth';
 
 const routes = {
-    '/': new HomePage(),
-    '/story': new StoryPage(),
-    '/calendar': new CalendarPage(),
-    '/notification': new NotificationPage(),
-    '/profile': new ProfilePage(),
-    '/login': new LoginPage(),
-    '/register': new RegisterPage()
+    '/login': () => checkUnauthenticatedRouteOnly(new LoginPage()),
+    '/register': () => checkUnauthenticatedRouteOnly(new RegisterPage()),
+    '/': () => checkAuthenticatedRoute(new HomePage()),
+    '/story': () => checkAuthenticatedRoute(new StoryPage()),
+    '/calendar': () => checkAuthenticatedRoute(new CalendarPage()),
+    '/notification': () => checkAuthenticatedRoute(new NotificationPage()),
+    '/profile': () => checkAuthenticatedRoute(new ProfilePage())
+    
 };
 
 export default routes;

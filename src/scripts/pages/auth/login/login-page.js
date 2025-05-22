@@ -1,5 +1,6 @@
 import LoginPresenter from './login-presenter';
 import * as MindblownAPi from '../../../data/api';
+import * as AuthModel from '../../../utils/auth';
 
 export default class LoginPage {
     #presenter = null;
@@ -15,7 +16,7 @@ export default class LoginPage {
                 </div>
                 <form id="login-form" class="bg-[#F7F7F7] rounded-xl shadow p-6 border border-gray-400">
                     <p class="mb-3 text-gray-700 text-sm">Masuk untuk ngobrolin apa pun yang kamu rasakan.</p>
-                    <input id="email-input" type="email" placeholder="Email" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
+                    <input id="email-input" placeholder="Email / Username" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
                     <input id="password-input" type="password" placeholder="Kata sandi" class="w-full mb-6 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
                     <div id="submit-button-container">
                         <button class="w-full bg-third text-white text-sm py-2 rounded hover:bg-teal-600 transition" type="submit">Masuk</button>
@@ -34,7 +35,7 @@ export default class LoginPage {
         this.#presenter = new LoginPresenter({
             view: this,
             model: MindblownAPi,
-            // authModel: AuthModel,
+            authModel: AuthModel,
         });
         this.#setupForm();
     }

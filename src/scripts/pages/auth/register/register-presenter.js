@@ -13,8 +13,8 @@ export default class RegisterPresenter {
             console.log(username, name, email, password);
             const response = await this.#model.getRegister(username, name, email, password);
 
-            if (response.data.error) {
-                this.#view.registeredFailed(response.data.message);
+            if (response.error || response.status >= 400) {
+                this.#view.registeredFailed(response.message);
             } else {
                 this.#view.registeredSuccessfully(response.message);
             }

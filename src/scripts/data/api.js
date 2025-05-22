@@ -15,7 +15,9 @@ export async function getRegister(username, name, email, password) {
         body: data,
     });
 
-    return response.json();
+    const responseJson = await response.json();
+
+    return responseJson;
 }
 
 export async function getLogin(usernameOrEmail, password) {
@@ -28,7 +30,9 @@ export async function getLogin(usernameOrEmail, password) {
         body: data,
     });
 
-    return response.json();
+    const responseJson = await response.json();
+
+    return responseJson;
 }
 
 
