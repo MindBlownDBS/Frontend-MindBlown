@@ -5,6 +5,7 @@ import NotificationPage from '../pages/notification/notification-page';
 import ProfilePage from '../pages/profile/profile-page';
 import LoginPage from '../pages/auth/login/login-page';
 import RegisterPage from '../pages/auth/register/register-page';
+import ChatbotPage from '../pages/chatbot/chatbot-page';
 import { checkAuthenticatedRoute, checkUnauthenticatedRouteOnly } from '../utils/auth';
 
 const routes = {
@@ -14,8 +15,8 @@ const routes = {
     '/story': () => checkAuthenticatedRoute(new StoryPage()),
     '/calendar': () => checkAuthenticatedRoute(new CalendarPage()),
     '/notification': () => checkAuthenticatedRoute(new NotificationPage()),
-    '/profile': () => checkAuthenticatedRoute(new ProfilePage())
-    
+    '/profile': () => checkAuthenticatedRoute(new ProfilePage()),
+    '/chatbot': () => checkAuthenticatedRoute(new ChatbotPage())
 };
 
 export default routes;

@@ -39,4 +39,29 @@ export function mindTrackerModalTemplate() {
     `;
 }
 
+export function userChatBubble(text) {
+    return `
+        <div class="flex justify-end mb-3">
+            <div class="flex flex-row-reverse items-start gap-2 max-w-[80%]">
+                <div class="bg-[#7de3e1] px-4 py-2 rounded-lg text-sm text-gray-800 text-left">
+                    ${text}
+                </div>
+            </div>
+        </div>
+    `;
+}
 
+export function botChatBubble(text) {
+    return `
+        <div class="flex justify-start mb-3">
+            <div class="flex items-start max-w-[80%]">
+                <div class="w-6 h-6 rounded-lg bg-white flex items-center justify-center">
+                    <img src="images/logo.png" alt="Bot" class="w-5 h-5 object-cover">
+                </div>
+                <div class="bg-white px-3 py-2 rounded-lg text-sm text-gray-800">
+                    ${text}
+                </div>
+            </div>
+        </div>
+    `;
+}
