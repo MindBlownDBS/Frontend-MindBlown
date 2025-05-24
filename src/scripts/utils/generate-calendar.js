@@ -31,9 +31,10 @@ export function generateCalendar(date, monthNames) {
         const todayClass = isToday
             ? 'bg-blue-50 text-blue-600 font-semibold'
             : 'hover:bg-gray-50';
-
+        const formattedMonth = (month + 1).toString().padStart(2, '0');
+        const formattedDay = i.toString().padStart(2, '0');
         days += `
-            <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-30 ${todayClass}" data-date="${year}-${month + 1}-${i}">
+            <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-30 ${todayClass}" data-date="${year}-${formattedMonth}-${formattedDay}">
                 <span class="text-sm ${isToday ? 'text-blue-600' : 'text-gray-700'}">${i}</span>
             </div>`;
     }

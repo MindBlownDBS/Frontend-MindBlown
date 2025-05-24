@@ -31,6 +31,16 @@ export default class CalendarPage {
                 <hr class="mt-4 text-gray-300">
             </div>
 
+            <!-- Track Today Button -->
+            <div class="mb-6">
+                <button id="trackTodayBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Track Today's Mood
+                </button>
+            </div>
+
             <div class="flex items-center justify-between py-2">
                 <h2 id="monthDisplay" class="text-xl font-semibold text-gray-800">
                     May 2025
@@ -113,7 +123,46 @@ export default class CalendarPage {
         const modalTitle = document.getElementById('modalTitle');
         const mindTrackerForm = document.getElementById('mindTrackerForm');
 
-        document.getElementById('calendarDays').addEventListener('click', (e) => {
+        document.getElementById('trackTodayBtn').addEventListener('click', async () => {
+            try {
+                const accessToken = localStorage.getItem('accessToken');
+                
+                if (!accessToken) {
+                    throw new Error('Anda belum login. Silakan login terlebih dahulu.');
+                }
+
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                
+                const response = await fetch(`http://localhost:5000/mindTracker/check/${todayStr}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.exists) {
+                    alert('Anda sudah mengisi Mind Tracker untuk hari ini.');
+                    return;
+                }
+
+                const formattedDate = today.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                
+                modalTitle.textContent = `Mind Tracker — Hari ini, ${formattedDate}`;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } catch (error) {
+                console.error('Error checking mind tracker entry:', error);
+                alert(error.message || 'Terjadi kesalahan server');
+            }
+        });
+
+        document.getElementById('calendarDays').addEventListener('click', async (e) => {
             const dayElement = e.target.closest('div[data-date]');
             if (dayElement) {
                 document.querySelectorAll('div[data-date]').forEach(el => {
@@ -121,16 +170,55 @@ export default class CalendarPage {
                 });
                 dayElement.classList.add('bg-blue-100');
 
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
                 const dateStr = dayElement.getAttribute('data-date');
                 const dateObj = new Date(dateStr);
+                
                 const formattedDate = dateObj.toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric'
                 });
-                modalTitle.textContent = `Mind Tracker — Hari ini, ${formattedDate}`;
+                
+                const apiDateStr = dateObj.toISOString().split('T')[0];
+                
+                try {
+                    const accessToken = localStorage.getItem('accessToken');
+                    
+                    if (!accessToken) {
+                        throw new Error('Anda belum login. Silakan login terlebih dahulu.');
+                    }
+
+                    const response = await fetch(`http://localhost:5000/mindTracker/${apiDateStr}`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    console.log('Response data:', result);
+
+                    
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    modalTitle.textContent = `Mind Tracker — ${formattedDate}`;
+                    
+                    if (result.data) {
+                        document.querySelector(`input[name="mood"][value="${result.data.mood}"]`).checked = true;
+                        document.querySelector('textarea[name="progress"]').value = result.data.progress || '';
+
+                        console.log('Existing data found:', result.data);
+                    } else {
+                        mindTrackerForm.reset();
+                        
+                        const deleteBtn = document.getElementById('deleteEntryBtn');
+                        if (deleteBtn) {
+                            deleteBtn.remove();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching mind tracker data:', error);
+                    alert(error.message || 'Terjadi kesalahan server');
+                }
             }
         });
 
