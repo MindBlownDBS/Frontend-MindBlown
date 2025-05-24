@@ -65,3 +65,82 @@ export function botChatBubble(text) {
         </div>
     `;
 }
+
+
+// ... existing code ...
+
+export function notificationItemTemplate({ icon = 'images/logo.png', title = '', message = '' }) {
+    return `
+        <div class="flex items-start gap-3 py-4 border-b border-gray-200">
+            <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                <img src="${icon}" alt="icon" class="w-7 h-7 object-cover">
+            </div>
+            <div class="text-left">
+                <div class="font-semibold text-base text-gray-800 mb-1">${title}</div>
+                <div class="text-sm text-gray-700 leading-snug">${message}</div>
+            </div>
+        </div>
+    `;
+}
+
+export function weeklyMoodTrackerTemplate(moods) {
+    const pointGap = 200; 
+    const emojiY = [40, 10, 60, 35, 50, 25, 45, 0]; 
+    const width = (moods.length - 1) * pointGap + 40;
+    const height = 80;
+  
+    const points = moods.map((_, i) => {
+      const x = 20 + i * pointGap;
+      const y = emojiY[i] || 40;
+      return `${x},${y}`;
+    }).join(' ');
+  
+    return `
+      <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
+        <div class="font-semibold text-base mb-3">Mood dalam 1 Minggu</div>
+        <div class="flex items-center justify-between">
+          <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodPrevBtn">
+            &larr;
+          </button>
+          <div class="flex-1 flex flex-col items-center">
+            <div style="position:relative; width:${width}px; height:${height + 40}px;">
+              <svg width="${width}" height="${height}" style="position:absolute;top:0;left:0;">
+                <polyline
+                  fill="none"
+                  stroke="#bbb"
+                  stroke-width="2"
+                  points="${points}"
+                />
+              </svg>
+              ${moods.map((mood, i) => {
+                const x = 20 + i * pointGap;
+                const y = emojiY[i] || 40;
+                return `
+                  <div style="position:absolute;left:${x - 18}px;top:${y - 18}px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
+                    <span style="font-size:2rem;line-height:1;">${mood.emoji}</span>
+                  </div>
+                  <div style="position:absolute;left:${x - 30}px;top:${height + 5}px;width:60px;text-align:center;font-size:12px;color:#666;">
+                    ${mood.date}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+          <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodNextBtn">
+            &rarr;
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+export function notificationListTemplate(notifications) {
+    return `
+        <div class="max-w-xl w-full ml-20 text-left">
+            <h1 class="text-2xl font-semibold mb-8 mt-3">Pemberitahuan</h1>
+            <div>
+                ${notifications.map(notificationItemTemplate).join('')}
+            </div>
+        </div>
+    `;
+}

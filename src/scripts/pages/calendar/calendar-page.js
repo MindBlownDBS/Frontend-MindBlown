@@ -1,5 +1,6 @@
 import { mindTrackerModalTemplate } from '../templates';
 import { generateCalendar } from '../../utils/generate-calendar';
+import { weeklyMoodTrackerTemplate } from '../templates';
 
 export default class CalendarPage {
 
@@ -12,9 +13,18 @@ export default class CalendarPage {
     }
 
     async render() {
+        const moods = [
+            { date: 'Kamis, 1 Mei', emoji: '🙂' },
+            { date: 'Jumat, 2 Mei', emoji: '😊' },
+            { date: 'Sabtu, 3 Mei', emoji: '😄' },
+            { date: 'Minggu, 4 Mei', emoji: '🤗' },
+            { date: 'Senin, 5 Mei', emoji: '🤔' },
+        ];
+
         return `
          <div class="ml-3 p-8">
         <div class="max-w-6xl mx-auto">
+        ${weeklyMoodTrackerTemplate(moods)}
             <div class="mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900 mb-2">Mind Tracker</h1>
                 <p class="text-gray-600">Hari ini rasanya gimana? Ini tracker ini buat bantu kamu lebih sadar sama perasaan dan progressmu.</p>
