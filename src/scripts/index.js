@@ -20,6 +20,10 @@ function handleNavbarVisibility() {
 document.addEventListener('DOMContentLoaded', async () => {
     const app = new App({
         content: document.querySelector('#main-content'),
+        sidebar: document.querySelector('#sidebar'),
+        sidebarToggle: document.querySelector('#sidebar-toggle'),
+        sidebarToggleIcon: document.querySelector('#sidebar-toggle-icon'),
+        sidebarToggleContainer: document.querySelector('#sidebar-toggle-container'),
     });
     await app.renderPage();
     handleNavbarVisibility();

@@ -58,7 +58,7 @@ export function botChatBubble(text) {
         <div class="flex justify-start mb-3">
             <div class="flex items-start max-w-[80%]">
                 <div class="w-6 h-6 rounded-lg bg-white flex items-center justify-center">
-                    <img src="images/logo.png" alt="Bot" class="w-5 h-5 object-cover">
+                    <img src="images/logo.png" alt="Bot" class="w-8 h-8 object-cover">
                 </div>
                 <div class="bg-white px-3 py-2 rounded-lg text-sm text-gray-800">
                     ${text}
@@ -134,7 +134,7 @@ export function weeklyMoodTrackerTemplate(moods) {
 
 export function notificationListTemplate(notifications) {
     return `
-        <div class="max-w-xl w-full ml-20 text-left">
+        <div class="max-w-xl w-full ml-24 text-left">
             <h1 class="text-2xl font-semibold mb-8 mt-3">Pemberitahuan</h1>
             <div>
                 ${notifications.map(notificationItemTemplate).join('')}

@@ -6,24 +6,27 @@ export default class RegisterPage {
 
     async render() {
         return `
-         <div class="flex items-center justify-center min-h-screen bg-white">
+        <div class="flex items-center justify-center min-h-screen bg-white">
             <div class="w-full max-w-xs">
                 <div class="flex items-center justify-center mb-4 gap-3">
                     <img src="images/logo.png" alt="Logo" class="w-13 h-13 mb-2">
                     <h1 class="text-2xl font-semibold text-gray-800 mb-2">MindBlown</h1>
                 </div>
-                <form id="register-form" class="bg-[#F7F7F7] rounded-xl shadow p-5 border border-gray-400">
+                <form id="register-form" class="bg-[#F7F7F7] rounded-xl shadow p-5 border border-gray-400 sm:p-7">
                     <p class="mb-3 text-gray-700 text-sm">Daftar untuk ngobrolin apa pun yang kamu rasakan.</p>
                     <input id="username-input" type="text" placeholder="Nama Pengguna" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
                     <input id="name-input" type="text" placeholder="Nama Lengkap" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
                     <input id="email-input" type="email" placeholder="Email" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
                     <input id="password-input" type="password" placeholder="Kata sandi" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
-                    <input id="passwordConfirm-input" type="password" placeholder="Konfirmasi kata sandi" class="w-full mb-5 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>   
-                    <div id="submit-button-container">
+                    <input id="passwordConfirm-input" type="password" placeholder="Konfirmasi kata sandi" class="w-full mb-4 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
+
+                    <div id="errorMessage" class="hidden text-red-500 text-center text-sm" role="alert"></div>   
+
+                    <div id="submit-button-container" class="mt-3">
                         <button class="w-full bg-third text-white text-sm py-2 rounded hover:bg-teal-600 transition" type="submit">Daftar</button>
                     </div>
-                    <div class="flex justify-end mt-2">
-                        <a href="#/login" class="text-sm text-gray-500 hover:underline">Masuk</a>
+                    <div class="flex justify-center mt-4">
+                        <p class="text-sm text-gray-500 ">Sudah punya akun? <a href="#/login" class="text-third font-semibold hover:underline">Masuk</a></p>
                     </div>
                 </form>
             </div>
@@ -51,7 +54,7 @@ export default class RegisterPage {
             const passwordConfirm = document.getElementById('passwordConfirm-input').value;
 
             if (password !== passwordConfirm) {
-                alert('Konfirmasi kata sandi tidak sama dengan kata sandi!');
+                this.registeredFailed('Konfirmasi kata sandi tidak sama dengan kata sandi!')
                 return;
             }
 
@@ -68,12 +71,17 @@ export default class RegisterPage {
     registeredSuccessfully(message) {
         console.log(message);
 
-        // Redirect
         location.hash = '/login';
     }
 
     registeredFailed(message) {
-        alert(message);
+        const errorMessageElement = document.getElementById('errorMessage');
+        errorMessageElement.textContent = message;
+        errorMessageElement.classList.remove('hidden');
+        
+        setTimeout(() => {
+            errorMessageElement.classList.add('hidden');
+        }, 3000);
     }
 
     showSubmitLoadingButton() {
