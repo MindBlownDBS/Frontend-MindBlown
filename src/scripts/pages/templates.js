@@ -1,4 +1,4 @@
-export function mindTrackerModalTemplate() {
+export function mindTrackerModalTemplate(isViewMode = true) {
     return `
     <div id="mindTrackerModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
@@ -28,11 +28,13 @@ export function mindTrackerModalTemplate() {
                         </label>
                     </div>
                     <p class="mb-4 mt-8">Progres kamu</p>
-                    <textarea name="progress" class="w-full border p-2 rounded-xl overflow-hidden" rows="3" placeholder="Ceritakan bagaimana harimu dan perasaanmu sekarang" required></textarea>
+                    <textarea name="progress" class="w-full border p-2 rounded-xl overflow-hidden" rows="3" placeholder="Ceritakan bagaimana harimu dan perasaanmu sekarang" required ${isViewMode ? 'readonly' : ''}></textarea>
                 </div>
-                <div class="flex justify-end">
+                ${!isViewMode ? `
+                <div id="submit-mind-tracker" class="flex justify-end">
                     <button type="submit" class="w-25 bg-third text-white py-2 rounded-lg mt-2 justify-end">Kirim</button>
                 </div>
+                ` : ''}
             </form>
         </div>
     </div>
@@ -66,9 +68,6 @@ export function botChatBubble(text) {
     `;
 }
 
-
-// ... existing code ...
-
 export function notificationItemTemplate({ icon = 'images/logo.png', title = '', message = '' }) {
     return `
         <div class="flex items-start gap-3 py-4 border-b border-gray-200">
@@ -97,7 +96,6 @@ export function weeklyMoodTrackerTemplate(moods) {
   
     return `
       <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
-        <div class="font-semibold text-base mb-3">Mood dalam 1 Minggu</div>
         <div class="flex items-center justify-between">
           <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodPrevBtn">
             &larr;

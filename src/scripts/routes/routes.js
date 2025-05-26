@@ -16,7 +16,7 @@ const routes = {
     '/calendar': () => checkAuthenticatedRoute(new CalendarPage()),
     '/notification': () => checkAuthenticatedRoute(new NotificationPage()),
     '/profile': () => checkAuthenticatedRoute(new ProfilePage()),
-    '/chatbot': () => checkAuthenticatedRoute(new ChatbotPage())
+    '/chatbot': () => checkAuthenticatedRoute(new ChatbotPage()),
 };
 
 export default routes;
