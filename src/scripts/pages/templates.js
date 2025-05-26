@@ -1,5 +1,5 @@
 export function mindTrackerModalTemplate() {
-    return `
+  return `
     <div id="mindTrackerModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
@@ -40,7 +40,7 @@ export function mindTrackerModalTemplate() {
 }
 
 export function userChatBubble(text) {
-    return `
+  return `
         <div class="flex justify-end mb-3">
             <div class="flex flex-row-reverse items-start gap-2 max-w-[80%]">
                 <div class="bg-[#7de3e1] px-4 py-2 rounded-lg text-sm text-gray-800 text-left">
@@ -52,7 +52,7 @@ export function userChatBubble(text) {
 }
 
 export function botChatBubble(text) {
-    return `
+  return `
         <div class="flex justify-start mb-3">
             <div class="flex items-start max-w-[80%]">
                 <div class="w-6 h-6 rounded-lg bg-white flex items-center justify-center">
@@ -66,11 +66,14 @@ export function botChatBubble(text) {
     `;
 }
 
-
 // ... existing code ...
 
-export function notificationItemTemplate({ icon = 'images/logo.png', title = '', message = '' }) {
-    return `
+export function notificationItemTemplate({
+  icon = "images/logo.png",
+  title = "",
+  message = "",
+}) {
+  return `
         <div class="flex items-start gap-3 py-4 border-b border-gray-200">
             <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
                 <img src="${icon}" alt="icon" class="w-7 h-7 object-cover">
@@ -84,18 +87,20 @@ export function notificationItemTemplate({ icon = 'images/logo.png', title = '',
 }
 
 export function weeklyMoodTrackerTemplate(moods) {
-    const pointGap = 200; 
-    const emojiY = [40, 10, 60, 35, 50, 25, 45, 0]; 
-    const width = (moods.length - 1) * pointGap + 40;
-    const height = 80;
-  
-    const points = moods.map((_, i) => {
+  const pointGap = 200;
+  const emojiY = [40, 10, 60, 35, 50, 25, 45, 0];
+  const width = (moods.length - 1) * pointGap + 40;
+  const height = 80;
+
+  const points = moods
+    .map((_, i) => {
       const x = 20 + i * pointGap;
       const y = emojiY[i] || 40;
       return `${x},${y}`;
-    }).join(' ');
-  
-    return `
+    })
+    .join(" ");
+
+  return `
       <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
         <div class="font-semibold text-base mb-3">Mood dalam 1 Minggu</div>
         <div class="flex items-center justify-between">
@@ -103,7 +108,9 @@ export function weeklyMoodTrackerTemplate(moods) {
             &larr;
           </button>
           <div class="flex-1 flex flex-col items-center">
-            <div style="position:relative; width:${width}px; height:${height + 40}px;">
+            <div style="position:relative; width:${width}px; height:${
+    height + 40
+  }px;">
               <svg width="${width}" height="${height}" style="position:absolute;top:0;left:0;">
                 <polyline
                   fill="none"
@@ -112,18 +119,26 @@ export function weeklyMoodTrackerTemplate(moods) {
                   points="${points}"
                 />
               </svg>
-              ${moods.map((mood, i) => {
-                const x = 20 + i * pointGap;
-                const y = emojiY[i] || 40;
-                return `
-                  <div style="position:absolute;left:${x - 18}px;top:${y - 18}px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
-                    <span style="font-size:2rem;line-height:1;">${mood.emoji}</span>
+              ${moods
+                .map((mood, i) => {
+                  const x = 20 + i * pointGap;
+                  const y = emojiY[i] || 40;
+                  return `
+                  <div style="position:absolute;left:${x - 18}px;top:${
+                    y - 18
+                  }px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
+                    <span style="font-size:2rem;line-height:1;">${
+                      mood.emoji
+                    }</span>
                   </div>
-                  <div style="position:absolute;left:${x - 30}px;top:${height + 5}px;width:60px;text-align:center;font-size:12px;color:#666;">
+                  <div style="position:absolute;left:${x - 30}px;top:${
+                    height + 5
+                  }px;width:60px;text-align:center;font-size:12px;color:#666;">
                     ${mood.date}
                   </div>
                 `;
-              }).join('')}
+                })
+                .join("")}
             </div>
           </div>
           <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodNextBtn">
@@ -132,15 +147,55 @@ export function weeklyMoodTrackerTemplate(moods) {
         </div>
       </div>
     `;
-  }
+}
 
 export function notificationListTemplate(notifications) {
-    return `
+  return `
         <div class="max-w-xl w-full ml-20 text-left">
             <h1 class="text-2xl font-semibold mb-8 mt-3">Pemberitahuan</h1>
             <div>
-                ${notifications.map(notificationItemTemplate).join('')}
+                ${notifications.map(notificationItemTemplate).join("")}
             </div>
         </div>
     `;
+}
+
+export function profileTemplate(userData) {
+  return `
+    <div class="ml-16 min-h-screen p-10">
+    <div class="max-w-md mx-auto">
+      <h1 class="text-2xl font-semibold text-gray-900 mb-10">Profil</h1>
+        
+      <div>
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-4">
+        <div class="w-24 h-24 rounded-full overflow-hidden">
+          <img src="/images/image.jpg" alt="Foto Profil Default" class="w-full h-full object-cover">
+        </div>
+        <div>
+        <div class="text-lg font-medium">${
+          userData.name || "Nama Pengguna"
+        }</div>
+          <div class="text-gray-500">@${
+            userData.username || "namapengguna"
+          }</div>
+        </div>
+        </div>
+            
+        <div class="flex gap-4">
+        <button id="editProfileBtn" class="w-25 border border-primary rounded-lg text-primary mt-2 justify-end">Sunting</button>
+        <button id="logoutBtn" class="w-25 bg-red-300 text-white py-2 rounded-lg mt-2 justify-end">Keluar</button>
+        </div>
+      </div>
+      </div>
+
+      <hr class="my-4 border-gray-300">
+
+      <div class="bg-none">
+        <h2 class="text-lg font-medium mb-4">Unggahan</h2>
+        <p class="text-gray-500 text-center py-8">Belum ada unggahan</p>
+      </div>
+      </div>
+    </div>
+  `;
 }
