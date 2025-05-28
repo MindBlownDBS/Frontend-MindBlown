@@ -1,15 +1,11 @@
 import { mindTrackerModalTemplate } from '../templates';
 import { generateCalendar } from '../../utils/generate-calendar';
 import { weeklyMoodTrackerTemplate } from '../templates';
+import CalendarPresenter from './calendar-presenter';
 
 export default class CalendarPage {
-
     constructor() {
-        this.currentDate = new Date();
-        this.monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
+        this.presenter = new CalendarPresenter();
     }
 
     async render() {
@@ -22,23 +18,26 @@ export default class CalendarPage {
         ];
 
         return `
-         <div class="ml-3 p-8">
-        <div class="max-w-6xl mx-auto">
-        ${weeklyMoodTrackerTemplate(moods)}
+        <div class="p-8">
+        <div class="max-w-6xl ml-24">
             <div class="mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900 mb-2">Mind Tracker</h1>
                 <p class="text-gray-600">Hari ini rasanya gimana? Ini tracker ini buat bantu kamu lebih sadar sama perasaan dan progressmu.</p>
                 <hr class="mt-4 text-gray-300">
             </div>
 
-            <!-- Track Today Button -->
             <div class="mb-6">
-                <button id="trackTodayBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center">
+                <button id="trackTodayBtn" class="bg-third hover:bg-teal-700 text-white px-4 py-2 rounded-md flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
-                    Track Today's Mood
+                    Yuk Track Your Mind !
                 </button>
+            </div>
+
+            <div>
+             <h2 class="font-semibold text-base mb-3">Mood dalam 1 Minggu</h2> 
+             ${weeklyMoodTrackerTemplate(moods)}
             </div>
 
             <div class="flex items-center justify-between py-2">
@@ -87,75 +86,38 @@ export default class CalendarPage {
     }
 
     async afterRender() {
-        generateCalendar(this.currentDate, this.monthNames);
+        generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
 
+        // Event Listeners untuk navigasi kalender
         document.getElementById('prevMonth').addEventListener('click', () => {
-            this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-            generateCalendar(this.currentDate, this.monthNames);
+            const currentDate = this.presenter.getCurrentDate();
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            this.presenter.setCurrentDate(currentDate);
+            generateCalendar(currentDate, this.presenter.getMonthNames());
         });
 
         document.getElementById('nextMonth').addEventListener('click', () => {
-            this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-            generateCalendar(this.currentDate, this.monthNames);
+            const currentDate = this.presenter.getCurrentDate();
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            this.presenter.setCurrentDate(currentDate);
+            generateCalendar(currentDate, this.presenter.getMonthNames());
         });
 
         document.getElementById('todayBtn').addEventListener('click', () => {
-            this.currentDate = new Date();
-            generateCalendar(this.currentDate, this.monthNames);
+            this.presenter.setCurrentDate(new Date());
+            generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
         });
-
-        document.getElementById('calendarDays').addEventListener('click', (e) => {
-            const dayElement = e.target.closest('div[data-date]');
-            if (dayElement) {
-                document.querySelectorAll('div[data-date]').forEach(el => {
-                    el.classList.remove('bg-blue-100');
-                });
-                dayElement.classList.add('bg-blue-100');
-            }
-        });
-
-        if (!document.getElementById('mindTrackerModal')) {
-            document.body.insertAdjacentHTML('beforeend', mindTrackerModalTemplate());
-        }
-
-        const modal = document.getElementById('mindTrackerModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const modalTitle = document.getElementById('modalTitle');
-        const mindTrackerForm = document.getElementById('mindTrackerForm');
 
         document.getElementById('trackTodayBtn').addEventListener('click', async () => {
             try {
-                const accessToken = localStorage.getItem('accessToken');
-                
-                if (!accessToken) {
-                    throw new Error('Anda belum login. Silakan login terlebih dahulu.');
-                }
-
-                const today = new Date();
-                const todayStr = today.toISOString().split('T')[0];
-                
-                const response = await fetch(`http://localhost:5000/mindTracker/check/${todayStr}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                });
-
-                const result = await response.json();
+                const result = await this.presenter.checkTodayEntry();
                 
                 if (result.exists) {
                     alert('Anda sudah mengisi Mind Tracker untuk hari ini.');
                     return;
                 }
 
-                const formattedDate = today.toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                });
-                
-                modalTitle.textContent = `Mind Tracker — Hari ini, ${formattedDate}`;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
+                this.showModal(result.formattedDate, null, false);
             } catch (error) {
                 console.error('Error checking mind tracker entry:', error);
                 alert(error.message || 'Terjadi kesalahan server');
@@ -165,113 +127,67 @@ export default class CalendarPage {
         document.getElementById('calendarDays').addEventListener('click', async (e) => {
             const dayElement = e.target.closest('div[data-date]');
             if (dayElement) {
-                document.querySelectorAll('div[data-date]').forEach(el => {
-                    el.classList.remove('bg-blue-100');
-                });
-                dayElement.classList.add('bg-blue-100');
-
-                const dateStr = dayElement.getAttribute('data-date');
-                const dateObj = new Date(dateStr);
-                
-                const formattedDate = dateObj.toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                });
-                
-                const apiDateStr = dateObj.toISOString().split('T')[0];
-                
-                try {
-                    const accessToken = localStorage.getItem('accessToken');
-                    
-                    if (!accessToken) {
-                        throw new Error('Anda belum login. Silakan login terlebih dahulu.');
-                    }
-
-                    const response = await fetch(`http://localhost:5000/mindTracker/${apiDateStr}`, {
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`
-                        }
-                    });
-                    
-                    const result = await response.json();
-                    console.log('Response data:', result);
-
-                    
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                    modalTitle.textContent = `Mind Tracker — ${formattedDate}`;
-                    
-                    if (result.data) {
-                        document.querySelector(`input[name="mood"][value="${result.data.mood}"]`).checked = true;
-                        document.querySelector('textarea[name="progress"]').value = result.data.progress || '';
-
-                        console.log('Existing data found:', result.data);
-                    } else {
-                        mindTrackerForm.reset();
-                        
-                        const deleteBtn = document.getElementById('deleteEntryBtn');
-                        if (deleteBtn) {
-                            deleteBtn.remove();
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error fetching mind tracker data:', error);
-                    alert(error.message || 'Terjadi kesalahan server');
-                }
+                this.handleDayClick(dayElement);
             }
         });
+    }
 
-        if (mindTrackerForm) {
-            mindTrackerForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(mindTrackerForm);
-                const dateStr = modalTitle.textContent.split('—')[1].trim();
-                
-                const [_, day, month, year] = dateStr.match(/(\d+)\s+(\w+)\s+(\d+)/);
-                const monthMap = {
-                    'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3,
-                    'Mei': 4, 'Juni': 5, 'Juli': 6, 'Agustus': 7,
-                    'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
-                };
+    async handleDayClick(dayElement) {
+        document.querySelectorAll('div[data-date]').forEach(el => {
+            el.classList.remove('bg-blue-100');
+        });
+        dayElement.classList.add('bg-blue-100');
 
-                const data = {
-                    date: new Date(year, monthMap[month], day).toISOString(),
-                    mood: formData.get('mood'),
-                    progress: formData.get('progress')
-                };
-
-                try {
-                    const accessToken = localStorage.getItem('accessToken');
-                    
-                    if (!accessToken) {
-                        throw new Error('Anda belum login. Silakan login terlebih dahulu.');
-                    }
-                    const response = await fetch('http://localhost:5000/mindTracker', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    const result = await response.json();
-
-                    if (!result.error) {
-                        modal.classList.add('hidden');
-                        modal.classList.remove('flex');
-                        mindTrackerForm.reset();
-                        alert(result.message);
-                    } else {
-                        throw new Error(result.message);
-                    }
-                } catch (error) {
-                    console.error('Error saving mind tracker:', error);
-                    alert(error.message || 'Terjadi kesalahan server');
-                }
-            });
+        const dateStr = dayElement.getAttribute('data-date');
+        try {
+            const result = await this.presenter.getEntryByDate(dateStr);
+            this.showModal(result.formattedDate, result.data, true);
+        } catch (error) {
+            console.error('Error fetching mind tracker data:', error);
+            alert(error.message || 'Terjadi kesalahan server');
         }
+    }
+
+    showModal(formattedDate, existingData = null, isViewMode = true) {
+        const existingModal = document.getElementById('mindTrackerModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        const isCalendarView = document.getElementById('calendarDays').contains(document.activeElement);
+        const finalViewMode = isCalendarView ? true : isViewMode;
+    
+        document.body.insertAdjacentHTML('beforeend', mindTrackerModalTemplate(finalViewMode));
+        
+        const modal = document.getElementById('mindTrackerModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const mindTrackerForm = document.getElementById('mindTrackerForm');
+
+        modalTitle.textContent = `Mind Tracker — ${formattedDate}`;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        if (existingData) {
+            document.querySelector(`input[name="mood"][value="${existingData.mood}"]`).checked = true;
+            document.querySelector('textarea[name="progress"]').value = existingData.progress || '';
+        }
+
+        if (finalViewMode) {
+            const form = document.getElementById('mindTrackerForm');
+            if (form) {
+                form.onsubmit = (e) => {
+                    e.preventDefault();
+                    return false;
+                };
+            }
+        }
+
+        this.setupModalEventListeners(modal, mindTrackerForm, formattedDate);
+    }
+
+    setupModalEventListeners(modal, form, formattedDate) {
+        const closeModalBtn = document.getElementById('closeModalBtn');
 
         closeModalBtn.addEventListener('click', () => {
             modal.classList.add('hidden');
@@ -284,7 +200,39 @@ export default class CalendarPage {
                 modal.classList.remove('flex');
             }
         });
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const formData = new FormData(form);
+                
+                const data = {
+                    date: this.presenter.parseDateString(formattedDate).toISOString(),
+                    mood: formData.get('mood'),
+                    progress: formData.get('progress')
+                };
+
+                try {
+                    const result = await this.presenter.saveEntry(data);
+                    
+                    if (!result.error) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                        form.reset();
+                        generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
+                        alert(result.message);
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error('Error saving mind tracker:', error);
+                    alert(error.message || 'Terjadi kesalahan server');
+                }
+
+                return false;
+            });
+        }
     }
-
-
 }
