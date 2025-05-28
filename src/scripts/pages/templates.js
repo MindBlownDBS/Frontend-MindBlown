@@ -1,7 +1,7 @@
 export function mindTrackerModalTemplate() {
   return `
     <div id="mindTrackerModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+        <div class="bg-white rounded-lg shadow-lg p-6 md:w-lg lg:w-full lg:max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="modalTitle" class="text-lg font-semibold">Mind Tracker</h3>
                 <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
@@ -123,7 +123,7 @@ export function weeklyMoodTrackerTemplate(moods) {
                   fill="none"
                   stroke="#bbb"
                   stroke-width="2"
-                  points="${points}"
+                  points="${desktopPoints}"
                 />
               </svg>
               ${moods
@@ -147,6 +147,41 @@ export function weeklyMoodTrackerTemplate(moods) {
                 })
                 .join("")}
             </div>
+
+            <!-- Mobile View -->
+            <div class="lg:hidden" style="position:relative; width:${mobileWidth}px; height:${
+    height + 40
+  }px;">
+              <svg width="${mobileWidth}" height="${height}" style="position:absolute;top:0;left:0;">
+                <polyline
+                  fill="none"
+                  stroke="#bbb"
+                  stroke-width="2"
+                  points="${mobilePoints}"
+                />
+              </svg>
+              ${moods
+                .slice(0, 4)
+                .map((mood, i) => {
+                  const x = 20 + i * mobilePointGap;
+                  const y = emojiY[i] || 40;
+                  return `
+                  <div style="position:absolute;left:${x - 18}px;top:${
+                    y - 18
+                  }px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
+                    <span style="font-size:1.5rem;line-height:1;">${
+                      mood.emoji
+                    }</span>
+                  </div>
+                  <div style="position:absolute;left:${x - 30}px;top:${
+                    height + 5
+                  }px;width:60px;text-align:center;font-size:12px;color:#666;">
+                    ${mood.date}
+                  </div>
+                `;
+                })
+                .join("")}
+            </div>
           </div>
           <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodNextBtn">
             &rarr;
@@ -158,7 +193,7 @@ export function weeklyMoodTrackerTemplate(moods) {
 
 export function notificationListTemplate(notifications) {
   return `
-        <div class="max-w-xl w-full ml-20 text-left">
+        <div class="max-w-xl w-full ml-24 text-left">
             <h1 class="text-2xl font-semibold mb-8 mt-3">Pemberitahuan</h1>
             <div>
                 ${notifications.map(notificationItemTemplate).join("")}

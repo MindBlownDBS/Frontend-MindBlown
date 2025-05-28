@@ -18,7 +18,7 @@ export function generateCalendar(date, monthNames) {
 
     for (let x = firstDayIndex; x > 0; x--) {
         days += `
-            <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-30">
+            <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-20 md:h-25 lg:h-30">
                 <span class="text-sm text-gray-400">${prevLastDate - x + 1}</span>
             </div>`;
     }
@@ -34,7 +34,7 @@ export function generateCalendar(date, monthNames) {
         const formattedMonth = (month + 1).toString().padStart(2, '0');
         const formattedDay = i.toString().padStart(2, '0');
         days += `
-            <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-30 ${todayClass}" data-date="${year}-${formattedMonth}-${formattedDay}">
+            <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-20 md:h-25 lg:h-30 ${todayClass}" data-date="${year}-${formattedMonth}-${formattedDay}">
                 <span class="text-sm ${isToday ? 'text-blue-600' : 'text-gray-700'}">${i}</span>
             </div>`;
     }
@@ -42,7 +42,7 @@ export function generateCalendar(date, monthNames) {
     const remainingDays = 35 - (firstDayIndex + lastDate);
     for (let j = 1; j <= remainingDays; j++) {
         days += `
-            <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-30">
+            <div class="flex items-center justify-center border-t border-r border-gray-100 p-2 h-20 md:h-25 lg:h-30">
                 <span class="text-sm text-gray-400">${j}</span>
             </div>`;
     }
