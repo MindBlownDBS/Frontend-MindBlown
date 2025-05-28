@@ -200,9 +200,85 @@ export function profileTemplate(userData) {
 
       <div class="bg-none">
         <h2 class="text-lg font-medium mb-4">Unggahan</h2>
-        <p class="text-gray-500 text-center py-8">Belum ada unggahan</p>
+        <div class="user-stories-container">
+          <p class="text-gray-500 text-center py-8">Belum ada unggahan</p>
+        </div>
       </div>
       </div>
     </div>
+  `;
+}
+
+export function storyItemTemplate({
+  username = "Pengguna",
+  handle = "Anonim",
+  content = "",
+  isAnonymous = true,
+  likeCount = 0,
+  commentCount = 0,
+  viewCount = 0,
+  storyId = "",
+}) {
+  return `
+    <div class="story-container flex items-start gap-3 py-3 border-b border-gray-200 max-w-2xl" data-story-id="${storyId}">
+      <div class="w-10 h-10 flex-shrink-0 user-info">
+        <img src="./images/image.jpg" alt="icon" class="w-10 h-10 object-cover rounded-full" />
+      </div>
+
+      <div class="flex flex-col text-left story-content">
+        <div class="user-info">
+          <div class="font-semibold text-base text-gray-800">${username}</div>
+          <div class="text-sm text-gray-500">${handle}</div>
+          </div>
+          <p class="text-gray-700 mt-3 text-sm leading-relaxed">${content}</p>
+
+        <div class="flex items-center gap-30 mt-3">
+          <button class="like-btn flex items-center gap-1" data-story-id="${storyId}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span class="like-count text-sm">${likeCount}</span>
+          </button>
+          <button class="comment-btn flex items-center gap-1" data-story-id="${storyId}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span class="comment-count text-sm">${commentCount}</span>
+          </button>
+          <button class="view-btn flex items-center gap-1" data-story-id="${storyId}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0  height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 17c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1s1 .45 1 1v5c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1s1 .45 1 1v8c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm2 2H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm1-16H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            <span class="view-count text-sm">${viewCount}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+export function storyFormTemplate({
+  username = "Nama Pengguna",
+  handle = "@namapengguna",
+} = {}) {
+  return `
+    <form id="chat-form" class="mt-auto sticky">
+    <div class="flex items-start gap-3 py-4 border-gray-200 max-w-2xl">
+    <div class="w-10 h-10 flex-shrink-0">
+      <img src="./images/image.jpg" alt="icon" class="w-10 h-10 object-cover rounded-full" />
+      </div>
+
+      <div class="flex flex-col text-left">
+        <div>
+          <div class="font-semibold text-base text-gray-800">${username}</div>
+          <div class="text-sm text-gray-500 mb-4">${handle}</div>
+        </div>
+        <div class="relative w-full z-50 w-full max-w-2xl mx-auto">
+          <textarea 
+            id="chat-input"
+            class="text-[#8c8c8c] w-[200%] h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden"
+            placeholder="Ada cerita apa?..."></textarea>
+          <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 justify-end" type="submit">Unggah</button>
+        </div>
+        <div class="mt-2 flex items-center">
+          <input type="checkbox" id="post-anonymously" class="mr-2">
+          <label for="post-anonymously" class="text-sm text-gray-600">Unggah sebagai anonim</label>
+        </div>
+      </div>
+    </form>
   `;
 }
