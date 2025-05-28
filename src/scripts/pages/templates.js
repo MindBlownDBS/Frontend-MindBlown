@@ -1,7 +1,7 @@
 export function mindTrackerModalTemplate(isViewMode = true) {
     return `
     <div id="mindTrackerModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+        <div class="bg-white rounded-lg shadow-lg p-6 md:w-lg lg:w-full lg:max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="modalTitle" class="text-lg font-semibold">Mind Tracker</h3>
                 <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
@@ -83,17 +83,26 @@ export function notificationItemTemplate({ icon = 'images/logo.png', title = '',
 }
 
 export function weeklyMoodTrackerTemplate(moods) {
-    const pointGap = 200; 
-    const emojiY = [40, 10, 60, 35, 50, 25, 45, 0]; 
-    const width = (moods.length - 1) * pointGap + 40;
+    const desktopPointGap = 200;
+    const mobilePointGap = 65;
+    const emojiY = [40, 10, 60, 35, 50, 25, 45, 0];
+    
+    const desktopWidth = (moods.length - 1) * desktopPointGap + 40;
+    const mobileWidth = (Math.min(4, moods.length) - 1) * mobilePointGap + 40;
     const height = 80;
-  
-    const points = moods.map((_, i) => {
-      const x = 20 + i * pointGap;
-      const y = emojiY[i] || 40;
-      return `${x},${y}`;
+
+    const desktopPoints = moods.map((_, i) => {
+        const x = 20 + i * desktopPointGap;
+        const y = emojiY[i] || 40;
+        return `${x},${y}`;
     }).join(' ');
-  
+
+    const mobilePoints = moods.slice(0, 4).map((_, i) => {
+        const x = 20 + i * mobilePointGap;
+        const y = emojiY[i] || 40;
+        return `${x},${y}`;
+    }).join(' ');
+
     return `
       <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
         <div class="flex items-center justify-between">
@@ -101,21 +110,46 @@ export function weeklyMoodTrackerTemplate(moods) {
             &larr;
           </button>
           <div class="flex-1 flex flex-col items-center">
-            <div style="position:relative; width:${width}px; height:${height + 40}px;">
-              <svg width="${width}" height="${height}" style="position:absolute;top:0;left:0;">
+            <!-- Desktop View -->
+            <div class="hidden lg:block" style="position:relative; width:${desktopWidth}px; height:${height + 40}px;">
+              <svg width="${desktopWidth}" height="${height}" style="position:absolute;top:0;left:0;">
                 <polyline
                   fill="none"
                   stroke="#bbb"
                   stroke-width="2"
-                  points="${points}"
+                  points="${desktopPoints}"
                 />
               </svg>
               ${moods.map((mood, i) => {
-                const x = 20 + i * pointGap;
+                const x = 20 + i * desktopPointGap;
                 const y = emojiY[i] || 40;
                 return `
                   <div style="position:absolute;left:${x - 18}px;top:${y - 18}px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
                     <span style="font-size:2rem;line-height:1;">${mood.emoji}</span>
+                  </div>
+                  <div style="position:absolute;left:${x - 30}px;top:${height + 5}px;width:60px;text-align:center;font-size:12px;color:#666;">
+                    ${mood.date}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Mobile View -->
+            <div class="lg:hidden" style="position:relative; width:${mobileWidth}px; height:${height + 40}px;">
+              <svg width="${mobileWidth}" height="${height}" style="position:absolute;top:0;left:0;">
+                <polyline
+                  fill="none"
+                  stroke="#bbb"
+                  stroke-width="2"
+                  points="${mobilePoints}"
+                />
+              </svg>
+              ${moods.slice(0, 4).map((mood, i) => {
+                const x = 20 + i * mobilePointGap;
+                const y = emojiY[i] || 40;
+                return `
+                  <div style="position:absolute;left:${x - 18}px;top:${y - 18}px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
+                    <span style="font-size:1.5rem;line-height:1;">${mood.emoji}</span>
                   </div>
                   <div style="position:absolute;left:${x - 30}px;top:${height + 5}px;width:60px;text-align:center;font-size:12px;color:#666;">
                     ${mood.date}
@@ -130,11 +164,11 @@ export function weeklyMoodTrackerTemplate(moods) {
         </div>
       </div>
     `;
-  }
+}
 
 export function notificationListTemplate(notifications) {
     return `
-        <div class="max-w-xl w-full ml-24 text-left">
+        <div class="max-w-xl w-full ml-0 md:ml-16 lg:ml-24 text-left">
             <h1 class="text-2xl font-semibold mb-8 mt-3">Pemberitahuan</h1>
             <div>
                 ${notifications.map(notificationItemTemplate).join('')}

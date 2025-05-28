@@ -21,7 +21,7 @@ export default class NotificationPage {
         }
       ];
       return `
-        <section class="p-8">
+        <section class="lg:p-8 p-8">
           ${notificationListTemplate(notifications)}
         </section>
       `;
