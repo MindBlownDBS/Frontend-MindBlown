@@ -1,4 +1,5 @@
-import { getUserProfile } from "../../data/api";
+import { getUserProfile, updateProfile } from "../../data/api";
+
 export default class ProfilePresenter {
   #view;
   #authModel;
@@ -20,11 +21,45 @@ export default class ProfilePresenter {
       if (!response.error) {
         this.#stories = response.data.stories || [];
         this.#view.showUserStories(this.#stories);
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...userData,
+            ...response.data,
+            profilePicture:
+              response.data.profilePicture || userData.profilePicture,
+          })
+        );
       } else {
         console.error("Error loading profile:", response.message);
       }
     } catch (error) {
       console.error("Failed to load profile:", error);
+    }
+  }
+
+  async updateProfile(updatedData) {
+    try {
+      const response = await updateProfile(updatedData);
+
+      if (response.error) {
+        throw new Error(response.message);
+      }
+
+      const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...currentUser,
+          ...response.data,
+        })
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      throw error;
     }
   }
 

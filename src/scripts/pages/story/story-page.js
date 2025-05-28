@@ -9,11 +9,13 @@ export default class StoryPage {
 
   async render() {
     try {
-      this._currentUser = this._presenter.getCurrentUser();
+      this._currentUser = JSON.parse(localStorage.getItem("user")) || {};
       const username = this._currentUser?.name || "Nama Pengguna";
       const handle = this._currentUser?.username
         ? `@${this._currentUser.username}`
         : "@namapengguna";
+      const profilePicture =
+        this._currentUser?.profilePicture || "./images/image.jpg";
 
       return `
         <div class="ml-16 min-h-screen p-10">
@@ -32,7 +34,7 @@ export default class StoryPage {
 
         <div class="p-6">
           <div class="space-y-6 mt-4">
-            ${storyFormTemplate({ username, handle })}
+            ${storyFormTemplate({ username, handle, profilePicture })}
           </div>
         </div>
       </div>

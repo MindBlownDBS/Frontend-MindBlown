@@ -224,3 +224,38 @@ export async function commentOnStory(storyId, content) {
   });
   return await response.json();
 }
+
+export async function updateProfile(updatedData) {
+  try {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token || typeof token !== "string" || !token.includes(".")) {
+      throw new Error("Invalid token structure");
+    }
+
+    const response = await fetch(`${BASE_URL}/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        error: true,
+        message: data.message || "Failed to update profile",
+      };
+    }
+
+    return data;
+  } catch (error) {
+    return {
+      error: true,
+      message: error.message || "Network error occurred",
+    };
+  }
+}

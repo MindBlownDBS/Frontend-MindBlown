@@ -70,8 +70,8 @@ export default class StoryPresenter {
 
   getCurrentUser() {
     try {
-      const userData = localStorage.getItem("user_data");
-      return userData ? JSON.parse(userData) : null;
+      const userData = JSON.parse(localStorage.getItem("user")) || {};
+      return userData;
     } catch (error) {
       console.error("Error getting user data:", error);
       return null;

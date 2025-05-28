@@ -438,6 +438,9 @@
   .w-16 {
     width: calc(var(--spacing) * 16);
   }
+  .w-24 {
+    width: calc(var(--spacing) * 24);
+  }
   .w-25 {
     width: calc(var(--spacing) * 25);
   }
@@ -558,6 +561,9 @@
     gap: calc(var(--spacing) * 5);
   }
   .gap-15 {
+    gap: calc(var(--spacing) * 15);
+  }
+  .gap-30 {
     gap: calc(var(--spacing) * 15);
   }
   .space-y-2 {
@@ -714,6 +720,9 @@
   }
   .p-8 {
     padding: calc(var(--spacing) * 8);
+  }
+  .p-10 {
+    padding: calc(var(--spacing) * 10);
   }
   .px-3 {
     padding-inline: calc(var(--spacing) * 3);
