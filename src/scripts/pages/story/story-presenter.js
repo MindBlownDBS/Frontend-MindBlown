@@ -97,8 +97,17 @@ export default class StoryPresenter {
         throw new Error("Invalid story ID");
       }
 
-      const response = await this._api.likeStory(storyId);
-      return response.likeCount;
+      const response = await likeStory(storyId);
+      
+      const storyIndex = this._stories.findIndex(story => 
+        story.id === storyId || story._id === storyId
+      );
+      
+      if (storyIndex !== -1) {
+        this._stories[storyIndex].likeCount = response;
+      }
+      
+      return response;
     } catch (error) {
       console.error("Failed to like story:", error);
       return null;
@@ -107,13 +116,22 @@ export default class StoryPresenter {
 
   async addComment(storyId, content) {
     try {
-      const response = await commentOnStory(storyId, content);
-      if (!response.error) {
-        return response.data.commentCount;
+      if (!storyId) {
+        console.error("Invalid story ID for commenting");
+        return null;
       }
+
+      const response = await commentOnStory(storyId, content);
+      
+      if (response.error) {
+        console.error("Error adding comment:", response.message);
+        return null;
+      }
+      
+      return response.commentCount || response.comments?.length || null;
     } catch (error) {
       console.error("Failed to add comment:", error);
+      return null;
     }
-    return null;
   }
 }

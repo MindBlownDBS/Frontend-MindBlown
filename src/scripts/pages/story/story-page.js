@@ -137,7 +137,9 @@ export default class StoryPage {
 
   async _handleLike(likeBtn) {
     try {
-      const storyId = likeBtn.dataset.storyId;
+      const storyContainer = likeBtn.closest(".story-container");
+      const storyId = storyContainer ? storyContainer.dataset.storyId : null;
+      
       if (!storyId) {
         console.error("No story ID found for like button");
         return;
@@ -158,7 +160,14 @@ export default class StoryPage {
 
   async _handleComment(commentBtn) {
     try {
-      const storyId = commentBtn.dataset.storyId;
+      const storyContainer = commentBtn.closest(".story-container");
+      const storyId = storyContainer ? storyContainer.dataset.storyId : null;
+      
+      if (!storyId) {
+        console.error("No story ID found for comment button");
+        return;
+      }
+      
       const commentContent = prompt("Masukkan komentar Anda:");
       if (commentContent) {
         const newCommentCount = await this._presenter.addComment(
@@ -184,15 +193,20 @@ export default class StoryPage {
 
     try {
       container.innerHTML = stories
-        .map((story) =>
-          storyItemTemplate({
+        .map((story, index) => {
+          const storyId = story.id || story._id || story.storyId || `story-${index}`;
+          
+          return storyItemTemplate({
             username: story.isAnonymous ? "Pengguna" : story.name,
             handle: story.isAnonymous ? "Anonim" : `@${story.username}`,
             content: story.content,
             isAnonymous: story.isAnonymous,
-            storyId: story.id,
-          })
-        )
+            storyId: storyId,
+            likeCount: story.likes || 0,
+            commentCount: story.comments?.length || 0,
+            viewCount: story.views || 0,
+          });
+        })
         .join("");
     } catch (error) {
       console.error("Error showing stories:", error);

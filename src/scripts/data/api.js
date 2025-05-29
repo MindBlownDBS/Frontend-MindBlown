@@ -214,7 +214,7 @@ export async function likeStory(storyId) {
 }
 
 export async function commentOnStory(storyId, content) {
-  const response = await fetch(`/story/${storyId}/comment`, {
+  const response = await fetch(`${BASE_URL}/story/${storyId}/comment`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
