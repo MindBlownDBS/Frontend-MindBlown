@@ -18,7 +18,7 @@ export default class CalendarPage {
         ];
 
         return `
-        <div class="p-4 lg:p-8">
+        <div class="p-4 lg:p-8 pb-20 lg:pb-10 md:pb-10">
         <div class="max-w-md md:max-w-[90%] ml-0 md:ml-16 lg:ml-24 mx-auto">
             <div class="mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900 mb-2">Mind Tracker</h1>
@@ -27,7 +27,7 @@ export default class CalendarPage {
             </div>
 
             <div class="mb-6">
-                <button id="trackTodayBtn" class="bg-third hover:bg-teal-700 text-white px-2 lg:px-4 py-2 rounded-md flex items-center">
+                <button id="trackTodayBtn" class="bg-third hover:bg-teal-700 text-white px-3 lg:px-4 py-2 rounded-md flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>

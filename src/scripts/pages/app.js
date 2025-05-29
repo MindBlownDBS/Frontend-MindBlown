@@ -43,6 +43,15 @@ class App {
                 }
             });
         });
+    
+        const homeLogoLink = document.querySelector('a[href="#/"]');
+        if (homeLogoLink) {
+            homeLogoLink.addEventListener('click', () => {
+                if (this.#expanded) {
+                    this.collapseSidebar();
+                }
+            });
+        }
     }
 
     collapseSidebar() {

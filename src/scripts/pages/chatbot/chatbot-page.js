@@ -72,9 +72,9 @@ export default class ChatbotPage {
             input.value = '';
             input.style.height = '';
 
-            // Dapatkan balasan bot (dummy, atau fetch dari backend)
+          
             setTimeout(async () => {
-                const reply = 'Ini balasan dari bot!'; 
+                const reply = 'Ini balasan dari bot ipsom lorem alemet aku anjay mabar!'; 
 
                 chatContainer.insertAdjacentHTML('beforeend', botChatBubble(reply));
                 scrollToBottom();
