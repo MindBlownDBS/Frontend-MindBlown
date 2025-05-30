@@ -47,6 +47,31 @@ export function mindTrackerModalTemplate() {
     `;
 }
 
+export const loginModalTemplate = () => `
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+        <h2 class="text-2xl font-semibold mb-4">Login Diperlukan</h2>
+        <p class="text-gray-600 mb-6">Silakan login untuk mengakses fitur ini.</p>
+        <div class="flex justify-end gap-4">
+            <button id="cancel-login" class="px-4 py-2 text-gray-600 hover:text-gray-800">Batal</button>
+            <button id="go-to-login" class="px-4 py-2 bg-third text-white rounded-lg hover:bg-third/80">Login</button>
+        </div>
+    </div>
+`;
+
+export const welcomeModalTemplate = () => `
+  <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 text-center">
+      <h2 class="text-2xl font-semibold mb-2">Selamat Datang</h2>
+      <p class="text-gray-600 mb-5 text-sm">
+         Masuk atau daftar untuk menikmati lebih banyak fitur unggulan dari kami ...
+      </p>
+      <button id="welcome-login" class="w-full py-2 mb-3 rounded-full bg-third text-white font-semibold border-2 border-third hover:bg-third/80 transition">Log in</button>
+      <button id="welcome-signup" class="w-full py-2 mb-3 rounded-full border-2 border-third text-black font-semibold hover:bg-gray-100 transition">Sign up</button>
+      <a href="#" id="welcome-stay-logged-out" class="text-gray-500 underline text-sm">Lewati untuk sekarang</a>
+    </div>
+  </div>
+`;
+
 export function userChatBubble(text) {
   return `
         <div class="flex justify-end mb-3">
