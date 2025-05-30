@@ -151,6 +151,7 @@ export default class ProfilePage {
   }
 
   logoutSuccess() {
-    window.location.hash = "/login";
+    sessionStorage.removeItem('welcomeModalShown');
+    window.location.hash = "/";
   }
 }
