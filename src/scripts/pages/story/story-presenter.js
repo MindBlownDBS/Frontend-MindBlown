@@ -3,8 +3,6 @@ import {
   postStory,
   likeStory,
   commentOnStory,
-  getUserProfile,
-  getStoryDetail,
 } from "../../data/api";
 import { getAccessToken } from "../../utils/auth";
 
@@ -18,11 +16,7 @@ export default class StoryPresenter {
     try {
       const response = await getStories();
       if (!response.error) {
-        this._stories = (response.data || []).map((story) => ({
-          ...story,
-          likeCount: story.likes?.length || 0,
-          commentCount: story.comments?.length || 0,
-        }));
+        this._stories = response.data || [];
         this._view.showStories(this._stories);
       } else {
         console.error("Error loading stories:", response.message);
@@ -43,13 +37,13 @@ export default class StoryPresenter {
       if (!response.error) {
         const newStory = {
           id: response.data._id || response.data.id,
-          name: isAnonymous ? "Pengguna" : response.data.name,
-          username: isAnonymous ? null : response.data.username,
+          name: response.data.name,
+          username: response.data.username,
           content: response.data.content,
           isAnonymous: response.data.isAnonymous,
-          likes: response.data.likes || [],
-          comments: response.data.comments || [],
-          views: response.data.views || 0,
+          likeCount: response.data.likes?.length || 0,
+          commentCount: response.data.comments?.length || 0,
+          viewCount: 0, //Ini di apinya ada gak siie?
         };
 
         this._stories.unshift(newStory);
@@ -84,80 +78,16 @@ export default class StoryPresenter {
     }
   }
 
-  async getCompleteUserData(username) {
-    try {
-      if (!username) return null;
-
-      const response = await getUserProfile(username);
-      if (response.error) {
-        console.error("Error getting user profile:", response.message);
-        return null;
-      }
-
-      return {
-        name: response.data?.name || "Pengguna",
-        username: response.data?.username || null,
-        profilePicture: response.data?.profilePicture || "./images/image.png",
-      };
-    } catch (error) {
-      console.error("Error getting user data:", error);
-      return null;
-    }
-  }
-
   async loadStoryDetail(storyId) {
     try {
       const response = await getStoryDetail(storyId);
-
-      if (typeof response === "string" && response.startsWith("<!DOCTYPE")) {
-        throw new Error("Server returned HTML instead of JSON");
-      }
-
-      if (!response || response.error) {
-        const errorMsg = response?.message || "Failed to load story details";
-        console.error("Error loading story detail:", errorMsg);
-        this._view.showError("Gagal memuat detail story. Silakan coba lagi.");
-        return;
-      }
-
-      const story = response.data;
-
-      if (!story.isAnonymous && story.username) {
-        const userData = await this.getCompleteUserData(story.username);
-        story.profilePicture = userData?.profilePicture || "./images/image.png";
+      if (!response.error) {
+        this._view.showStoryDetail(response.data);
       } else {
-        story.profilePicture = "./images/image.png";
+        console.error("Error loading story detail:", response.message);
       }
-
-      if (story.comments && story.comments.length > 0) {
-        for (const comment of story.comments) {
-          if (comment.username) {
-            const userData = await this.getCompleteUserData(comment.username);
-            comment.profilePicture =
-              userData?.profilePicture || "./images/image.png";
-          } else {
-            comment.profilePicture = "./images/image.png";
-          }
-        }
-      }
-
-      this._view.showStoryDetail(story);
     } catch (error) {
       console.error("Failed to load story detail:", error);
-      this._view.showError("Terjadi kesalahan saat memuat detail story.");
-    }
-  }
-
-  async getStoryById(storyId) {
-    try {
-      const response = await getStoryDetail(storyId);
-      if (!response.error) {
-        return response.data;
-      }
-      throw new Error(response.message || "Failed to get story");
-    } catch (error) {
-      console.error("Error getting story:", error);
-      throw error;
     }
   }
 
@@ -168,15 +98,15 @@ export default class StoryPresenter {
       }
 
       const response = await likeStory(storyId);
-
-      const storyIndex = this._stories.findIndex(
-        (story) => story.id === storyId || story._id === storyId
+      
+      const storyIndex = this._stories.findIndex(story => 
+        story.id === storyId || story._id === storyId
       );
-
+      
       if (storyIndex !== -1) {
         this._stories[storyIndex].likeCount = response;
       }
-
+      
       return response;
     } catch (error) {
       console.error("Failed to like story:", error);
@@ -186,21 +116,22 @@ export default class StoryPresenter {
 
   async addComment(storyId, content) {
     try {
-      if (!content || typeof content !== "string" || content.trim() === "") {
-        throw new Error("Content is required");
+      if (!storyId) {
+        console.error("Invalid story ID for commenting");
+        return null;
       }
 
       const response = await commentOnStory(storyId, content);
-
-      if (!response.error) {
-        await this.loadStoryDetail(storyId);
-        return true;
-      } else {
-        throw new Error(response.message || "Failed to post comment");
+      
+      if (response.error) {
+        console.error("Error adding comment:", response.message);
+        return null;
       }
+      
+      return response.commentCount || response.comments?.length || null;
     } catch (error) {
-      console.error("Failed to post comment:", error);
-      throw error;
+      console.error("Failed to add comment:", error);
+      return null;
     }
   }
 }

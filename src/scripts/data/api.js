@@ -178,40 +178,10 @@ export async function getUserProfile(username) {
   return result;
 }
 
-// export async function getStoryDetail(storyId) {
-//   const response = await fetch(`/story/${storyId}`);
-//   return await response.json();
-// }
-
-export const getStoryDetail = async (storyId) => {
-  try {
-    const response = await fetch(`${BASE_URL}/story/${storyId}`, {
-      headers: {
-        Authorization: `Bearer ${getAccessToken()}`,
-      },
-    });
-
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await response.text();
-      throw new Error(`Expected JSON but got: ${text.substring(0, 100)}...`);
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return { error: true, message: data.message || "Failed to fetch story" };
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Error fetching story detail:", error);
-    return {
-      error: true,
-      message: error.message || "Network error while fetching story",
-    };
-  }
-};
+export async function getStoryDetail(storyId) {
+  const response = await fetch(`/story/${storyId}`);
+  return await response.json();
+}
 
 export async function likeStory(storyId) {
   try {

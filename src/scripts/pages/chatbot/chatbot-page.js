@@ -1,19 +1,18 @@
-import { userChatBubble, botChatBubble } from "../templates";
-import { autoResize } from "../../utils";
+import { userChatBubble, botChatBubble } from '../templates';
+import { autoResize } from '../../utils';
 
 export default class ChatbotPage {
-  constructor() {
-    this.sessionId =
-      localStorage.getItem("sessionId") || this.#generateSessionId();
-    localStorage.setItem("sessionId", this.sessionId);
-  }
+    constructor() {
+        this.sessionId = localStorage.getItem('sessionId') || this.#generateSessionId();
+        localStorage.setItem('sessionId', this.sessionId);
+    }
 
-  #generateSessionId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-  }
+    #generateSessionId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+    }
 
-  async render() {
-    return `
+    async render() {
+        return `
        <section class="ml-0 md:ml-8 lg:ml-16 min-h-screen flex">
         <div class="w-full flex items-center pb-20"> 
             <div class="max-w-2xl w-full mx-auto text-center">
@@ -36,51 +35,51 @@ export default class ChatbotPage {
         </div>
       </section>
         `;
-  }
-
-  async afterRender() {
-    const chatContainer = document.getElementById("chat-container");
-    const form = document.getElementById("chat-form");
-    const input = document.getElementById("chat-input");
-    input.addEventListener("input", () => autoResize(input));
-
-    function scrollToBottom() {
-      requestAnimationFrame(() => {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      });
     }
 
-    const pendingMsg = localStorage.getItem("pendingChatMessage");
-    if (pendingMsg) {
-      chatContainer.insertAdjacentHTML("beforeend", userChatBubble(pendingMsg));
-      localStorage.removeItem("pendingChatMessage");
-      scrollToBottom();
+    async afterRender() {
+        const chatContainer = document.getElementById('chat-container');
+        const form = document.getElementById('chat-form');
+        const input = document.getElementById('chat-input');
+        input.addEventListener('input', () => autoResize(input));
 
-      setTimeout(() => {
-        const reply =
-          "Hai, terima kasih sudah cerita! Aku di sini untuk mendengarkan.";
-        chatContainer.insertAdjacentHTML("beforeend", botChatBubble(reply));
-        scrollToBottom();
-      }, 500);
+        function scrollToBottom() {
+            requestAnimationFrame(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+        }
+
+        const pendingMsg = localStorage.getItem('pendingChatMessage');
+        if (pendingMsg) {
+            chatContainer.insertAdjacentHTML('beforeend', userChatBubble(pendingMsg));
+            localStorage.removeItem('pendingChatMessage');
+            scrollToBottom();
+            
+            setTimeout(() => {
+                const reply = 'Hai, terima kasih sudah cerita! Aku di sini untuk mendengarkan.';
+                chatContainer.insertAdjacentHTML('beforeend', botChatBubble(reply));
+                scrollToBottom();
+            }, 500);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+
+            chatContainer.insertAdjacentHTML('beforeend', userChatBubble(text));
+            scrollToBottom();
+            input.value = '';
+            input.style.height = '';
+
+          
+            setTimeout(async () => {
+                const reply = 'Ini balasan dari bot ipsom lorem alemet aku anjay mabar!'; 
+
+                chatContainer.insertAdjacentHTML('beforeend', botChatBubble(reply));
+                scrollToBottom();
+            }, 1000);
+        });
     }
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-
-      chatContainer.insertAdjacentHTML("beforeend", userChatBubble(text));
-      scrollToBottom();
-      input.value = "";
-      input.style.height = "";
-
-      setTimeout(async () => {
-        const reply =
-          "Ini balasan dari bot ipsom lorem alemet aku anjay mabar!";
-
-        chatContainer.insertAdjacentHTML("beforeend", botChatBubble(reply));
-        scrollToBottom();
-      }, 1000);
-    });
-  }
 }
+
