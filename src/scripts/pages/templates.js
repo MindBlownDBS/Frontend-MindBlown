@@ -121,22 +121,27 @@ export function weeklyMoodTrackerTemplate(moods) {
   const desktopPointGap = 200;
   const mobilePointGap = 65;
   const emojiY = [40, 10, 60, 35, 50, 25, 45, 0];
-  
+
   const desktopWidth = (moods.length - 1) * desktopPointGap + 40;
   const mobileWidth = (Math.min(4, moods.length) - 1) * mobilePointGap + 40;
   const height = 80;
 
-  const desktopPoints = moods.map((_, i) => {
+  const desktopPoints = moods
+    .map((_, i) => {
       const x = 20 + i * desktopPointGap;
       const y = emojiY[i] || 40;
       return `${x},${y}`;
-  }).join(' ');
+    })
+    .join(" ");
 
-  const mobilePoints = moods.slice(0, 4).map((_, i) => {
+  const mobilePoints = moods
+    .slice(0, 4)
+    .map((_, i) => {
       const x = 20 + i * mobilePointGap;
       const y = emojiY[i] || 40;
       return `${x},${y}`;
-  }).join(' ');
+    })
+    .join(" ");
 
   return `
     <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
@@ -146,7 +151,9 @@ export function weeklyMoodTrackerTemplate(moods) {
         </button>
         <div class="flex-1 flex flex-col items-center">
           <!-- Desktop View -->
-          <div class="hidden lg:block" style="position:relative; width:${desktopWidth}px; height:${height + 40}px;">
+          <div class="hidden lg:block" style="position:relative; width:${desktopWidth}px; height:${
+    height + 40
+  }px;">
             <svg width="${desktopWidth}" height="${height}" style="position:absolute;top:0;left:0;">
               <polyline
                 fill="none"
@@ -155,22 +162,32 @@ export function weeklyMoodTrackerTemplate(moods) {
                 points="${desktopPoints}"
               />
             </svg>
-            ${moods.map((mood, i) => {
-              const x = 20 + i * desktopPointGap;
-              const y = emojiY[i] || 40;
-              return `
-                <div style="position:absolute;left:${x - 18}px;top:${y - 18}px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
-                  <span style="font-size:2rem;line-height:1;">${mood.emoji}</span>
+            ${moods
+              .map((mood, i) => {
+                const x = 20 + i * desktopPointGap;
+                const y = emojiY[i] || 40;
+                return `
+                <div style="position:absolute;left:${x - 18}px;top:${
+                  y - 18
+                }px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
+                  <span style="font-size:2rem;line-height:1;">${
+                    mood.emoji
+                  }</span>
                 </div>
-                <div style="position:absolute;left:${x - 30}px;top:${height + 5}px;width:60px;text-align:center;font-size:12px;color:#666;">
+                <div style="position:absolute;left:${x - 30}px;top:${
+                  height + 5
+                }px;width:60px;text-align:center;font-size:12px;color:#666;">
                   ${mood.date}
                 </div>
               `;
-            }).join('')}
+              })
+              .join("")}
           </div>
 
           <!-- Mobile View -->
-          <div class="lg:hidden" style="position:relative; width:${mobileWidth}px; height:${height + 40}px;">
+          <div class="lg:hidden" style="position:relative; width:${mobileWidth}px; height:${
+    height + 40
+  }px;">
             <svg width="${mobileWidth}" height="${height}" style="position:absolute;top:0;left:0;">
               <polyline
                 fill="none"
@@ -179,18 +196,27 @@ export function weeklyMoodTrackerTemplate(moods) {
                 points="${mobilePoints}"
               />
             </svg>
-            ${moods.slice(0, 4).map((mood, i) => {
-              const x = 20 + i * mobilePointGap;
-              const y = emojiY[i] || 40;
-              return `
-                <div style="position:absolute;left:${x - 18}px;top:${y - 18}px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
-                  <span style="font-size:1.5rem;line-height:1;">${mood.emoji}</span>
+            ${moods
+              .slice(0, 4)
+              .map((mood, i) => {
+                const x = 20 + i * mobilePointGap;
+                const y = emojiY[i] || 40;
+                return `
+                <div style="position:absolute;left:${x - 18}px;top:${
+                  y - 18
+                }px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
+                  <span style="font-size:1.5rem;line-height:1;">${
+                    mood.emoji
+                  }</span>
                 </div>
-                <div style="position:absolute;left:${x - 30}px;top:${height + 5}px;width:60px;text-align:center;font-size:12px;color:#666;">
+                <div style="position:absolute;left:${x - 30}px;top:${
+                  height + 5
+                }px;width:60px;text-align:center;font-size:12px;color:#666;">
                   ${mood.date}
                 </div>
               `;
-            }).join('')}
+              })
+              .join("")}
           </div>
         </div>
         <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodNextBtn">
@@ -223,7 +249,7 @@ export function profileTemplate(userData) {
         <div class="flex items-center gap-4">
         <div class="w-24 h-24 rounded-full overflow-hidden">
           <img src="${
-            userData.profilePicture || "/images/image.jpg"
+            userData.profilePicture || "/images/image.png"
           }" alt="Foto Profil" class="w-full h-full object-cover">
         </div>
         <div>
@@ -245,7 +271,7 @@ export function profileTemplate(userData) {
 
       <div class="bg-none">
         <h2 class="text-lg font-medium mb-4">Unggahan</h2>
-        <div class="user-stories-container">
+        <div id="user-stories-container" class="mt-6">
         <p class="text-gray-500 text-center py-8">Belum ada unggahan</p>
         </div>
         </div>
@@ -282,7 +308,7 @@ export function editProfileModalTemplate(userData) {
       <div class="flex items-center gap-4">
         <div class="w-16 h-16 rounded-full overflow-hidden border border-gray-300">
           <img id="profileImagePreview" src="${
-            userData.profilePicture || "/images/image.jpg"
+            userData.profilePicture || "/images/image.png"
           }" 
           alt="Preview Foto Profil" class="w-full h-full object-cover">
           </div>
@@ -314,11 +340,12 @@ export function storyItemTemplate({
   commentCount = 0,
   viewCount = 0,
   storyId = "",
+  profilePicture = "./images/image.png",
 }) {
   return `
     <div class="story-container flex items-start gap-3 py-3 border-b border-gray-200 max-w-2xl" data-story-id="${storyId}">
       <div class="w-10 h-10 flex-shrink-0 user-info">
-      <img src="./images/image.jpg" alt="icon" class="w-10 h-10 object-cover rounded-full" />
+        <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
       </div>
 
       <div class="flex flex-col text-left story-content">
@@ -350,31 +377,90 @@ export function storyItemTemplate({
 export function storyFormTemplate({
   username = "Nama Pengguna",
   handle = "@namapengguna",
+  profilePicture = "./images/image.png",
 } = {}) {
   return `
     <form id="chat-form" class="mt-auto sticky">
     <div class="flex items-start gap-3 py-4 border-gray-200 max-w-2xl">
     <div class="w-10 h-10 flex-shrink-0">
-      <img src="./images/image.jpg" alt="icon" class="w-10 h-10 object-cover rounded-full" />
+        <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
       </div>
 
-      <div class="flex flex-col text-left">
-        <div>
-          <div class="font-semibold text-base text-gray-800">${username}</div>
-          <div class="text-sm text-gray-500 mb-4">${handle}</div>
+      <div class="flex flex-col text-left w-full">
+      <div>
+        <div class="font-semibold text-base text-gray-800">${username}</div>
+        <div class="text-sm text-gray-500 mb-4">${handle}</div>
+      </div>
+      <div class="relative w-full z-50 w-full max-w-2xl mx-auto">
+        <textarea 
+          id="chat-input"
+          class="text-[#8c8c8c] w-full h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden"
+          placeholder="Ada cerita apa?..."></textarea>
+        <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 justify-end" type="submit">Unggah</button>
+      </div>
+      <div class="mt-2 flex items-center">
+        <input type="checkbox" id="post-anonymously" class="mr-2">
+        <label for="post-anonymously" class="text-sm text-gray-600">Unggah sebagai anonim</label>
+      </div>
+    </div>
+    </form>
+  `;
+}
+
+export function commentFormTemplate({
+  username = "Nama Pengguna",
+  handle = "@namapengguna",
+  profilePicture = "./images/image.png",
+} = {}) {
+  return `
+    <form id="comment-form" class="sticky top-4">
+      <div class="flex items-start gap-3 py-4 border-gray-200 max-w-2xl">
+        <div class="w-10 h-10 flex-shrink-0">
+          <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
         </div>
-        <div class="relative z-50 w-full max-w-2xl mx-auto">
-          <textarea 
-            id="chat-input"
-            class="text-[#8c8c8c] w-[200%] h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden"
-            placeholder="Ada cerita apa?..."></textarea>
-          <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 justify-end" type="submit">Unggah</button>
-        </div>
-        <div class="mt-2 flex items-center">
-          <input type="checkbox" id="post-anonymously" class="mr-2">
-          <label for="post-anonymously" class="text-sm text-gray-600">Unggah sebagai anonim</label>
+
+        <div class="flex flex-col text-left w-full">
+          <div>
+            <div class="font-semibold text-base text-gray-800">${username}</div>
+            <div class="text-sm text-gray-500 mb-4">${handle}</div>
+          </div>
+          <div class="relative w-full z-50">
+            <textarea 
+              id="comment-input"
+              class="text-[#8c8c8c] w-full h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden"
+              placeholder="Tulis komentar Anda..."></textarea>
+            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 justify-end" type="submit">Unggah</button>
+          </div>
         </div>
       </div>
     </form>
+  `;
+}
+
+export function commentItemTemplate({
+  username = "Pengguna",
+  content = "",
+  timestamp = "",
+  profilePicture = "./images/image.png",
+} = {}) {
+  const date = new Date(timestamp);
+  const formattedDate = date.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  return `
+    <div class="comment-container flex items-start gap-3 py-3 border-b border-gray-200">
+      <div class="w-10 h-10 flex-shrink-0">
+        <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
+      </div>
+
+      <div class="flex flex-col text-left">
+        <div class="font-semibold text-base text-gray-800">${username}</div>
+        <p class="text-gray-700 mt-1 text-sm leading-relaxed">${content}</p>
+        <div class="text-xs text-gray-500 mt-1">${formattedDate}</div>
+      </div>
+    </div>
   `;
 }

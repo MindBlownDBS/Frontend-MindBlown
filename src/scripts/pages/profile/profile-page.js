@@ -2,13 +2,15 @@ import { profileTemplate, editProfileModalTemplate } from "../templates";
 import ProfilePresenter from "./profile-presenter";
 import * as AuthModel from "../../utils/auth";
 import { storyItemTemplate } from "../templates";
+import { setupStoryInteractions } from "../story/story-interactions";
 
 export default class ProfilePage {
   #presenter = null;
+  #currentUser = null;
 
   async render() {
-    const userData = JSON.parse(localStorage.getItem("user")) || {};
-    return profileTemplate(userData);
+    this.#currentUser = JSON.parse(localStorage.getItem("user")) || {};
+    return profileTemplate(this.#currentUser);
   }
 
   async afterRender() {
@@ -19,6 +21,12 @@ export default class ProfilePage {
 
     await this.#presenter.loadUserProfile();
     this.#setupEventListeners();
+  }
+
+  #setupStoryUpdatesListener() {
+    document.addEventListener("storyUpdated", async () => {
+      await this.#presenter.loadUserProfile();
+    });
   }
 
   #setupEventListeners() {
@@ -54,7 +62,6 @@ export default class ProfilePage {
     modal.classList.remove("hidden");
     modal.classList.add("flex");
 
-    // Event listeners
     closeBtn.addEventListener("click", () => this.#closeModal(modal));
     cancelBtn.addEventListener("click", () => this.#closeModal(modal));
 
@@ -126,32 +133,41 @@ export default class ProfilePage {
   }
 
   showUserStories(stories) {
-    const storiesContainer = document.querySelector(".bg-none p.text-gray-500");
-    if (storiesContainer) {
-      if (stories.length === 0) {
-        storiesContainer.innerHTML =
-          '<p class="text-gray-500 text-center py-8">Belum ada unggahan</p>';
-      } else {
-        storiesContainer.innerHTML = `
-          <div class="space-y-6">
-            ${stories
-              .map((story) =>
-                storyItemTemplate({
-                  username: story.isAnonymous ? "Pengguna" : story.name,
-                  handle: story.isAnonymous ? "Anonim" : `@${story.username}`,
-                  content: story.content,
-                  isAnonymous: story.isAnonymous,
-                })
-              )
-              .join("")}
-          </div>
-        `;
-      }
+    const storiesContainer = document.getElementById("user-stories-container");
+    if (!storiesContainer) return;
+
+    if (stories.length === 0) {
+      storiesContainer.innerHTML =
+        '<p class="text-gray-500 text-center py-8">Belum ada unggahan</p>';
+      return;
     }
+
+    storiesContainer.innerHTML = stories
+      .map((story) => {
+        const profilePic = story.isAnonymous
+          ? "./images/image.png"
+          : this.#currentUser.profilePicture || "./images/image.png";
+
+        return storyItemTemplate({
+          username: story.isAnonymous ? "Pengguna" : this.#currentUser.name,
+          handle: story.isAnonymous
+            ? "Anonim"
+            : `@${this.#currentUser.username}`,
+          content: story.content,
+          isAnonymous: story.isAnonymous,
+          storyId: story.id || story._id,
+          likeCount: story.likes?.length || 0,
+          commentCount: story.comments?.length || 0,
+          viewCount: story.views || 0,
+          profilePicture: profilePic,
+        });
+      })
+      .join("");
+
+    setupStoryInteractions(this.#presenter);
   }
 
   logoutSuccess() {
-    sessionStorage.removeItem('welcomeModalShown');
-    window.location.hash = "/";
+    window.location.hash = "/login";
   }
 }
