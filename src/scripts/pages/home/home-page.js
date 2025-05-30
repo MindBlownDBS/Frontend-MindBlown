@@ -1,4 +1,6 @@
 import { autoResize } from "../../utils";
+import { welcomeModalTemplate } from "../templates";
+import { getAccessToken } from "../../utils/auth";
 
 export default class HomePage {
   async render() {
@@ -30,6 +32,11 @@ export default class HomePage {
   }
 
   async afterRender() {
+
+    if (!getAccessToken() && !sessionStorage.getItem('welcomeModalShown')) {
+      this.#showWelcomeModal();
+    }
+
     const input = document.getElementById('chat-input');
     input.addEventListener('input', () => autoResize(input));
     this.#setupForm();
@@ -46,5 +53,29 @@ export default class HomePage {
 
       window.location.hash = '/chatbot';
     });
+  }
+
+  #showWelcomeModal() {
+    if (document.getElementById('welcome-modal')) return;
+
+    const modalWrapper = document.createElement('div');
+    modalWrapper.id = 'welcome-modal';
+    modalWrapper.innerHTML = welcomeModalTemplate();
+    document.body.appendChild(modalWrapper);
+
+    sessionStorage.setItem('welcomeModalShown', 'true');
+
+    document.getElementById('welcome-login').onclick = () => {
+      modalWrapper.remove();
+      window.location.hash = '/login';
+    };
+    document.getElementById('welcome-signup').onclick = () => {
+      modalWrapper.remove();
+      window.location.hash = '/register';
+    };
+    document.getElementById('welcome-stay-logged-out').onclick = (e) => {
+      e.preventDefault();
+      modalWrapper.remove();
+    };
   }
 }

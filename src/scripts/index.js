@@ -8,6 +8,7 @@ function handleNavbarVisibility() {
     const hideNavbarRoutes = ['/login', '/register'];
     const hash = window.location.hash.replace('#', '') || '/';
     const navbar = document.getElementById('navbar-container');
+ 
 
     if (hideNavbarRoutes.includes(hash)) {
         if (navbar) navbar.style.display = 'none';

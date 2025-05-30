@@ -1,5 +1,6 @@
 import { getActiveRoute } from "../routes/url-parser";
 import { ACCESS_TOKEN_KEY } from "../config";
+import { loginModalTemplate } from "../pages/templates";
 
 export function getAccessToken() {
   try {
@@ -59,6 +60,37 @@ export function checkAuthenticatedRoute(page) {
   }
 
   return page;
+}
+
+export function checkProtectedRoute(page) {
+  const isLogin = !!getAccessToken();
+  
+  if (!isLogin) {
+
+    const currentUrl = window.location.hash;
+    showLoginModal(currentUrl);
+    return null;
+}
+  
+  return page;
+}
+
+function showLoginModal() {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black/70 flex items-center justify-center z-50';
+  modal.innerHTML = loginModalTemplate();
+  
+  document.body.appendChild(modal);
+  
+  document.getElementById('cancel-login').addEventListener('click', () => {
+    modal.remove();
+    window.history.back();
+  });
+  
+  document.getElementById('go-to-login').addEventListener('click', () => {
+    modal.remove();
+    window.location.hash = '/login';
+  });
 }
 
 export function getLogout() {
