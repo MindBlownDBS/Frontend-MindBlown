@@ -10,19 +10,18 @@ import StoryDetailPage from "../pages/story/story-detail-page";
 import {
   checkAuthenticatedRoute,
   checkUnauthenticatedRouteOnly,
-  checkProtectedRoute,
 } from "../utils/auth";
 
 const routes = {
   "/login": () => checkUnauthenticatedRouteOnly(new LoginPage()),
   "/register": () => checkUnauthenticatedRouteOnly(new RegisterPage()),
-  "/": () => new HomePage(),
-  "/story": () => checkProtectedRoute(new StoryPage()),
-  "/calendar": () => checkProtectedRoute(new CalendarPage()),
-  "/notification": () => checkProtectedRoute(new NotificationPage()),
-  "/profile": () => checkProtectedRoute(new ProfilePage()),
-  "/chatbot": () => new ChatbotPage(),
-  "/story/:id": (id) => checkProtectedRoute(new StoryDetailPage(id)),
+  "/": () => checkAuthenticatedRoute(new HomePage()),
+  "/story": () => checkAuthenticatedRoute(new StoryPage()),
+  "/calendar": () => checkAuthenticatedRoute(new CalendarPage()),
+  "/notification": () => checkAuthenticatedRoute(new NotificationPage()),
+  "/profile": () => checkAuthenticatedRoute(new ProfilePage()),
+  "/chatbot": () => checkAuthenticatedRoute(new ChatbotPage()),
+  "/story/:id": (id) => checkAuthenticatedRoute(new StoryDetailPage(id)),
 };
 
 export default routes;

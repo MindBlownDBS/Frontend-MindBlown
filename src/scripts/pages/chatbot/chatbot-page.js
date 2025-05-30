@@ -18,7 +18,7 @@ export default class ChatbotPage {
         <div class="w-full flex items-center pb-20"> 
             <div class="max-w-2xl w-full mx-auto text-center">
                 
-                <div id="chat-container" class="flex flex-col gap-2 px-6 lg:px-4 overflow-y-auto max-h-[75vh] md:max-h[80vh] lg:max-h-[75vh]">
+                <div id="chat-container" class="flex flex-col gap-2 px-6 lg:px-4 overflow-y-auto max-h-[75vh] md:max-h[80vh] lg:max-h-[100vh]">
                 </div>
                 
                 <form id="chat-form" class="fixed bottom-24 lg:bottom-6 z-50 w-full lg:w-full md:max-w-2xl lg:max-w-2xl mx-auto px-4 lg:px-0 flex gap-2">

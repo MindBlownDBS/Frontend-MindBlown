@@ -168,7 +168,6 @@ export default class ProfilePage {
   }
 
   logoutSuccess() {
-    sessionStorage.removeItem('welcomeModalShown');
-    window.location.hash = "/";
+    window.location.hash = "/login";
   }
 }

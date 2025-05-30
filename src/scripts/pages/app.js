@@ -52,7 +52,6 @@ class App {
                 }
             });
         }
-        this.updateActiveNavLink();
     }
 
     collapseSidebar() {
@@ -75,43 +74,16 @@ class App {
         // this.#content.style.marginLeft = '14rem';
     }
 
-    updateActiveNavLink() {
-        const currentHash = window.location.hash || '#/';
-        const navLinks = document.querySelectorAll('nav a');
-        
-        navLinks.forEach(link => {
-            const linkPath = link.getAttribute('href');
-            const svg = link.querySelector('svg');
-            
-            if (linkPath === currentHash) {
-                link.classList.add('text-[#00ADB5]');
-                if (svg) {
-                    svg.classList.add('text-[#00ADB5]');
-                }
-            } else {
-                link.classList.remove('text-[#00ADB5]');
-                if (svg) {
-                    svg.classList.remove('text-[#00ADB5]');
-                }
-            }
-        });
-    }
-
     async renderPage() {
         const url = getActiveRoute();
         const route = routes[url];
 
         const page = route();
 
-        if (!page) {
-            return;
-        }
-
         const transition = transitionHelper({
             updateDOM: async () => {
                 this.#content.innerHTML = await page.render();
                 page.afterRender();
-                this.updateActiveNavLink();
             },
         });
 
