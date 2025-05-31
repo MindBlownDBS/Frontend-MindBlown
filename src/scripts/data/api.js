@@ -4,8 +4,8 @@ import { getAccessToken } from "../utils/auth";
 const ENDPOINTS = {
   LOGIN: "/login",
   REGISTER: "/register",
-  MIND_TRACKER: "/mindTracker",
-  MIND_TRACKER_CHECK: "/mindTracker/check",
+  MIND_TRACKER: "/mind-tracker",
+  MIND_TRACKER_CHECK: "/mind-tracker/check",
 };
 
 export async function getRegister(username, name, email, password) {
@@ -113,7 +113,7 @@ export async function saveEntry(data) {
 export async function getStories() {
   const accessToken = getAccessToken();
   try {
-    const response = await fetch(`${BASE_URL}/story`, {
+    const response = await fetch(`${BASE_URL}/stories`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -130,7 +130,7 @@ export async function postStory(content, isAnonymous = false) {
     const token = getAccessToken();
     if (!token) throw new Error("No authentication token found");
 
-    const response = await fetch(`${BASE_URL}/story`, {
+    const response = await fetch(`${BASE_URL}/stories`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -180,7 +180,14 @@ export async function getUserProfile(username) {
 
 export const getStoryDetail = async (storyId) => {
   try {
-    const response = await fetch(`${BASE_URL}/story/${storyId}`, {
+    if (!storyId || storyId === 'undefined') {
+      return { 
+        error: true, 
+        message: "Invalid story ID. Story ID is required." 
+      };
+    }
+
+    const response = await fetch(`${BASE_URL}/stories/${storyId}`, {
       headers: {
         Authorization: `Bearer ${getAccessToken()}`,
       },
@@ -217,7 +224,7 @@ export async function likeStory(storyId) {
     const token = getAccessToken();
     if (!token) throw new Error("Authentication required");
 
-    const response = await fetch(`${BASE_URL}/story/${storyId}/like`, {
+    const response = await fetch(`${BASE_URL}/stories/${storyId}/likes`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -239,7 +246,7 @@ export async function likeStory(storyId) {
 }
 
 export async function commentOnStory(storyId, content) {
-  const response = await fetch(`${BASE_URL}/story/${storyId}/comment`, {
+  const response = await fetch(`${BASE_URL}/stories/${storyId}/comments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -107,6 +107,19 @@ export default class StoryPresenter {
 
   async loadStoryDetail(storyId) {
     try {
+      if (!storyId || storyId === 'undefined') {
+        const urlPath = window.location.hash;
+        const urlMatch = urlPath.match(/#\/story\/([a-f0-9]+)/i);
+        
+        if (urlMatch && urlMatch[1]) {
+          storyId = urlMatch[1];
+        } else {
+          console.error("Invalid story ID provided to loadStoryDetail:", storyId);
+          this._view.showError("ID cerita tidak valid. Silakan coba lagi.");
+          return;
+        }
+      }
+
       const response = await getStoryDetail(storyId);
 
       if (typeof response === "string" && response.startsWith("<!DOCTYPE")) {
@@ -188,6 +201,17 @@ export default class StoryPresenter {
     try {
       if (!content || typeof content !== "string" || content.trim() === "") {
         throw new Error("Content is required");
+      }
+
+      if (!storyId || storyId === 'undefined') {
+        const urlPath = window.location.hash;
+        const urlMatch = urlPath.match(/#\/story\/([a-f0-9]+)/i);
+        
+        if (urlMatch && urlMatch[1]) {
+          storyId = urlMatch[1];
+        } else {
+          throw new Error("Invalid story ID");
+        }
       }
 
       const response = await commentOnStory(storyId, content);
