@@ -6,6 +6,9 @@ const ENDPOINTS = {
   REGISTER: "/register",
   MIND_TRACKER: "/mind-tracker",
   MIND_TRACKER_CHECK: "/mind-tracker/check",
+  NOTIFICATIONS: "/notifications",
+  MARK_NOTIFICATION_READ: "/notifications",
+  MARK_ALL_NOTIFICATIONS_READ: "/notifications/read-all",
 };
 
 export async function getRegister(username, name, email, password) {
@@ -181,9 +184,9 @@ export async function getUserProfile(username) {
 export const getStoryDetail = async (storyId) => {
   try {
     if (!storyId || storyId === 'undefined') {
-      return { 
-        error: true, 
-        message: "Invalid story ID. Story ID is required." 
+      return {
+        error: true,
+        message: "Invalid story ID. Story ID is required."
       };
     }
 
@@ -289,5 +292,135 @@ export async function updateProfile(updatedData) {
       error: true,
       message: error.message || "Network error occurred",
     };
+  }
+}
+
+export async function getNotifications() {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.NOTIFICATIONS}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Terjadi kesalahan saat mengambil notifikasi");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    return { error: true, message: error.message || "Gagal mengambil notifikasi" };
+  }
+}
+
+export async function markNotificationAsRead(notificationId) {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    const url = `${BASE_URL}${ENDPOINTS.MARK_NOTIFICATION_READ}/${notificationId}/read`;
+
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const contentType = response.headers.get("content-type");
+    console.log("Content-Type:", contentType);
+
+    let result;
+    if (contentType && contentType.includes("application/json")) {
+      result = await response.json();
+    } else {
+      const text = await response.text();
+      console.log("Non-JSON response text:", text);
+      throw new Error(`Server returned non-JSON response: ${text}`);
+    }
+
+    if (!response.ok) {
+      if (response.status === 403) {
+        throw new Error("Anda tidak memiliki akses untuk menandai notifikasi ini");
+      } else if (response.status === 404) {
+        throw new Error("Notifikasi tidak ditemukan");
+      } else {
+        throw new Error(result.message || "Terjadi kesalahan saat menandai notifikasi");
+      }
+    }
+    return result;
+  } catch (error) {
+    console.error("Error message:", error.message);
+    
+    
+    return { error: true, message: error.message || "Gagal menandai notifikasi sebagai dibaca" };
+  }
+}
+
+export async function markAllNotificationsAsRead() {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    console.log("Attempting to mark all notifications as read");
+    console.log("URL:", `${BASE_URL}${ENDPOINTS.MARK_ALL_NOTIFICATIONS_READ}`);
+
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.MARK_ALL_NOTIFICATIONS_READ}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("Response received:");
+    console.log("Status:", response.status);
+    console.log("Status Text:", response.statusText);
+    console.log("OK:", response.ok);
+
+    // Check if the response is actually JSON
+    const contentType = response.headers.get("content-type");
+    console.log("Content-Type:", contentType);
+
+    let result;
+    if (contentType && contentType.includes("application/json")) {
+      result = await response.json();
+    } else {
+      const text = await response.text();
+      console.log("Non-JSON response text:", text);
+      throw new Error(`Server returned non-JSON response: ${text}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(result.message || "Terjadi kesalahan saat menandai semua notifikasi");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+    console.error("Error type:", error.constructor.name);
+    console.error("Error message:", error.message);
+    
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      return { 
+        error: true, 
+        message: "Tidak dapat terhubung ke server. Periksa koneksi internet Anda dan pastikan server berjalan." 
+      };
+    }
+    
+    return { error: true, message: error.message || "Gagal menandai semua notifikasi sebagai dibaca" };
   }
 }

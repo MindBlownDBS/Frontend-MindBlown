@@ -1,3 +1,5 @@
+import { formatTimeAgo } from "../utils";
+
 export function mindTrackerModalTemplate(isViewMode = true) {
   return `
     <div id="mindTrackerModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden">
@@ -99,23 +101,6 @@ export function botChatBubble(text) {
     `;
 }
 
-export function notificationItemTemplate({
-  icon = "images/logo.png",
-  title = "",
-  message = "",
-}) {
-  return `
-        <div class="flex items-start gap-3 py-4 border-b border-gray-200">
-            <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
-                <img src="${icon}" alt="icon" class="w-7 h-7 object-cover">
-            </div>
-            <div class="text-left">
-                <div class="font-semibold text-base text-gray-800 mb-1">${title}</div>
-                <div class="text-sm text-gray-700 leading-snug">${message}</div>
-            </div>
-        </div>
-    `;
-}
 
 export function weeklyMoodTrackerTemplate(moods) {
   const desktopPointGap = 200;
@@ -229,13 +214,40 @@ export function weeklyMoodTrackerTemplate(moods) {
 
 export function notificationListTemplate(notifications) {
   return `
-        <div class="max-w-xl w-full ml-6 lg:ml-24 text-left">
-            <h1 class="text-2xl font-semibold mb-8 mt-3">Pemberitahuan</h1>
+        <div class="">
             <div>
                 ${notifications.map(notificationItemTemplate).join("")}
             </div>
         </div>
     `;
+}
+
+export function notificationItemTemplate({
+  id = "",
+  icon = "images/logo.png",
+  title = "",
+  message = "",
+  read = false,
+  createdAt = "",
+}) {
+  const timeAgo = createdAt ? formatTimeAgo(new Date(createdAt)) : "";
+  
+  return `
+    <div class="flex items-start gap-3 py-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${read ? 'opacity-60' : ''}" 
+         data-notification-id="${id}">
+      <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+        <img src="${icon}" alt="icon" class="w-7 h-7 object-cover">
+      </div>
+      <div class="text-left flex-1">
+        <div class="flex justify-between items-start">
+          <div class="font-semibold text-base text-gray-800 mb-1">${title}</div>
+          ${!read ? '<div class="w-2 h-2 bg-third rounded-full flex-shrink-0"></div>' : ''}
+        </div>
+        <div class="text-sm text-gray-700 leading-snug mb-1">${message}</div>
+        ${timeAgo ? `<div class="text-xs text-gray-500">${timeAgo}</div>` : ''}
+      </div>
+    </div>
+  `;
 }
 
 export function profileTemplate(userData) {
