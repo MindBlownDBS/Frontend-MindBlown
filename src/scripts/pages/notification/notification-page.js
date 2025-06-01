@@ -171,7 +171,7 @@ handleNotificationClick(notificationId) {
     } else if (notification.type === 'reply' && notification.storyId) {
       window.location.hash = `#/story/${notification.storyId}`;
     } else if (notification.type === 'reminder') {
-      window.location.hash = '#/mind-tracker';
+      window.location.hash = '#/calendar';
     }
 
     if (wasUnread) {
