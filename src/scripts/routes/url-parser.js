@@ -44,3 +44,7 @@ export function getRoute(pathname) {
 export function parsePathname(pathname) {
   return extractPathnameSegments(pathname);
 }
+
+export function isRouteExists(route, routes) {
+  return routes[route] !== undefined;
+}

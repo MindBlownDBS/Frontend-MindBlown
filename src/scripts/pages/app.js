@@ -22,7 +22,7 @@ class App {
 
     setupSidebarToggle() {
         if (!this.#sidebarToggle || !this.#sidebarToggleIcon || !this.#sidebar) return;
-        
+
         this.#sidebarToggle.addEventListener('click', () => {
             console.log('clicked');
             this.#expanded = !this.#expanded;
@@ -43,7 +43,7 @@ class App {
                 }
             });
         });
-    
+
         const homeLogoLink = document.querySelector('a[href="#/"]');
         if (homeLogoLink) {
             homeLogoLink.addEventListener('click', () => {
@@ -78,11 +78,11 @@ class App {
     updateActiveNavLink() {
         const currentHash = window.location.hash || '#/';
         const navLinks = document.querySelectorAll('nav a');
-        
+
         navLinks.forEach(link => {
             const linkPath = link.getAttribute('href');
             const svg = link.querySelector('svg');
-            
+
             if (linkPath === currentHash) {
                 link.classList.add('text-[#00ADB5]');
                 if (svg) {
@@ -99,7 +99,11 @@ class App {
 
     async renderPage() {
         const url = getActiveRoute();
-        const route = routes[url];
+        let route = routes[url];
+
+        if (!route) {
+            route = routes['/404'];
+        }
 
         const page = route();
 
@@ -117,7 +121,7 @@ class App {
 
         transition.ready.catch(console.error);
         transition.updateCallbackDone.then(() => {
-        scrollTo({ top: 0, behavior: 'instant' });
+            scrollTo({ top: 0, behavior: 'instant' });
         });
     }
 }

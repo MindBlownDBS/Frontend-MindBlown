@@ -158,7 +158,7 @@ export default class ProfilePage {
           storyId: story.id || story._id,
           likeCount: story.likes?.length || 0,
           commentCount: story.comments?.length || 0,
-          viewCount: story.views || 0,
+          viewCount: story.viewCount || 0,
           profilePicture: profilePic,
         });
       })

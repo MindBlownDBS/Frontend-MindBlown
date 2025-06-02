@@ -148,7 +148,7 @@ export default class StoryPage {
             storyId: story.storyId,
             likeCount: story.likeCount,
             commentCount: story.comments?.length || 0,
-            viewCount: story.views || 0,
+            viewCount: story.viewCount || 0,
             profilePicture: story.profilePicture,
           })
         )
