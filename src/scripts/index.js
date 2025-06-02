@@ -10,6 +10,7 @@ function handleNavbarVisibility() {
     const hideNavbarRoutes = ['/login', '/register', '/404'];
     const hash = window.location.hash.replace('#', '') || '/';
     const navbar = document.getElementById('navbar-container');
+    const mobileNavbar = document.getElementById('mobile-navbar');
     
     const activeRoute = getActiveRoute();
     const isValidRoute = routes[activeRoute] !== undefined;
@@ -18,8 +19,10 @@ function handleNavbarVisibility() {
 
     if (shouldHideNavbar) {
         if (navbar) navbar.style.display = 'none';
+        if (mobileNavbar) mobileNavbar.style.display = 'none';
     } else {
         if (navbar) navbar.style.display = '';
+        if (mobileNavbar) mobileNavbar.style.display = ''; 
     }
 }
 
