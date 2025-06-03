@@ -528,3 +528,51 @@ export const deleteStory = async (storyId) => {
     throw error;
   }
 };
+
+export async function replyToComment(parentCommentId, content) {
+  const response = await fetch(
+    `${BASE_URL}/comments/${parentCommentId}/replies`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+      body: JSON.stringify({ content }),
+    }
+  );
+  return await response.json();
+}
+
+export async function likeComment(commentId) {
+  const response = await fetch(`${BASE_URL}/comments/${commentId}/likes`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${getAccessToken()}`,
+    },
+  });
+  return await response.json();
+}
+
+export async function deleteCommentApi(commentId) {
+  const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${getAccessToken()}`,
+    },
+  });
+  return await response.json();
+}
+
+export async function getCommentDetail(commentId) {
+  const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${getAccessToken()}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch comment detail: ${response.statusText}`);
+  }
+  return await response.json();
+}

@@ -268,22 +268,4 @@ export default class StoryPage {
       }
     }
   }
-
-  destroy() {
-    if (this.#editStoryModalRequestHandler) {
-      document.removeEventListener(
-        "showEditStoryModalRequest",
-        this.#editStoryModalRequestHandler
-      );
-      this.#editStoryModalRequestHandler = null;
-    }
-    if (this.#storyDataChangedHandler) {
-      document.removeEventListener(
-        "storyDataChanged",
-        this.#storyDataChangedHandler
-      );
-      this.#storyDataChangedHandler = null;
-    }
-    console.log("StoryPage destroyed and listeners cleaned up.");
-  }
 }

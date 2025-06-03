@@ -5,18 +5,25 @@ import {
 } from "../templates.js";
 import StoryPresenter from "./story-presenter.js";
 import { setupStoryInteractions } from "./story-interactions.js";
-import { setupStoryActions } from "../story/story-actions.js";
-import { displayAndManageEditStoryModal } from "../story/editStoryModalManager.js";
+import { setupStoryActions } from "./story-actions.js";
+import { displayAndManageEditStoryModal } from "./editStoryModalManager.js";
+import { setupCommentInteractions } from "./comment-interactions.js";
+import { setupCommentActions } from "./comment-actions.js";
 
 export default class StoryDetailPage {
   _storyId = null;
   _presenter = null;
   _storyDataChangedHandler = null;
+  _currentUser = null;
   #editStoryModalRequestHandler = null;
 
   constructor(storyId) {
     this._storyId = storyId;
+    // this._currentUser = this._presenter.getCurrentUser();
+
     this._presenter = new StoryPresenter(this);
+    this._setupStoryDataChangedListener();
+    this.#setupEditStoryModalListener();
   }
 
   async render() {
@@ -58,7 +65,10 @@ export default class StoryDetailPage {
   }
 
   async afterRender() {
-    if (!this._presenter) return;
+    if (!this._presenter) {
+      console.error("Presenter not initialized in afterRender.");
+      return;
+    }
 
     await this._presenter.loadStoryDetail(this._storyId);
 
@@ -95,10 +105,21 @@ export default class StoryDetailPage {
 
   _setupStoryDataChangedListener() {
     this._storyDataChangedHandler = async (event) => {
-      const { storyId: eventStoryId, action } = event.detail;
-      if (eventStoryId === this._storyId) {
+      const {
+        storyId: eventStoryId,
+        action,
+        entityId,
+        parentId,
+      } = event.detail;
+      if (
+        eventStoryId === this._storyId ||
+        (parentId === this._storyId && action === "commented") ||
+        action === "commentLiked" ||
+        action === "commentDeleted" ||
+        action === "replied"
+      ) {
         console.log(
-          "StoryDetailPage: storyDataChanged event for current story, reloading.",
+          "StoryDetailPage: storyDataChanged event, reloading story details.",
           event.detail
         );
         if (this._presenter) {
@@ -108,6 +129,10 @@ export default class StoryDetailPage {
     };
     document.addEventListener(
       "storyDataChanged",
+      this._storyDataChangedHandler
+    );
+    document.addEventListener(
+      "commentDataChanged",
       this._storyDataChangedHandler
     );
   }
@@ -163,12 +188,67 @@ export default class StoryDetailPage {
     }
 
     const commentsListContainer = document.getElementById("comments-list");
+    if (!commentsListContainer) {
+      console.error("Element 'comments-list' not found in StoryDetailPage.");
+      return;
+    }
+
     if (story.comments && story.comments.length > 0) {
-      this.showComments(story.comments);
-    } else if (commentsListContainer) {
+      this._renderCommentsRecursive(story.comments, commentsListContainer, 0);
+    } else {
       commentsListContainer.innerHTML =
         '<p class="text-gray-500 text-sm">Belum ada komentar.</p>';
     }
+
+    setupCommentInteractions(this._presenter, "comments-list");
+    setupCommentActions(this._presenter, "comments-list");
+  }
+
+  _renderCommentsRecursive(commentsArray, parentElement, level) {
+    if (!commentsArray || commentsArray.length === 0) {
+      if (level > 0) {
+        parentElement.innerHTML =
+          '<p class="text-gray-400 text-xs pl-4">Tidak ada balasan.</p>';
+      }
+      return;
+    }
+
+    this._currentUser = this._presenter.getCurrentUser();
+
+    let allCommentsHTML = "";
+    commentsArray.forEach((comment) => {
+      const isOwner = this._currentUser?.username === comment.username;
+
+      const commentHTML = commentItemTemplate({
+        commentId: comment.id || comment._id,
+        username: comment.username || "Pengguna",
+        content: comment.content,
+        profilePicture: comment.profilePicture || "./images/image.png",
+        createdAt: comment.createdAt,
+        likeCount: comment.likes?.length || comment.likeCount || 0,
+        replyCount: comment.replies?.length || comment.replyCount || 0,
+        isOwner: isOwner,
+      });
+
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = commentHTML;
+
+      const nestedRepliesContainer =
+        tempDiv.querySelector(".replies-container");
+      if (
+        nestedRepliesContainer &&
+        comment.replies &&
+        comment.replies.length > 0
+      ) {
+        this._renderCommentsRecursive(
+          comment.replies,
+          nestedRepliesContainer,
+          level + 1
+        );
+      }
+      allCommentsHTML += tempDiv.innerHTML;
+    });
+    parentElement.innerHTML = allCommentsHTML;
   }
 
   showComments(comments) {

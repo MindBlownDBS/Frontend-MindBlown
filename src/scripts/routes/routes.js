@@ -8,6 +8,7 @@ import RegisterPage from "../pages/auth/register/register-page";
 import ChatbotPage from "../pages/chatbot/chatbot-page";
 import StoryDetailPage from "../pages/story/story-detail-page";
 import NotFoundPage from "../pages/notFound/NotFoundPage";
+import CommentDetailPage from "../pages/story/comment-detail-page";
 import {
   checkAuthenticatedRoute,
   checkUnauthenticatedRouteOnly,
@@ -25,6 +26,7 @@ const routes = {
   "/chatbot": () => new ChatbotPage(),
   "/story/:id": (id) => checkProtectedRoute(new StoryDetailPage(id)),
   "/404": () => new NotFoundPage(),
+  "/comment/:id": () => new CommentDetailPage(),
 };
 
 export default routes;

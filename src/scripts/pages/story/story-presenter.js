@@ -7,6 +7,10 @@ import {
   getStoryDetail,
   editStory,
   deleteStory,
+  replyToComment,
+  likeComment,
+  deleteCommentApi,
+  getCommentDetail,
 } from "../../data/api";
 
 export default class StoryPresenter {
@@ -180,16 +184,25 @@ export default class StoryPresenter {
 
       if (story.comments && story.comments.length > 0) {
         for (const comment of story.comments) {
+          comment.isCommentAnonymous = true;
+          comment.authorActualUsername = null;
+
           if (comment.username) {
+            const originalHandle = comment.username;
+            comment.authorActualUsername = originalHandle;
             const commenterData = await this.getCompleteUserData(
-              comment.username
+              originalHandle
             );
+
             comment.profilePicture =
               commenterData?.profilePicture || "./images/image.png";
-            comment.username = commenterData?.name || comment.username;
+            comment.displayName = commenterData?.name || originalHandle;
+            comment.handleName = `@${originalHandle}`;
+            comment.isCommentAnonymous = false;
           } else {
             comment.profilePicture = "./images/image.png";
-            comment.username = "Pengguna";
+            comment.displayName = "Pengguna";
+            comment.handleName = "Anonim";
           }
         }
       }
@@ -300,6 +313,92 @@ export default class StoryPresenter {
       }
     } catch (error) {
       console.error("Failed to post comment in addComment:", error);
+      throw error;
+    }
+  }
+
+  async loadCommentDetail(commentId) {
+    try {
+      const response = await getCommentDetail(commentId);
+      if (!response.error && response.data) {
+        this._view.showCommentDetail(response.data);
+      } else {
+        console.error("Error loading comment detail:", response.message);
+        this._view.showError(
+          response.message || "Gagal memuat detail komentar."
+        );
+      }
+    } catch (error) {
+      console.error("Failed to load comment detail:", error);
+      this._view.showError("Terjadi kesalahan saat memuat detail komentar.");
+    }
+  }
+
+  async addReplyToComment(parentCommentId, content) {
+    try {
+      if (!content || typeof content !== "string" || content.trim() === "") {
+        throw new Error("Konten balasan tidak boleh kosong");
+      }
+      const response = await replyToComment(parentCommentId, content.trim());
+      if (response.error) {
+        throw new Error(response.message || "Gagal menambahkan balasan.");
+      }
+      document.dispatchEvent(
+        new CustomEvent("commentDataChanged", {
+          detail: {
+            action: "replied",
+            parentId: parentCommentId,
+            replyId: response.replyId,
+          },
+        })
+      );
+      return response;
+    } catch (error) {
+      console.error("Failed to add reply:", error);
+      throw error;
+    }
+  }
+
+  async likeExistingComment(commentId) {
+    try {
+      const response = await likeComment(commentId);
+      if (response.error) {
+        throw new Error(response.message || "Gagal menyukai komentar.");
+      }
+      document.dispatchEvent(
+        new CustomEvent("commentDataChanged", {
+          detail: {
+            action: "commentLiked",
+            entityId: commentId,
+            newLikeCount: response.likeCount,
+            message: response.message,
+          },
+        })
+      );
+      return response;
+    } catch (error) {
+      console.error("Failed to like comment:", error);
+      throw error;
+    }
+  }
+
+  async deleteExistingComment(commentId) {
+    try {
+      const response = await deleteCommentApi(commentId);
+      if (response.error) {
+        throw new Error(response.message || "Gagal menghapus komentar.");
+      }
+      document.dispatchEvent(
+        new CustomEvent("commentDataChanged", {
+          detail: {
+            action: "commentDeleted",
+            entityId: commentId,
+          },
+        })
+      );
+      return response;
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
       throw error;
     }
   }
