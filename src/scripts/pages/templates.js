@@ -408,7 +408,7 @@ export function storyFormTemplate({
           id="chat-input"
           class="text-[#8c8c8c] w-full h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden"
           placeholder="Ada cerita apa?..."></textarea>
-        <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 justify-end" type="submit">Unggah</button>
+        <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-third focus:bg-third justify-end" type="submit">Unggah</button>
       </div>
       <div class="mt-2 flex items-center">
         <input type="checkbox" id="post-anonymously" class="mr-2">
@@ -441,7 +441,7 @@ export function commentFormTemplate({
               id="comment-input"
               class="text-[#8c8c8c] w-full h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden"
               placeholder="Tulis komentar Anda..."></textarea>
-            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 justify-end" type="submit">Unggah</button>
+            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-third focus:bg-third justify-end" type="submit">Unggah</button>
           </div>
         </div>
       </div>
