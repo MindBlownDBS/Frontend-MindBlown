@@ -101,7 +101,6 @@ export function botChatBubble(text) {
     `;
 }
 
-
 export function weeklyMoodTrackerTemplate(moods) {
   const desktopPointGap = 200;
   const mobilePointGap = 65;
@@ -231,9 +230,11 @@ export function notificationItemTemplate({
   createdAt = "",
 }) {
   const timeAgo = createdAt ? formatTimeAgo(new Date(createdAt)) : "";
-  
+
   return `
-    <div class="flex items-start gap-3 py-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${read ? 'opacity-60' : ''}" 
+    <div class="flex items-start gap-3 py-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${
+      read ? "opacity-60" : ""
+    }" 
          data-notification-id="${id}">
       <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center">
         <img src="${icon}" alt="icon" class="w-7 h-7 object-cover">
@@ -241,10 +242,14 @@ export function notificationItemTemplate({
       <div class="text-left flex-1">
         <div class="flex justify-between items-start">
           <div class="font-semibold text-base text-gray-800 mb-1">${title}</div>
-          ${!read ? '<div class="w-2 h-2 bg-third rounded-full flex-shrink-0"></div>' : ''}
+          ${
+            !read
+              ? '<div class="w-2 h-2 bg-third rounded-full flex-shrink-0"></div>'
+              : ""
+          }
         </div>
         <div class="text-sm text-gray-700 leading-snug mb-1">${message}</div>
-        ${timeAgo ? `<div class="text-xs text-gray-500">${timeAgo}</div>` : ''}
+        ${timeAgo ? `<div class="text-xs text-gray-500">${timeAgo}</div>` : ""}
       </div>
     </div>
   `;
@@ -353,22 +358,77 @@ export function storyItemTemplate({
   viewCount = 0,
   storyId = "",
   profilePicture = "./images/image.png",
+  createdAt = "",
+  isOwner = false,
 }) {
+  let formattedDate = "";
+  if (createdAt) {
+    try {
+      const date = new Date(createdAt);
+      if (!isNaN(date.getTime())) {
+        formattedDate = date.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+      } else {
+        console.warn("Invalid createdAt date received:", createdAt);
+        formattedDate = "Tanggal tidak valid";
+      }
+    } catch (e) {
+      console.error("Error formatting date:", createdAt, e);
+      formattedDate = "Gagal memuat tanggal";
+    }
+  }
   return `
     <div class="story-container flex items-start gap-3 py-3 border-b border-gray-200 max-w-2xl" data-story-id="${storyId}">
-      <div class="w-10 h-10 flex-shrink-0 user-info">
-        <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
+    <div class="w-10 h-10 flex-shrink-0 user-info">
+      <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
+    </div>
+
+    <div class="flex flex-col text-left story-content w-full">
+      <div class="flex justify-between items-start">
+      <div class="user-info">
+        <div class="font-semibold text-base text-gray-800">${username}</div>
+        <div class="text-sm text-gray-500">${handle}</div>
       </div>
 
-      <div class="flex flex-col text-left story-content">
-        <div class="user-info">
-          <div class="font-semibold text-base text-gray-800">${username}</div>
-          <div class="text-sm text-gray-500">${handle}</div>
+        ${
+          isOwner
+            ? `
+        <div class="relative">
+          <button class="story-menu-btn p-1 text-gray-500 hover:text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="1"></circle>
+              <circle cx="12" cy="5" r="1"></circle>
+              <circle cx="12" cy="19" r="1"></circle>
+            </svg>
+          </button>
+
+          <div class="story-menu hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+            <button class="edit-story-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-story-id="${storyId}">Edit</button>
+            <button class="delete-story-btn w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100" data-story-id="${storyId}">Hapus</button>
           </div>
-          <p class="text-gray-700 mt-3 text-sm leading-relaxed">${content}</p>
+        </div>
+        `
+            : ""
+        }
+      </div>
+
+      <p class="text-gray-700 mt-3 text-sm leading-relaxed">${content}</p>
+
+      ${
+        formattedDate
+          ? `
+        <div class="text-xs text-gray-400 mt-2">
+          ${formattedDate}
+        </div>
+        `
+          : ""
+      }
 
         <div class="flex items-center gap-30 mt-3">
-        <button class="like-btn flex items-center gap-1" data-story-id="${storyId}">
+          <button class="like-btn flex items-center gap-1" data-story-id="${storyId}">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
             <span class="like-count text-sm">${likeCount}</span>
           </button>
@@ -377,10 +437,10 @@ export function storyItemTemplate({
             <span class="comment-count text-sm">${commentCount}</span>
           </button>
           <button class="view-btn flex items-center gap-1" data-story-id="${storyId}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0  height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 17c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1s1 .45 1 1v5c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1s1 .45 1 1v8c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm2 2H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm1-16H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 17c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1s1 .45 1 1v5c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1s1 .45 1 1v8c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm2 2H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm1-16H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
             <span class="view-count text-sm">${viewCount}</span>
           </button>
-          </div>
+        </div>
       </div>
     </div>
   `;
@@ -389,8 +449,18 @@ export function storyItemTemplate({
 export function storyFormTemplate({
   username = "Nama Pengguna",
   handle = "@namapengguna",
+  timestamp = "",
   profilePicture = "./images/image.png",
 } = {}) {
+  const date = new Date(timestamp);
+  const formattedDate = date.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   return `
     <form id="chat-form" class="mt-auto sticky">
     <div class="flex items-start gap-3 py-4 border-gray-200 max-w-2xl">
@@ -440,7 +510,7 @@ export function commentFormTemplate({
             <textarea 
               id="comment-input"
               class="text-[#8c8c8c] w-full h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden"
-              placeholder="Tulis komentar Anda..."></textarea>
+              placeholder="Unggah komentarmu..."></textarea>
             <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 justify-end" type="submit">Unggah</button>
           </div>
         </div>
@@ -472,6 +542,35 @@ export function commentItemTemplate({
         <div class="font-semibold text-base text-gray-800">${username}</div>
         <p class="text-gray-700 mt-1 text-sm leading-relaxed">${content}</p>
         <div class="text-xs text-gray-500 mt-1">${formattedDate}</div>
+      </div>
+    </div>
+  `;
+}
+
+export function editStoryModalTemplate(storyData) {
+  const currentContent = storyData.content || "";
+  return `
+    <div id="editStoryModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Edit Cerita</h3>
+          <button id="closeEditStoryModalBtn" class="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
+        </div>
+        <hr class="my-4 border-gray-300">
+        <form id="editStoryForm" class="space-y-4">
+          <div>
+            <label for="storyContentInput" class="block text-sm font-medium text-gray-700 mb-1">Konten Cerita</label>
+            <textarea id="storyContentInput" name="content" rows="6"
+              class="w-full border border-gray-300 rounded-lg p-2 focus:ring-teal-500 focus:border-teal-500"
+              placeholder="Tuliskan ceritamu di sini...">${currentContent}</textarea>
+          </div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" id="cancelEditStoryBtn"
+              class="w-auto border border-gray-300 py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-50">Batal</button>
+            <button type="submit"
+              class="w-auto bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600">Simpan Perubahan</button>
+          </div>
+        </form>
       </div>
     </div>
   `;

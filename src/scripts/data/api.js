@@ -183,10 +183,10 @@ export async function getUserProfile(username) {
 
 export const getStoryDetail = async (storyId) => {
   try {
-    if (!storyId || storyId === 'undefined') {
+    if (!storyId || storyId === "undefined") {
       return {
         error: true,
-        message: "Invalid story ID. Story ID is required."
+        message: "Invalid story ID. Story ID is required.",
       };
     }
 
@@ -311,13 +311,18 @@ export async function getNotifications() {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "Terjadi kesalahan saat mengambil notifikasi");
+      throw new Error(
+        result.message || "Terjadi kesalahan saat mengambil notifikasi"
+      );
     }
 
     return result;
   } catch (error) {
     console.error("Error fetching notifications:", error);
-    return { error: true, message: error.message || "Gagal mengambil notifikasi" };
+    return {
+      error: true,
+      message: error.message || "Gagal mengambil notifikasi",
+    };
   }
 }
 
@@ -352,19 +357,25 @@ export async function markNotificationAsRead(notificationId) {
 
     if (!response.ok) {
       if (response.status === 403) {
-        throw new Error("Anda tidak memiliki akses untuk menandai notifikasi ini");
+        throw new Error(
+          "Anda tidak memiliki akses untuk menandai notifikasi ini"
+        );
       } else if (response.status === 404) {
         throw new Error("Notifikasi tidak ditemukan");
       } else {
-        throw new Error(result.message || "Terjadi kesalahan saat menandai notifikasi");
+        throw new Error(
+          result.message || "Terjadi kesalahan saat menandai notifikasi"
+        );
       }
     }
     return result;
   } catch (error) {
     console.error("Error message:", error.message);
-    
-    
-    return { error: true, message: error.message || "Gagal menandai notifikasi sebagai dibaca" };
+
+    return {
+      error: true,
+      message: error.message || "Gagal menandai notifikasi sebagai dibaca",
+    };
   }
 }
 
@@ -378,13 +389,16 @@ export async function markAllNotificationsAsRead() {
     console.log("Attempting to mark all notifications as read");
     console.log("URL:", `${BASE_URL}${ENDPOINTS.MARK_ALL_NOTIFICATIONS_READ}`);
 
-    const response = await fetch(`${BASE_URL}${ENDPOINTS.MARK_ALL_NOTIFICATIONS_READ}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${BASE_URL}${ENDPOINTS.MARK_ALL_NOTIFICATIONS_READ}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     console.log("Response received:");
     console.log("Status:", response.status);
@@ -405,7 +419,9 @@ export async function markAllNotificationsAsRead() {
     }
 
     if (!response.ok) {
-      throw new Error(result.message || "Terjadi kesalahan saat menandai semua notifikasi");
+      throw new Error(
+        result.message || "Terjadi kesalahan saat menandai semua notifikasi"
+      );
     }
 
     return result;
@@ -413,14 +429,102 @@ export async function markAllNotificationsAsRead() {
     console.error("Error marking all notifications as read:", error);
     console.error("Error type:", error.constructor.name);
     console.error("Error message:", error.message);
-    
-    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-      return { 
-        error: true, 
-        message: "Tidak dapat terhubung ke server. Periksa koneksi internet Anda dan pastikan server berjalan." 
+
+    if (
+      error instanceof TypeError &&
+      error.message.includes("Failed to fetch")
+    ) {
+      return {
+        error: true,
+        message:
+          "Tidak dapat terhubung ke server. Periksa koneksi internet Anda dan pastikan server berjalan.",
       };
     }
-    
-    return { error: true, message: error.message || "Gagal menandai semua notifikasi sebagai dibaca" };
+
+    return {
+      error: true,
+      message:
+        error.message || "Gagal menandai semua notifikasi sebagai dibaca",
+    };
   }
 }
+
+export const editStory = async (storyId, content) => {
+  try {
+    const token = getAccessToken();
+    if (!token) throw new Error("Authentication token not found");
+    if (!storyId) throw new Error("Story ID is required for editing");
+
+    const response = await fetch(`${BASE_URL}/stories/${storyId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ content }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error(
+        `Error editing story ${storyId} - Status: ${response.status}`,
+        data
+      );
+      throw new Error(
+        data.message || `Failed to edit story. Status: ${response.status}`
+      );
+    }
+    return data;
+  } catch (error) {
+    console.error(
+      `Error editing story (catch block) for ID ${storyId}:`,
+      error
+    );
+    throw error;
+  }
+};
+
+export const deleteStory = async (storyId) => {
+  try {
+    const token = getAccessToken();
+    if (!token) throw new Error("Authentication token not found");
+    if (!storyId) throw new Error("Story ID is required for deleting");
+
+    const response = await fetch(`${BASE_URL}/stories/${storyId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      let errorData = {
+        message: `Failed to delete story. Status: ${response.status}`,
+      };
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        console.warn("Could not parse error response as JSON for deleteStory");
+      }
+      console.error(
+        `Error deleting story ${storyId} - Status: ${response.status}`,
+        errorData
+      );
+      throw new Error(
+        errorData.message ||
+          `Failed to delete story. Status: ${response.status}`
+      );
+    }
+
+    if (response.status === 204) {
+      return { success: true, message: "Story deleted successfully." };
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(
+      `Error deleting story (catch block) for ID ${storyId}:`,
+      error
+    );
+    throw error;
+  }
+};
