@@ -19,10 +19,10 @@ export default class HomePage {
                       id="chat-input"
                       class="text-[#8c8c8c] w-full h-16 lg:h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden   placeholder:leading-[2rem] lg:placeholder:leading-[4rem]"
                       placeholder="Cerita sedikit..."></textarea>
-                    <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2">
-                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
+                    <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 flex items-center justify-center hover:bg-third focus:bg-third transition cursor-pointer">
+                       <svg xmlns="http://www.w3.org/2000/svg"  class="w-6 h-6 text-white" fill="none" viewBox="-0.5 -0.5 16 16" stroke-linecap="round" stroke-linejoin="round" stroke="white" id="Send--Streamline-Mynaui" height="16" width="16">
+                        <path d="m8.75 6.25 -1.875 1.875m5.805 -6.230625a0.33437500000000003 0.33437500000000003 0 0 1 0.42500000000000004 0.42562500000000003l-3.7025 10.58125a0.33437500000000003 0.33437500000000003 0 0 1 -0.62125 0.025l-2.011875 -4.52625a0.33375 0.33375 0 0 0 -0.169375 -0.169375l-4.52625 -2.0125a0.33437500000000003 0.33437500000000003 0 0 1 0.025 -0.620625z" stroke-width="1"></path>
+                    </svg>
                     </button>
                 </form>
             </div>

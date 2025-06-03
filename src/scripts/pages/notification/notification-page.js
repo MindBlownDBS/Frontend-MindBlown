@@ -9,8 +9,8 @@ export default class NotificationPage {
 
   async render() {
     return `
-      <section class="lg:p-8 p-8">
-        <div class="max-w-xl w-full ml-6 lg:ml-24 text-left">
+      <section class="lg:p-8 p-6 pt-2 md:p-6">
+        <div class="max-w-xl w-full ml-0 md:ml-16 lg:ml-24 text-left">
           <div class="flex justify-between items-center mb-8 mt-3">
             <h1 class="text-2xl font-semibold">Pemberitahuan</h1>
             <button id="mark-all-read-btn" class="text-sm text-third hover:text-third/80 hidden">

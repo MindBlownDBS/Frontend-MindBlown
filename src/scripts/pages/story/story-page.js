@@ -226,6 +226,71 @@ export default class StoryPage {
     }
   }
 
+  async _getProfilePicture(username) {
+    if (!username) return "./images/image.png";
+
+    try {
+      const response = await getUserProfile(username);
+      return response.profilePicture || "./images/image.png";
+    } catch (error) {
+      console.error("Error getting profile picture:", error);
+      return "./images/image.png";
+    }
+  }
+
+  async showStories(stories) {
+    const container = document.getElementById("stories-container");
+    if (!container) return;
+
+    try {
+      const storiesWithImages = await Promise.all(
+        stories.map(async (story, index) => {
+          const storyId =
+            story.id || story._id || story.storyId || `story-${index}`;
+
+          let profilePicture = "./images/image.png";
+
+          if (!story.isAnonymous && story.username) {
+            try {
+              const userData = await this._presenter.getCompleteUserData(
+                story.username
+              );
+              profilePicture = userData?.profilePicture || "./images/image.png";
+            } catch (error) {
+              console.error("Error getting user profile:", error);
+            }
+          }
+
+          return {
+            ...story,
+            storyId,
+            profilePicture,
+            likeCount: story.likeCount || story.likes?.length || 0,
+          };
+        })
+      );
+
+      container.innerHTML = storiesWithImages
+        .map((story) =>
+          storyItemTemplate({
+            username: story.isAnonymous ? "Pengguna" : story.name,
+            handle: story.isAnonymous ? "Anonim" : `@${story.username}`,
+            content: story.content,
+            isAnonymous: story.isAnonymous,
+            storyId: story.storyId,
+            likeCount: story.likeCount,
+            commentCount: story.comments?.length || 0,
+            viewCount: story.viewCount || 0,
+            profilePicture: story.profilePicture,
+          })
+        )
+        .join("");
+    } catch (error) {
+      console.error("Error showing stories:", error);
+      container.innerHTML = "<div>Error loading stories</div>";
+    }
+  }
+
   clearForm() {
     try {
       const input = document.getElementById("chat-input");
