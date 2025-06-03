@@ -340,7 +340,7 @@ export default class ProfilePage {
           storyId: storyId,
           likeCount: story.likes?.length || story.likeCount || 0,
           commentCount: story.comments?.length || story.commentCount || 0,
-          viewCount: story.views || 0,
+          viewCount: story.viewCount || story.views || 0,
           profilePicture: displayProfilePicture,
           createdAt: story.createdAt,
           isOwner: isOwner,

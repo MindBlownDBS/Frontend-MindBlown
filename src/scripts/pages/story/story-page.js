@@ -69,12 +69,10 @@ export default class StoryPage {
     }
   }
 
-  showStories(stories) {
+  async showStories(stories) {
     const container = document.getElementById("stories-container");
     if (!container) {
-      console.error(
-        "StoryPage: Element with ID 'stories-container' not found in showStories."
-      );
+      console.error("StoryPage: 'stories-container' element not found.");
       return;
     }
 
@@ -88,61 +86,69 @@ export default class StoryPage {
       ? this._currentUser
       : JSON.parse(localStorage.getItem("user")) || {};
 
-    const storiesWithFullUserData = Promise.all(
-      stories.map(async (story) => {
-        const storyIdToUse = story.id || story._id;
-        const isOwner =
-          !story.isAnonymous && story.username === this._currentUser?.username;
+    try {
+      const renderedStories = await Promise.all(
+        stories.map(async (story, index) => {
+          const storyId =
+            story.id || story._id || story.storyId || `story-${index}`;
+          const isOwner =
+            !story.isAnonymous &&
+            story.username === this._currentUser?.username;
 
-        let profilePicture = "./images/image.png";
-        let usernameDisplay = "Pengguna";
-        let handleDisplay = "Anonim";
+          let profilePicture = "./images/image.png";
+          let usernameDisplay = "Pengguna";
+          let handleDisplay = "Anonim";
 
-        if (!story.isAnonymous && story.username) {
-          if (this._presenter?.getCompleteUserData) {
-            const userData = await this._presenter.getCompleteUserData(
-              story.username
-            );
-            if (userData) {
-              profilePicture = userData.profilePicture || profilePicture;
-              usernameDisplay = userData.name || story.name || usernameDisplay;
-              handleDisplay = `@${userData.username || story.username}`;
+          if (!story.isAnonymous && story.username) {
+            try {
+              const userData = this._presenter?.getCompleteUserData
+                ? await this._presenter.getCompleteUserData(story.username)
+                : null;
+
+              if (userData) {
+                profilePicture = userData.profilePicture || profilePicture;
+                usernameDisplay =
+                  userData.name || story.name || usernameDisplay;
+                handleDisplay = `@${userData.username || story.username}`;
+              } else {
+                profilePicture = story.profilePicture || profilePicture;
+                usernameDisplay = story.name || usernameDisplay;
+                handleDisplay = `@${story.username}`;
+              }
+            } catch (error) {
+              console.error(
+                `Error fetching profile for ${story.username}:`,
+                error
+              );
             }
-          } else {
-            profilePicture = story.profilePicture || profilePicture;
-            usernameDisplay = story.name || usernameDisplay;
-            handleDisplay = `@${story.username}`;
           }
-        }
 
-        return storyItemTemplate({
-          username: usernameDisplay,
-          handle: handleDisplay,
-          content: story.content,
-          isAnonymous: story.isAnonymous,
-          storyId: storyIdToUse,
-          likeCount: story.likeCount || 0,
-          commentCount: story.commentCount || 0,
-          viewCount: story.views || 0,
-          profilePicture: profilePicture,
-          createdAt: story.createdAt,
-          isOwner: isOwner,
-        });
-      })
-    );
+          return storyItemTemplate({
+            username: usernameDisplay,
+            handle: handleDisplay,
+            content: story.content,
+            isAnonymous: story.isAnonymous,
+            storyId: storyId,
+            likeCount: story.likeCount || story.likes?.length || 0,
+            commentCount: story.commentCount || story.comments?.length || 0,
+            viewCount: story.viewCount || story.views || 0,
+            profilePicture: profilePicture,
+            createdAt: story.createdAt,
+            isOwner: isOwner,
+          });
+        })
+      );
 
-    storiesWithFullUserData
-      .then((renderedStories) => {
-        container.innerHTML = renderedStories.join("");
+      container.innerHTML = renderedStories.join("");
 
-        if (this._presenter) {
-          setupStoryInteractions(this._presenter, "stories-container");
-          setupStoryActions(this._presenter, "stories-container");
-        }
-      })
-      .catch((error) => {
-        console.error("Error rendering stories with full user data:", error);
-      });
+      if (this._presenter) {
+        setupStoryInteractions(this._presenter, "stories-container");
+        setupStoryActions(this._presenter, "stories-container");
+      }
+    } catch (error) {
+      console.error("Error rendering stories:", error);
+      container.innerHTML = "<div>Error loading stories</div>";
+    }
   }
 
   #setupEditStoryModalListener() {
@@ -235,59 +241,6 @@ export default class StoryPage {
     } catch (error) {
       console.error("Error getting profile picture:", error);
       return "./images/image.png";
-    }
-  }
-
-  async showStories(stories) {
-    const container = document.getElementById("stories-container");
-    if (!container) return;
-
-    try {
-      const storiesWithImages = await Promise.all(
-        stories.map(async (story, index) => {
-          const storyId =
-            story.id || story._id || story.storyId || `story-${index}`;
-
-          let profilePicture = "./images/image.png";
-
-          if (!story.isAnonymous && story.username) {
-            try {
-              const userData = await this._presenter.getCompleteUserData(
-                story.username
-              );
-              profilePicture = userData?.profilePicture || "./images/image.png";
-            } catch (error) {
-              console.error("Error getting user profile:", error);
-            }
-          }
-
-          return {
-            ...story,
-            storyId,
-            profilePicture,
-            likeCount: story.likeCount || story.likes?.length || 0,
-          };
-        })
-      );
-
-      container.innerHTML = storiesWithImages
-        .map((story) =>
-          storyItemTemplate({
-            username: story.isAnonymous ? "Pengguna" : story.name,
-            handle: story.isAnonymous ? "Anonim" : `@${story.username}`,
-            content: story.content,
-            isAnonymous: story.isAnonymous,
-            storyId: story.storyId,
-            likeCount: story.likeCount,
-            commentCount: story.comments?.length || 0,
-            viewCount: story.viewCount || 0,
-            profilePicture: story.profilePicture,
-          })
-        )
-        .join("");
-    } catch (error) {
-      console.error("Error showing stories:", error);
-      container.innerHTML = "<div>Error loading stories</div>";
     }
   }
 

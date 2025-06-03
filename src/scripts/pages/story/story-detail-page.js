@@ -150,7 +150,7 @@ export default class StoryDetailPage {
       isAnonymous: story.isAnonymous,
       likeCount: story.likeCount || story.likes?.length || 0,
       commentCount: story.commentCount || story.comments?.length || 0,
-      viewCount: story.views || 0,
+      viewCount: story.viewCount || story.views || 0,
       storyId: storyIdToUse,
       profilePicture: story.profilePicture,
       createdAt: story.createdAt,

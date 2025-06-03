@@ -24,6 +24,7 @@ export default class StoryPresenter {
           likeCount: story.likes?.length || 0,
           commentCount: story.comments?.length || 0,
         }));
+        console.log("Stories loaded successfully:", this._stories);
         this._view.showStories(this._stories);
       } else {
         console.error("Error loading stories:", response.message);
