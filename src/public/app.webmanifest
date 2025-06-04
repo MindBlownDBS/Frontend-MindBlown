@@ -1,0 +1,25 @@
+{
+    "id": "/#/",
+    "start_url": "/#/",
+    "scope": "/",
+    "name": "MindBlown App",
+    "short_name": "MindBlown",
+    "description": "Aplikasi Pendeteksi kesehatan mental yang membantu pengguna memahami kondisi mental mereka melalui curhatan di chatbot.",
+    "display": "standalone",
+    "background_color": "#FFFFFF",
+    "theme_color": "#d97706",
+    "icons": [
+        {
+            "src": "images/icons/icon512_maskable.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable"
+        },
+        {
+            "src": "images/icons/icon512_rounded.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+        }
+    ]
+}

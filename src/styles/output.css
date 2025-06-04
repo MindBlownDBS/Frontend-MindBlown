@@ -11,6 +11,7 @@
     --color-red-300: oklch(80.8% 0.114 19.571);
     --color-red-400: oklch(70.4% 0.191 22.216);
     --color-red-500: oklch(63.7% 0.237 25.331);
+    --color-red-600: oklch(57.7% 0.245 27.325);
     --color-red-700: oklch(50.5% 0.213 27.518);
     --color-green-500: oklch(72.3% 0.219 149.579);
     --color-teal-500: oklch(70.4% 0.14 182.503);
@@ -37,7 +38,6 @@
     --container-lg: 32rem;
     --container-xl: 36rem;
     --container-2xl: 42rem;
-    --container-6xl: 72rem;
     --text-xs: 0.75rem;
     --text-xs--line-height: calc(1 / 0.75);
     --text-sm: 0.875rem;
@@ -473,17 +473,8 @@
   .w-25 {
     width: calc(var(--spacing) * 25);
   }
-  .w-26 {
-    width: calc(var(--spacing) * 26);
-  }
   .w-27 {
     width: calc(var(--spacing) * 27);
-  }
-  .w-45 {
-    width: calc(var(--spacing) * 45);
-  }
-  .w-46 {
-    width: calc(var(--spacing) * 46);
   }
   .w-56 {
     width: calc(var(--spacing) * 56);
@@ -518,6 +509,9 @@
   }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  }
+  .cursor-not-allowed {
+    cursor: not-allowed;
   }
   .cursor-pointer {
     cursor: pointer;
@@ -709,6 +703,9 @@
   .bg-gray-200 {
     background-color: var(--color-gray-200);
   }
+  .bg-gray-300 {
+    background-color: var(--color-gray-300);
+  }
   .bg-green-500 {
     background-color: var(--color-green-500);
   }
@@ -717,6 +714,9 @@
   }
   .bg-red-300 {
     background-color: var(--color-red-300);
+  }
+  .bg-red-500 {
+    background-color: var(--color-red-500);
   }
   .bg-teal-500 {
     background-color: var(--color-teal-500);
@@ -942,9 +942,6 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
-  .transition-normal {
-    transition-behavior: normal;
-  }
   .peer-checked\:scale-125 {
     &:is(:where(.peer):checked ~ *) {
       --tw-scale-x: 125%;
@@ -980,10 +977,10 @@
       }
     }
   }
-  .hover\:bg-teal-500 {
+  .hover\:bg-red-600 {
     &:hover {
       @media (hover: hover) {
-        background-color: var(--color-teal-500);
+        background-color: var(--color-red-600);
       }
     }
   }

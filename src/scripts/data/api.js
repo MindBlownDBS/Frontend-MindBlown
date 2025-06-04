@@ -9,6 +9,8 @@ const ENDPOINTS = {
   NOTIFICATIONS: "/notifications",
   MARK_NOTIFICATION_READ: "/notifications",
   MARK_ALL_NOTIFICATIONS_READ: "/notifications/read-all",
+  SUBSCRIBE_PUSH: "/notifications/push/subscribe",
+  UNSUBSCRIBE_PUSH: "/notifications/push/unsubscribe",
 };
 
 export async function getRegister(username, name, email, password) {
@@ -362,8 +364,8 @@ export async function markNotificationAsRead(notificationId) {
     return result;
   } catch (error) {
     console.error("Error message:", error.message);
-    
-    
+
+
     return { error: true, message: error.message || "Gagal menandai notifikasi sebagai dibaca" };
   }
 }
@@ -413,14 +415,77 @@ export async function markAllNotificationsAsRead() {
     console.error("Error marking all notifications as read:", error);
     console.error("Error type:", error.constructor.name);
     console.error("Error message:", error.message);
-    
+
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-      return { 
-        error: true, 
-        message: "Tidak dapat terhubung ke server. Periksa koneksi internet Anda dan pastikan server berjalan." 
+      return {
+        error: true,
+        message: "Tidak dapat terhubung ke server. Periksa koneksi internet Anda dan pastikan server berjalan."
       };
     }
-    
+
     return { error: true, message: error.message || "Gagal menandai semua notifikasi sebagai dibaca" };
+  }
+}
+
+export async function subscribePushNotification(subscription) {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.SUBSCRIBE_PUSH}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ subscription }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Gagal menyimpan subscription push notification");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error subscribing push notification:", error);
+    return {
+      error: true,
+      message: error.message || "Gagal berlangganan push notification"
+    };
+  }
+}
+
+export async function unsubscribePushNotification() {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.UNSUBSCRIBE_PUSH}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Gagal menghapus subscription push notification");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error unsubscribing push notification:", error);
+    return {
+      error: true,
+      message: error.message || "Gagal berhenti berlangganan push notification"
+    };
   }
 }

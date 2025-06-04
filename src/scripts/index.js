@@ -5,6 +5,7 @@ import '../styles/output.css';
 import App from './pages/app';
 import routes from './routes/routes';
 import { getActiveRoute } from './routes/url-parser';
+import { registerServiceWorker } from './utils';
 
 function handleNavbarVisibility() {
     const hideNavbarRoutes = ['/login', '/register', '/404'];
@@ -35,6 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         sidebarToggleContainer: document.querySelector('#sidebar-toggle-container'),
     });
     await app.renderPage();
+    await registerServiceWorker();
+    console.log('Berhasil mendaftarkan service worker.');
     handleNavbarVisibility();
 
     window.addEventListener('hashchange', async () => {
