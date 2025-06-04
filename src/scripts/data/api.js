@@ -451,6 +451,69 @@ export async function markAllNotificationsAsRead() {
   }
 }
 
+export async function subscribePushNotification(subscription) {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.SUBSCRIBE_PUSH}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ subscription }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Gagal menyimpan subscription push notification");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error subscribing push notification:", error);
+    return {
+      error: true,
+      message: error.message || "Gagal berlangganan push notification"
+    };
+  }
+}
+
+export async function unsubscribePushNotification() {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.UNSUBSCRIBE_PUSH}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Gagal menghapus subscription push notification");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error unsubscribing push notification:", error);
+    return {
+      error: true,
+      message: error.message || "Gagal berhenti berlangganan push notification"
+    };
+  }
+}
+
 export const editStory = async (storyId, content) => {
   try {
     const token = getAccessToken();
