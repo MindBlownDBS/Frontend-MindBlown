@@ -141,8 +141,9 @@ export default class CommentDetailPage {
       !commentData.isCommentAnonymous &&
       this._currentUser?.username === commentData.authorActualUsername;
     parentContainer.innerHTML = commentItemTemplate({
-      commentId: commentData.id,
-      username: commentData.username || "Pengguna",
+      commentId: commentData._id,
+      username: commentData.name || "Pengguna",
+      handle: commentData.username || "Anonim",
       content: commentData.content,
       profilePicture: commentData.profilePicture || "./images/image.png",
       createdAt: commentData.createdAt,
@@ -176,10 +177,12 @@ export default class CommentDetailPage {
 
     let allCommentsHTML = "";
     commentsArray.forEach((comment) => {
+      console.log(comment);
       const isOwner = this._currentUser?.username === comment.username;
       const commentHTML = commentItemTemplate({
-        commentId: comment.id,
-        username: comment.username || "Pengguna",
+        commentId: comment._id,
+        username: comment.name || "Pengguna",
+        handle: comment.username,
         content: comment.content,
         profilePicture: comment.profilePicture || "./images/image.png",
         createdAt: comment.createdAt,

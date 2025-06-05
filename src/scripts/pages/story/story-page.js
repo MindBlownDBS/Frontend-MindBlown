@@ -130,7 +130,7 @@ export default class StoryPage {
             isAnonymous: story.isAnonymous,
             storyId: storyId,
             likeCount: story.likeCount || story.likes?.length || 0,
-            commentCount: story.commentCount || story.comments?.length || 0,
+            commentCount: story.totalCommentCount,
             viewCount: story.viewCount || story.views || 0,
             profilePicture: profilePicture,
             createdAt: story.createdAt,

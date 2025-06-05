@@ -243,7 +243,7 @@ export async function likeStory(storyId) {
       throw new Error(data.message || "Failed to like story");
     }
 
-    return data.likeCount;
+    return data;
   } catch (error) {
     console.error("Failed to like story:", error);
     throw error;
@@ -459,10 +459,10 @@ export async function subscribePushNotification(subscription) {
     }
 
     const response = await fetch(`${BASE_URL}${ENDPOINTS.SUBSCRIBE_PUSH}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ subscription }),
     });
@@ -470,7 +470,9 @@ export async function subscribePushNotification(subscription) {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "Gagal menyimpan subscription push notification");
+      throw new Error(
+        result.message || "Gagal menyimpan subscription push notification"
+      );
     }
 
     return result;
@@ -478,7 +480,7 @@ export async function subscribePushNotification(subscription) {
     console.error("Error subscribing push notification:", error);
     return {
       error: true,
-      message: error.message || "Gagal berlangganan push notification"
+      message: error.message || "Gagal berlangganan push notification",
     };
   }
 }
@@ -491,17 +493,19 @@ export async function unsubscribePushNotification() {
     }
 
     const response = await fetch(`${BASE_URL}${ENDPOINTS.UNSUBSCRIBE_PUSH}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
       },
     });
 
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "Gagal menghapus subscription push notification");
+      throw new Error(
+        result.message || "Gagal menghapus subscription push notification"
+      );
     }
 
     return result;
@@ -509,7 +513,7 @@ export async function unsubscribePushNotification() {
     console.error("Error unsubscribing push notification:", error);
     return {
       error: true,
-      message: error.message || "Gagal berhenti berlangganan push notification"
+      message: error.message || "Gagal berhenti berlangganan push notification",
     };
   }
 }

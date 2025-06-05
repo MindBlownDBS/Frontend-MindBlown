@@ -26,7 +26,7 @@ const routes = {
   "/chatbot": () => new ChatbotPage(),
   "/story/:id": (id) => checkProtectedRoute(new StoryDetailPage(id)),
   "/404": () => new NotFoundPage(),
-  "/comment/:id": () => new CommentDetailPage(),
+  "/comment/:id": (id) => new CommentDetailPage(id),
 };
 
 export default routes;

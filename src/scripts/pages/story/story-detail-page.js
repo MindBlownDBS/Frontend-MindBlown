@@ -221,7 +221,8 @@ export default class StoryDetailPage {
 
       const commentHTML = commentItemTemplate({
         commentId: comment.id || comment._id,
-        username: comment.username || "Pengguna",
+        username: comment.name || "Pengguna",
+        handle: comment.username,
         content: comment.content,
         profilePicture: comment.profilePicture || "./images/image.png",
         createdAt: comment.createdAt,

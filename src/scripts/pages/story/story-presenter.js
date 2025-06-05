@@ -25,7 +25,7 @@ export default class StoryPresenter {
       if (!response.error) {
         this._stories = (response.data || []).map((story) => ({
           ...story,
-          likeCount: story.likes?.length || 0,
+          likeCount: story.likeCount,
           commentCount: story.comments?.length || 0,
         }));
         console.log("Stories loaded successfully:", this._stories);
@@ -238,11 +238,13 @@ export default class StoryPresenter {
         throw new Error(responseData.message || "Failed to like story");
       }
 
-      const newLikeCount = Array.isArray(responseData.data?.likes)
-        ? responseData.data.likes.length
-        : typeof responseData.data === "number"
-        ? responseData.data
-        : 0;
+      return responseData;
+
+      // const newLikeCount = Array.isArray(responseData.data?.likes)
+      //   ? responseData.data.likes.length
+      //   : typeof responseData.data === "number"
+      //   ? responseData.data
+      //   : 0;
 
       const storyIndex = this._stories.findIndex(
         (s) => s.id === storyId || s._id === storyId
@@ -253,18 +255,18 @@ export default class StoryPresenter {
           this._stories[storyIndex].likes = responseData.data.likes;
       }
 
-      document.dispatchEvent(
-        new CustomEvent("storyDataChanged", {
-          detail: {
-            storyId,
-            action: "liked",
-            newLikeCount,
-            likes: responseData.data?.likes,
-          },
-        })
-      );
+      // document.dispatchEvent(
+      //   new CustomEvent("storyDataChanged", {
+      //     detail: {
+      //       storyId,
+      //       action: "liked",
+      //       newLikeCount,
+      //       likes: responseData.data?.likes,
+      //     },
+      //   })
+      // );
 
-      return newLikeCount;
+      // return newLikeCount;
     } catch (error) {
       console.error("Failed to like story:", error);
       throw error;
@@ -319,18 +321,39 @@ export default class StoryPresenter {
 
   async loadCommentDetail(commentId) {
     try {
+      if (
+        !commentId ||
+        typeof commentId !== "string" ||
+        commentId.trim() === ""
+      ) {
+        console.error(
+          "StoryPresenter: Attempted to load comment detail with invalid ID:",
+          commentId
+        );
+        this._view.showError("ID komentar tidak valid untuk dimuat.");
+        return;
+      }
       const response = await getCommentDetail(commentId);
+
       if (!response.error && response.data) {
         this._view.showCommentDetail(response.data);
       } else {
-        console.error("Error loading comment detail:", response.message);
+        console.error(
+          "Error loading comment detail in presenter:",
+          response.message
+        );
         this._view.showError(
           response.message || "Gagal memuat detail komentar."
         );
       }
     } catch (error) {
-      console.error("Failed to load comment detail:", error);
-      this._view.showError("Terjadi kesalahan saat memuat detail komentar.");
+      console.error(
+        "Failed to load comment detail in presenter (exception):",
+        error
+      );
+      this._view.showError(
+        error.message || "Terjadi kesalahan saat memuat detail komentar."
+      );
     }
   }
 

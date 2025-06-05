@@ -380,6 +380,7 @@ export function storyItemTemplate({
       formattedDate = "Gagal memuat tanggal";
     }
   }
+
   return `
     <div class="story-container flex items-start gap-3 py-3 border-b border-gray-200 max-w-2xl" data-story-id="${storyId}">
     <div class="w-10 h-10 flex-shrink-0 user-info">

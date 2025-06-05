@@ -27,12 +27,13 @@ export const setupStoryInteractions = (
     }
 
     if (
-      e.target.closest(".like-btn") ||
-      e.target.closest(".comment-btn") ||
-      e.target.closest(".view-btn") ||
-      e.target.closest(".user-info")
+      !(
+        e.target.closest(".like-btn") ||
+        e.target.closest(".comment-btn") ||
+        e.target.closest(".view-btn") ||
+        e.target.closest(".user-info")
+      )
     ) {
-    } else {
       window.location.hash = `#/story/${storyId}`;
       return;
     }
@@ -63,26 +64,15 @@ export const setupStoryInteractions = (
 };
 
 const handleLike = async (presenter, storyId, likeBtn) => {
-  if (likeBtn.disabled) return;
-  const originalText = likeBtn.innerHTML;
-  likeBtn.disabled = true;
+  const likeCountText = likeBtn.querySelector(".like-count");
 
   try {
-    const newLikeCount = await presenter.likeStory(storyId);
+    const { likeCount, message } = await presenter.likeStory(storyId);
 
-    if (typeof newLikeCount === "number") {
-      const likeCountElement = likeBtn.querySelector(".like-count");
-      if (likeCountElement) {
-        likeCountElement.textContent = newLikeCount;
-      }
-      const svgElement = likeBtn.querySelector("svg");
-    }
+    likeCountText.innerHTML = likeCount;
   } catch (error) {
     console.error("Error handling like:", error);
     alert("Gagal menyukai cerita: " + (error.message || "Terjadi kesalahan"));
-    likeBtn.innerHTML = originalText;
-  } finally {
-    likeBtn.disabled = false;
   }
 };
 
