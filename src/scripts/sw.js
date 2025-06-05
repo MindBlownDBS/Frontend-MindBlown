@@ -78,18 +78,20 @@ self.addEventListener('push', (event) => {
 });
 
 self.addEventListener('notificationclick', (event) => {
-    console.log('👆 Manual notification clicked');
+    console.log('👆 Notification clicked - redirecting to notifications page');
     event.notification.close();
 
     event.waitUntil(
         clients.matchAll({ type: 'window' }).then((clientList) => {
             for (const client of clientList) {
                 if (client.url.includes(self.location.origin) && 'focus' in client) {
-                    return client.focus();
+                    client.focus();
+                    return client.navigate(self.location.origin + '/#/notification');
                 }
             }
+            
             if (clients.openWindow) {
-                return clients.openWindow('/');
+                return clients.openWindow('/#/notification');
             }
         })
     );

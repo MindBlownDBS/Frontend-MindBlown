@@ -9,22 +9,27 @@ export default class NotificationPage {
     this.notifications = [];
     this.isSubscribed = false;
     this.isSupported = false;
+    this.currentPage = 1;
+    this.itemsPerPage = 8; 
+    this.totalPages = 1;
   }
 
   async render() {
     return `
-      <section class="lg:p-8 p-6 pt-2 md:p-6">
+      <section class="lg:p-8 p-6 pt-2 md:p-6 pb-20">
         <div class="max-w-xl w-full ml-0 md:ml-16 lg:ml-24 text-left">
           <div class="flex justify-between items-center mb-8 mt-3">
-            <h1 class="text-2xl font-semibold">Pemberitahuan</h1>
-            <button id="mark-all-read-btn" class="text-sm text-third hover:text-third/80 hidden">
-              Tandai Semua Dibaca
-            </button>
+            <h1 class="text-2xl font-semibold">Pemberitahuan</h1>     
           </div>
 
-           <div id="push-notification-container" class="mb-6">
+        <div class="flex justify-between items-center mb-6"> 
+          <div id="push-notification-container">
+            <!-- Push notification button akan di-render di sini -->
           </div>
-
+          <button id="mark-all-read-btn" class="text-sm text-third hover:text-third/80 hidden">
+            Tandai Semua Dibaca
+          </button>
+        </div>
          
           
           <div id="notification-loading" class="text-center py-8">
@@ -32,8 +37,29 @@ export default class NotificationPage {
           </div>
           
           <div id="notification-container" class="hidden">
-            <!-- Notifications will be rendered here -->
-          </div>
+            <div id="notification-list">
+            </div>
+            
+            <div id="pagination-container" class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200 hidden">
+              <button id="prev-btn" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <!-- Desktop: Text lengkap -->
+                <span class="hidden sm:inline">← Sebelumnya</span>
+                <!-- Mobile: Simbol -->
+                <span class="sm:hidden text-lg">‹</span>
+              </button>
+              
+              <span id="page-info" class="text-sm text-gray-600 font-medium">
+                <span class="sm:hidden">1/1</span>
+                <span class="hidden sm:inline">Halaman 1 dari 1</span>
+              </span>
+              
+              <button id="next-btn" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <!-- Desktop: Text lengkap -->
+                <span class="hidden sm:inline">Selanjutnya →</span>
+                <!-- Mobile: Simbol -->
+                <span class="sm:hidden text-lg">›</span>
+              </button>
+            </div>
           
           <div id="notification-error" class="hidden text-center py-8">
             <p class="text-red-500">Gagal memuat notifikasi</p>
@@ -41,8 +67,8 @@ export default class NotificationPage {
           </div>
 
           <div id="success-message" class="hidden bg-third/10 border border-third text-third px-4 py-3 rounded mb-4">
-          <p></p>
-        </div>
+            <p></p>
+          </div>
         </div>
       </section>
     `;
@@ -61,14 +87,12 @@ export default class NotificationPage {
       const isSubscribed = await isCurrentPushSubscriptionAvailable();
 
       if (isSubscribed) {
-        // Tampilkan tombol unsubscribe
         container.innerHTML = `
           <button id="push-notification-btn" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors" data-action="unsubscribe">
             Nonaktifkan Push Notifikasi
           </button>
         `;
       } else {
-        // Tampilkan tombol subscribe
         container.innerHTML = `
           <button id="push-notification-btn" class="px-4 py-2 bg-third text-white text-sm rounded-lg hover:bg-third/90 transition-colors" data-action="subscribe">
             Aktifkan Push Notifikasi
@@ -90,7 +114,6 @@ export default class NotificationPage {
     const action = btn.dataset.action;
     const originalText = btn.textContent;
     
-    // Set loading state
     btn.disabled = true;
     btn.textContent = 'Memproses...';
     
@@ -107,7 +130,6 @@ export default class NotificationPage {
         await unsubscribe();
         this.showSuccessMessage('Push notification berhasil dinonaktifkan!');
         
-        // Update button ke subscribe
         btn.textContent = 'Aktifkan Push Notifikasi';
         btn.className = 'px-4 py-2 bg-third text-white text-sm rounded-lg hover:bg-third/90 transition-colors';
         btn.dataset.action = 'subscribe';
@@ -121,69 +143,91 @@ export default class NotificationPage {
         alert('Gagal menonaktifkan push notification: ' + error.message);
       }
       
-      // Restore original text
       btn.textContent = originalText;
     } finally {
       btn.disabled = false;
     }
   }
 
-
   displayNotifications(notifications) {
     this.notifications = notifications;
+    this.currentPage = 1;
+    this.totalPages = Math.ceil(notifications.length / this.itemsPerPage);
+
     const container = document.getElementById('notification-container');
     const loading = document.getElementById('notification-loading');
     const error = document.getElementById('notification-error');
-    const markAllReadBtn = document.getElementById('mark-all-read-btn');
 
     loading.classList.add('hidden');
     error.classList.add('hidden');
 
     if (notifications.length === 0) {
-      container.innerHTML = `
+      const listContainer = document.getElementById('notification-list');
+      listContainer.innerHTML = `
         <div class="text-center py-8">
           <p class="text-gray-500">Belum ada notifikasi</p>
         </div>
       `;
-      markAllReadBtn.classList.add('hidden');
+      this.hidePagination();
+      this.hideMarkAllButton();
     } else {
-      container.innerHTML = notificationListTemplate(notifications);
-
-      this.attachNotificationClickListeners();
-
-      const hasUnreadNotifications = notifications.some(n => !n.read);
-      if (hasUnreadNotifications) {
-        markAllReadBtn.classList.remove('hidden');
-      } else {
-        markAllReadBtn.classList.add('hidden');
-      }
+      this.renderCurrentPage();
+      this.updatePagination();
+      this.updateMarkAllButtonVisibility();
     }
 
     container.classList.remove('hidden');
   }
 
-  showError(message) {
-    const container = document.getElementById('notification-container');
-    const loading = document.getElementById('notification-loading');
-    const error = document.getElementById('notification-error');
-    const errorText = error.querySelector('p');
-
-    loading.classList.add('hidden');
-    container.classList.add('hidden');
-    errorText.textContent = message;
-    error.classList.remove('hidden');
+  renderCurrentPage() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    const currentNotifications = this.notifications.slice(startIndex, endIndex);
+    
+    const listContainer = document.getElementById('notification-list');
+    listContainer.innerHTML = notificationListTemplate(currentNotifications);
+    
+    this.attachNotificationClickListeners();
   }
 
-  showSuccessMessage(message) {
-    const successDiv = document.getElementById('success-message');
-    const messageP = successDiv.querySelector('p');
+  updatePagination() {
+    const paginationContainer = document.getElementById('pagination-container');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const pageInfo = document.getElementById('page-info');
 
-    messageP.textContent = message;
-    successDiv.classList.remove('hidden');
+    if (this.totalPages <= 1) {
+      this.hidePagination();
+      return;
+    }
 
-    setTimeout(() => {
-      successDiv.classList.add('hidden');
-    }, 3000);
+    paginationContainer.classList.remove('hidden');
+    pageInfo.textContent = `Halaman ${this.currentPage} dari ${this.totalPages}`;
+    prevBtn.disabled = this.currentPage === 1;
+    nextBtn.disabled = this.currentPage === this.totalPages;
+  }
+
+  hidePagination() {
+    const paginationContainer = document.getElementById('pagination-container');
+    paginationContainer.classList.add('hidden');
+  }
+
+  goToPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.renderCurrentPage();
+      this.updatePagination();
+      document.getElementById('notification-list').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  goToNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.renderCurrentPage();
+      this.updatePagination();
+      document.getElementById('notification-list').scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   attachEventListeners() {
@@ -209,53 +253,48 @@ export default class NotificationPage {
       });
     }
 
+    const prevBtn = document.getElementById('prev-btn');
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        this.goToPreviousPage();
+      });
+    }
+
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        this.goToNextPage();
+      });
+    }
+
     this.attachNotificationClickListeners();
   }
 
+  updateNotificationReadStatus(notificationId) {
+    const notification = this.notifications.find(n => n.id === notificationId);
+    if (notification) {
+      notification.read = true;
+    }
 
-  //   const subscribeBtn = document.getElementById('subscribe-btn');
-  //   if (subscribeBtn) {
-  //     subscribeBtn.addEventListener('click', () => {
-  //       subscribe();
-  //     });
-  //   }
+    this.renderCurrentPage();
+    this.updateMarkAllButtonVisibility();
+  }
 
-  //   const unsubscribeBtn = document.getElementById('unsubscribe-btn');
-  //   if (unsubscribeBtn) {
-  //     unsubscribeBtn.addEventListener('click', () => {
-  //       this.handleUnsubscribePush();
-  //     });
-  //   }
-  //   this.attachNotificationClickListeners();
-  // }
+  updateAllNotificationsReadStatus() {
+    this.notifications.forEach(notification => {
+      notification.read = true;
+    });
 
-  // async handleSubscribePush() {
-  //   const subscribeBtn = document.getElementById('subscribe-btn');
-  //   subscribeBtn.disabled = true;
-  //   subscribeBtn.textContent = 'Memproses...';
+    this.renderCurrentPage();
+    this.hideMarkAllButton();
+  }
 
-  //   try {
-  //     alert('Push notification berhasil diaktifkan!');
-  //   } catch (error) {
-  //     alert('Gagal mengaktifkan push notification: ' + error.message);
-  //   } finally {
-  //     subscribeBtn.disabled = false;
-  //   }
-  // }
-
-  // async handleUnsubscribePush() {
-  //   const unsubscribeBtn = document.getElementById('unsubscribe-btn');
-  //   unsubscribeBtn.disabled = true;
-  //   unsubscribeBtn.textContent = 'Memproses...';
-
-  //   try {
-  //     alert('Push notification berhasil dinonaktifkan!');
-  //   } catch (error) {
-  //     alert('Gagal menonaktifkan push notification: ' + error.message);
-  //   } finally {
-  //     unsubscribeBtn.disabled = false;
-  //   }
-  // }
+  hideMarkAllButton() {
+    const markAllBtn = document.getElementById('mark-all-read-btn');
+    if (markAllBtn) {
+      markAllBtn.classList.add('hidden');
+    }
+  }
 
   attachNotificationClickListeners() {
     const notificationItems = document.querySelectorAll('[data-notification-id]');
@@ -295,6 +334,30 @@ export default class NotificationPage {
     loading.classList.remove('hidden');
   }
 
+  showError(message) {
+    const container = document.getElementById('notification-container');
+    const loading = document.getElementById('notification-loading');
+    const error = document.getElementById('notification-error');
+    const errorText = error.querySelector('p');
+
+    loading.classList.add('hidden');
+    container.classList.add('hidden');
+    errorText.textContent = message;
+    error.classList.remove('hidden');
+  }
+
+  showSuccessMessage(message) {
+    const successDiv = document.getElementById('success-message');
+    const messageP = successDiv.querySelector('p');
+
+    messageP.textContent = message;
+    successDiv.classList.remove('hidden');
+
+    setTimeout(() => {
+      successDiv.classList.add('hidden');
+    }, 3000);
+  }
+
   handleNotificationClick(notificationId) {
     const notification = this.notifications.find(n => n.id === notificationId);
     if (notification) {
@@ -317,46 +380,6 @@ export default class NotificationPage {
           console.warn('Failed to mark notification as read on server, but UI updated locally:', error);
         });
       }
-    }
-  }
-
-  updateNotificationReadStatus(notificationId) {
-    const notification = this.notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.read = true;
-    }
-
-    const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
-    if (notificationElement) {
-      notificationElement.classList.add('opacity-60');
-
-      const indicator = notificationElement.querySelector('.bg-third');
-      if (indicator) {
-        indicator.remove();
-      }
-    }
-
-    this.updateMarkAllButtonVisibility();
-  }
-
-  updateAllNotificationsReadStatus() {
-    this.notifications.forEach(notification => {
-      notification.read = true;
-    });
-
-    const notificationElements = document.querySelectorAll('[data-notification-id]');
-    notificationElements.forEach(element => {
-      element.classList.add('opacity-60');
-
-      const indicator = element.querySelector('.bg-third');
-      if (indicator) {
-        indicator.remove();
-      }
-    });
-
-    const markAllBtn = document.getElementById('mark-all-read-btn');
-    if (markAllBtn) {
-      markAllBtn.classList.add('hidden');
     }
   }
 
