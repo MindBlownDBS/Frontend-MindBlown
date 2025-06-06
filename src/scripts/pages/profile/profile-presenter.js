@@ -2,7 +2,7 @@ import {
   getUserProfile,
   updateProfile,
   getStories,
-  likeStory as apiLikeStory,
+  likeStory,
   commentOnStory,
   editStory,
   deleteStory,
@@ -45,7 +45,7 @@ export default class ProfilePresenter {
         )
         .map((story) => ({
           ...story,
-          likeCount: story.likes?.length || 0,
+          likeCount: story.likeCount,
           commentCount: story.comments?.length || 0,
           profilePicture: userData.profilePicture || "./images/image.png",
           name: userData.name,
@@ -96,38 +96,26 @@ export default class ProfilePresenter {
 
   async likeStory(storyId) {
     try {
-      if (!storyId) throw new Error("Invalid story ID");
+      if (!storyId) {
+        throw new Error("Invalid story ID");
+      }
 
-      const responseData = await apiLikeStory(storyId); // API call
-      if (responseData.error) throw new Error(responseData.message);
+      const responseData = await likeStory(storyId);
 
-      const newLikeCount = Array.isArray(responseData.data?.likes)
-        ? responseData.data.likes.length
-        : typeof responseData.data === "number"
-        ? responseData.data
-        : 0;
+      if (responseData.error) {
+        throw new Error(responseData.message || "Failed to like story");
+      }
 
-      const storyIndex = this.#currentStories.findIndex(
+      return responseData;
+
+      const storyIndex = this._stories.findIndex(
         (s) => s.id === storyId || s._id === storyId
       );
       if (storyIndex !== -1) {
-        this.#currentStories[storyIndex].likeCount = newLikeCount;
+        this._stories[storyIndex].likeCount = newLikeCount;
         if (Array.isArray(responseData.data?.likes))
-          this.#currentStories[storyIndex].likes = responseData.data.likes;
+          this._stories[storyIndex].likes = responseData.data.likes;
       }
-
-      document.dispatchEvent(
-        new CustomEvent("storyDataChanged", {
-          detail: {
-            storyId,
-            action: "liked",
-            newLikeCount,
-            likes: responseData.data?.likes,
-          },
-        })
-      );
-
-      return newLikeCount;
     } catch (error) {
       console.error("ProfilePresenter: Failed to like story:", error);
       throw error;

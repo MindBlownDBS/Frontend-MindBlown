@@ -56,6 +56,9 @@ export const setupCommentInteractions = (presenter, containerElementId) => {
     ) {
       return;
     }
+
+    commentItem.style.cursor = "pointer";
+    window.location.hash = `/comment/${commentId}`;
   };
 
   container.addEventListener("click", container[handlerKey]);

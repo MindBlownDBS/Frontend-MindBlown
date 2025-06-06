@@ -34,8 +34,9 @@ export default class CommentDetailPage {
         <div class="grid grid-cols-2 gap-4 h-screen">
             <div class="overflow-y-auto p-6 mr-10 border-gray-200">
             <div id="parent-comment-container" class="space-y-6"></div>
+            <h3 class="text-lg font-semibold text-gray-900 mt-6">Balasan</h3>
 
-            <div id="replies-list-container" class="mt-8 space-y-6">
+            <div id="replies-list-container" class="mt-6 space-y-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Semua Balasan</h3>
             </div>
             </div>

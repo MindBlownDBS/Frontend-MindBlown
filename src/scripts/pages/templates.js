@@ -601,8 +601,8 @@ export function commentItemTemplate({
             <span class="comment-reply-count">${replyCount}</span>
           </a>
         </div>
-        <div class="replies-container mt-2 pl-5 border-l-2 border-gray-100">
-          </div>
+        <div class="replies-container mt-4 pl-4 border-l-2 border-gray-200 space-y-4" hidden>
+        </div>
       </div>
     </div>
   `;

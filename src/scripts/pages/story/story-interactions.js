@@ -75,23 +75,3 @@ const handleLike = async (presenter, storyId, likeBtn) => {
     alert("Gagal menyukai cerita: " + (error.message || "Terjadi kesalahan"));
   }
 };
-
-const handleComment = async (presenter, storyId, commentBtn) => {
-  try {
-    const commentContent = prompt("Masukkan komentar Anda:");
-    if (commentContent) {
-      const newCommentCount = await presenter.addComment(
-        storyId,
-        commentContent
-      );
-      if (newCommentCount !== null) {
-        const commentCountElement = commentBtn.querySelector(".comment-count");
-        if (commentCountElement) {
-          commentCountElement.textContent = newCommentCount;
-        }
-      }
-    }
-  } catch (error) {
-    console.error("Error handling comment:", error);
-  }
-};

@@ -19,7 +19,6 @@ export default class StoryDetailPage {
 
   constructor(storyId) {
     this._storyId = storyId;
-    // this._currentUser = this._presenter.getCurrentUser();
 
     this._presenter = new StoryPresenter(this);
     this._setupStoryDataChangedListener();
@@ -174,7 +173,7 @@ export default class StoryDetailPage {
       content: story.content,
       isAnonymous: story.isAnonymous,
       likeCount: story.likeCount || story.likes?.length || 0,
-      commentCount: story.commentCount || story.comments?.length || 0,
+      commentCount: story.totalCommentCount,
       viewCount: story.viewCount || story.views || 0,
       storyId: storyIdToUse,
       profilePicture: story.profilePicture,
