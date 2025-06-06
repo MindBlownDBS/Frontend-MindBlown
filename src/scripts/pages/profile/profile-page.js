@@ -149,22 +149,52 @@ export default class ProfilePage {
   }
 
   #setupEventListeners() {
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
-        if (this.#presenter) {
-          this.#presenter.handleLogout();
+    const menuTrigger = document.querySelector(".profileMenuBtn");
+    const menuDropdown = document.querySelector(".story-menu");
+
+    const editBtnDesktop = document.getElementById("editProfileBtn");
+    const editBtnMobile = document.getElementById("editProfileMobile");
+
+    const logoutBtnDesktop = document.getElementById("logoutBtnDesktop");
+    const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+
+    if (menuTrigger && menuDropdown) {
+      menuTrigger.addEventListener("click", (event) => {
+        event.stopPropagation();
+        menuDropdown.classList.toggle("hidden");
+      });
+
+      window.addEventListener("click", () => {
+        if (!menuDropdown.classList.contains("hidden")) {
+          menuDropdown.classList.add("hidden");
         }
       });
     }
 
-    const editProfileBtn = document.getElementById("editProfileBtn");
-    if (editProfileBtn) {
-      editProfileBtn.addEventListener("click", () => {
-        const userDataForModal =
-          JSON.parse(localStorage.getItem("user")) || this.#currentUser || {};
-        this.#showEditProfileModal(userDataForModal);
-      });
+    const handleEditClick = () => {
+      const userDataForModal =
+        JSON.parse(localStorage.getItem("user")) || this.#currentUser || {};
+      this.#showEditProfileModal(userDataForModal);
+    };
+
+    const handleLogoutClick = () => {
+      if (this.#presenter) {
+        this.#presenter.handleLogout();
+      }
+    };
+
+    if (editBtnDesktop) {
+      editBtnDesktop.addEventListener("click", handleEditClick);
+    }
+    if (editBtnMobile) {
+      editBtnMobile.addEventListener("click", handleEditClick);
+    }
+
+    if (logoutBtnDesktop) {
+      logoutBtnDesktop.addEventListener("click", handleLogoutClick);
+    }
+    if (logoutBtnMobile) {
+      logoutBtnMobile.addEventListener("click", handleLogoutClick);
     }
   }
 
