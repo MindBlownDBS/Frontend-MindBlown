@@ -240,12 +240,6 @@ export default class StoryPresenter {
 
       return responseData;
 
-      // const newLikeCount = Array.isArray(responseData.data?.likes)
-      //   ? responseData.data.likes.length
-      //   : typeof responseData.data === "number"
-      //   ? responseData.data
-      //   : 0;
-
       const storyIndex = this._stories.findIndex(
         (s) => s.id === storyId || s._id === storyId
       );
@@ -254,19 +248,6 @@ export default class StoryPresenter {
         if (Array.isArray(responseData.data?.likes))
           this._stories[storyIndex].likes = responseData.data.likes;
       }
-
-      // document.dispatchEvent(
-      //   new CustomEvent("storyDataChanged", {
-      //     detail: {
-      //       storyId,
-      //       action: "liked",
-      //       newLikeCount,
-      //       likes: responseData.data?.likes,
-      //     },
-      //   })
-      // );
-
-      // return newLikeCount;
     } catch (error) {
       console.error("Failed to like story:", error);
       throw error;
