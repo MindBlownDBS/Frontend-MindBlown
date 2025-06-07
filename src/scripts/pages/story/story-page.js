@@ -135,6 +135,7 @@ export default class StoryPage {
             profilePicture: profilePicture,
             createdAt: story.createdAt,
             isOwner: isOwner,
+            userLiked: story.userLiked || false, 
           });
         })
       );

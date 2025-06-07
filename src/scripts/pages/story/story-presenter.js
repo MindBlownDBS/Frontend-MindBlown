@@ -170,8 +170,8 @@ export default class StoryPresenter {
       }
 
       const story = response.data;
-      story.likeCount = story.likes?.length || 0;
-      story.commentCount = story.comments?.length || 0;
+      // story.likeCount = story.likes?.length || 0;
+      // story.commentCount = story.comments?.length || 0;
 
       if (!story.isAnonymous && story.username) {
         const userData = await this.getCompleteUserData(story.username);
@@ -388,12 +388,21 @@ export default class StoryPresenter {
       if (response.error) {
         throw new Error(response.message || "Gagal menyukai komentar.");
       }
+      // Ambil data dari struktur yang benar
+    const commentData = response.data?.comment || {};
+
+    console.log("🔍 Response data:", response.data);
+    console.log("🔍 Comment data:", commentData);
+    console.log("🔍 userLiked:", commentData.userLiked);
+    console.log("🔍 likeCount:", commentData.likeCount);
+
       document.dispatchEvent(
         new CustomEvent("commentDataChanged", {
           detail: {
             action: "commentLiked",
             entityId: commentId,
-            newLikeCount: response.likeCount,
+            userLiked: commentData.userLiked,
+            newLikeCount: commentData.likeCount,
             message: response.message,
           },
         })

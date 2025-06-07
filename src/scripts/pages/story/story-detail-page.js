@@ -102,38 +102,136 @@ export default class StoryDetailPage {
     );
   }
 
+  // _setupStoryDataChangedListener() {
+  //   this._storyDataChangedHandler = async (event) => {
+  //     const {
+  //       storyId: eventStoryId,
+  //       action,
+  //       entityId,
+  //       parentId,
+  //     } = event.detail;
+  //     if (
+  //       eventStoryId === this._storyId ||
+  //       (parentId === this._storyId && action === "commented") ||
+  //       action === "commentLiked" ||
+  //       action === "commentDeleted" ||
+  //       action === "replied"
+  //     ) {
+  //       console.log(
+  //         "StoryDetailPage: storyDataChanged event, reloading story details.",
+  //         event.detail
+  //       );
+  //       if (this._presenter) {
+  //         await this._presenter.loadStoryDetail(this._storyId);
+  //       }
+  //     }
+  //   };
+  //   document.addEventListener(
+  //     "storyDataChanged",
+  //     this._storyDataChangedHandler
+  //   );
+  //   document.addEventListener(
+  //     "commentDataChanged",
+  //     this._storyDataChangedHandler
+  //   );
+  // }
+
   _setupStoryDataChangedListener() {
-    this._storyDataChangedHandler = async (event) => {
-      const {
-        storyId: eventStoryId,
-        action,
-        entityId,
-        parentId,
-      } = event.detail;
-      if (
-        eventStoryId === this._storyId ||
-        (parentId === this._storyId && action === "commented") ||
-        action === "commentLiked" ||
-        action === "commentDeleted" ||
-        action === "replied"
-      ) {
-        console.log(
-          "StoryDetailPage: storyDataChanged event, reloading story details.",
-          event.detail
-        );
-        if (this._presenter) {
-          await this._presenter.loadStoryDetail(this._storyId);
+    // Hapus listener lama jika ada
+    if (this._storyDataChangedHandler) {
+      document.removeEventListener("storyDataChanged", this._storyDataChangedHandler);
+      document.removeEventListener("commentDataChanged", this._storyDataChangedHandler);
+    }
+
+    this._storyDataChangedHandler = (event) => {
+      console.log("🎯 StoryDetailPage: Event received", event.type, event.detail);
+
+      const { action, entityId, userLiked, newLikeCount, message } = event.detail;
+      console.log(`🎯 Action: ${action}, EntityId: ${entityId}, UserLiked: ${userLiked}, NewLikeCount: ${newLikeCount}`);
+
+      // Handle comment liked event without reloading
+      if (action === "commentLiked" && entityId) {
+        // Log detail selectors untuk debugging
+        console.log(`🔍 Looking for comment element with selector: .comment-item-container[data-comment-id="${entityId}"]`);
+
+        // Find the comment element
+        const commentElement = document.querySelector(`.comment-item-container[data-comment-id="${entityId}"]`);
+        console.log(`🔍 Comment element found:`, commentElement);
+
+        if (commentElement) {
+          const likeBtn = commentElement.querySelector('.comment-like-btn');
+          const heartSvg = likeBtn?.querySelector('svg');
+          const likeCountElement = likeBtn?.querySelector('.comment-like-count');
+
+          console.log(`🔍 Like button:`, likeBtn);
+          console.log(`🔍 Heart SVG:`, heartSvg);
+          console.log(`🔍 Like count element:`, likeCountElement);
+
+          if (likeBtn && heartSvg && likeCountElement) {
+            // Gunakan nilai userLiked langsung jika tersedia
+            const isLiked = userLiked !== undefined ? userLiked :
+              message?.includes('disukai');
+
+            console.log(`🎯 Updating comment like UI for ${entityId}:`, { isLiked, newLikeCount });
+
+            // Update UI
+            if (isLiked) {
+              likeBtn.classList.add('liked');
+              heartSvg.classList.add('fill-red-500', 'text-red-500');
+              heartSvg.classList.remove('fill-none', 'text-gray-500');
+              likeCountElement.classList.add('text-red-500', 'font-semibold');
+              likeCountElement.classList.remove('text-gray-600');
+            } else {
+              likeBtn.classList.remove('liked');
+              heartSvg.classList.add('fill-none', 'text-gray-500');
+              heartSvg.classList.remove('fill-red-500', 'text-red-500');
+              likeCountElement.classList.add('text-gray-600');
+              likeCountElement.classList.remove('text-red-500', 'font-semibold');
+            }
+
+            // Selalu update count untuk kepastian UI
+            // likeCountElement.textContent = newLikeCount !== undefined ? 
+            //                              Math.max(0, newLikeCount) : 
+            //                              parseInt(likeCountElement.textContent || '0') + (isLiked ? 1 : -1);
+
+            const currentCount = parseInt(likeCountElement.textContent || '0');
+            let newCount;
+
+            if (newLikeCount !== undefined && !isNaN(newLikeCount)) {
+              newCount = Math.max(0, newLikeCount);
+            } else {
+              newCount = isLiked ? Math.max(1, currentCount) : Math.max(0, currentCount - 1);
+            }
+
+            console.log(`🎯 Setting like count: ${currentCount} -> ${newCount} (isLiked: ${isLiked})`);
+            likeCountElement.textContent = String(newCount);
+            
+
+            // Log untuk memastikan nilai diatur dengan benar
+            console.log(`🎯 After update, count element text: "${likeCountElement.textContent}"`);
+
+            console.log(`🎯 Like UI updated successfully`);
+            return; // Skip reloading the entire story
+          } else {
+            console.warn(`⚠️ Could not find all required elements for comment ${entityId}`);
+          }
+        } else {
+          console.warn(`⚠️ Comment element with ID ${entityId} not found`);
         }
       }
+
+      console.log(`🔄 Reloading entire story for action: ${action}`);
+      // For other actions or if direct update failed, reload the entire story
+      if (this._storyId) {
+        this._presenter.loadStoryDetail(this._storyId);
+      }
     };
-    document.addEventListener(
-      "storyDataChanged",
-      this._storyDataChangedHandler
-    );
-    document.addEventListener(
-      "commentDataChanged",
-      this._storyDataChangedHandler
-    );
+
+    // Dengarkan kedua jenis event untuk keamanan
+    document.addEventListener("storyDataChanged", this._storyDataChangedHandler);
+    document.addEventListener("commentDataChanged", this._storyDataChangedHandler);
+
+    console.log("🎯 Story data changed listener set up");
   }
 
   destroy() {
@@ -179,6 +277,7 @@ export default class StoryDetailPage {
       profilePicture: story.profilePicture,
       createdAt: story.createdAt,
       isOwner,
+      userLiked: story.userLiked || false,
     });
 
     if (this._presenter) {
@@ -228,6 +327,7 @@ export default class StoryDetailPage {
         likeCount: comment.likes?.length || comment.likeCount || 0,
         replyCount: comment.replies?.length || comment.replyCount || 0,
         isOwner: isOwner,
+        userLiked: comment.userLiked || false,
       });
 
       const tempDiv = document.createElement("div");
@@ -251,19 +351,51 @@ export default class StoryDetailPage {
     parentElement.innerHTML = allCommentsHTML;
   }
 
+  // showComments(comments) {
+  //   const container = document.getElementById("comments-list");
+  //   if (container) {
+  //     container.innerHTML = comments
+  //       .map((comment) => {
+  //         return commentItemTemplate({
+  //           username: comment.username || "Pengguna",
+  //           content: comment.content,
+  //           timestamp: comment.createdAt || new Date().toISOString(),
+  //           profilePicture: comment.profilePicture || "./images/image.png",
+  //         });
+  //       })
+  //       .join("");
+  //   }
+  // }
+
   showComments(comments) {
     const container = document.getElementById("comments-list");
     if (container) {
+      this._currentUser = this._presenter.getCurrentUser();
+
       container.innerHTML = comments
         .map((comment) => {
+          const isOwner = this._currentUser?.username === comment.username;
+
           return commentItemTemplate({
-            username: comment.username || "Pengguna",
+            commentId: comment._id || comment.id,
+            username: comment.name || comment.username || "Pengguna",
+            handle: comment.username ? `@${comment.username}` : "Anonim",
             content: comment.content,
-            timestamp: comment.createdAt || new Date().toISOString(),
+            createdAt: comment.createdAt || new Date().toISOString(),
             profilePicture: comment.profilePicture || "./images/image.png",
+            likeCount: comment.likeCount || comment.likes?.length || 0,
+            replyCount: comment.repliesCount || comment.replies?.length || 0,
+            isOwner: isOwner,
+            userLiked: comment.userLiked || false, // Tambahkan parameter userLiked
           });
         })
         .join("");
+
+      // Setup interaksi komentar setelah render
+      if (this._presenter) {
+        setupCommentInteractions(this._presenter, "comments-list");
+        setupCommentActions(this._presenter, "comments-list");
+      }
     }
   }
 
@@ -299,7 +431,7 @@ export default class StoryDetailPage {
           console.error("Error submitting comment:", error);
           alert(
             "Gagal mengunggah komentar: " +
-              (error.message || "Terjadi kesalahan")
+            (error.message || "Terjadi kesalahan")
           );
         } finally {
           submitButton.disabled = false;
