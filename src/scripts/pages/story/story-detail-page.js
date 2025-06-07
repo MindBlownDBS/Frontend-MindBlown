@@ -302,7 +302,7 @@ export default class StoryDetailPage {
     setupCommentActions(this._presenter, "comments-list");
   }
 
-  _renderCommentsRecursive(commentsArray, parentElement, level) {
+ _renderCommentsRecursive(commentsArray, parentElement, level) {
     if (!commentsArray || commentsArray.length === 0) {
       if (level > 0) {
         parentElement.innerHTML =
@@ -313,11 +313,14 @@ export default class StoryDetailPage {
 
     this._currentUser = this._presenter.getCurrentUser();
 
-    let allCommentsHTML = "";
+    // Bersihkan element sebelum menambahkan konten baru
+    parentElement.innerHTML = '';
+
     commentsArray.forEach((comment) => {
       const isOwner = this._currentUser?.username === comment.username;
-
-      const commentHTML = commentItemTemplate({
+      const tempDiv = document.createElement("div");
+      
+      tempDiv.innerHTML = commentItemTemplate({
         commentId: comment.id || comment._id,
         username: comment.name || "Pengguna",
         handle: comment.username,
@@ -327,29 +330,20 @@ export default class StoryDetailPage {
         likeCount: comment.likes?.length || comment.likeCount || 0,
         replyCount: comment.replies?.length || comment.replyCount || 0,
         isOwner: isOwner,
-        userLiked: comment.userLiked || false,
+        userLiked: comment.isLiked || false,
       });
-
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = commentHTML;
-
-      const nestedRepliesContainer =
-        tempDiv.querySelector(".replies-container");
-      if (
-        nestedRepliesContainer &&
-        comment.replies &&
-        comment.replies.length > 0
-      ) {
-        this._renderCommentsRecursive(
-          comment.replies,
-          nestedRepliesContainer,
-          level + 1
-        );
+      
+      // Tambahkan elemen komentar langsung ke parentElement
+      const commentElement = tempDiv.firstElementChild;
+      parentElement.appendChild(commentElement);
+      
+      // Cari container untuk balasan di dalam komentar yang baru ditambahkan
+      const nestedRepliesContainer = commentElement.querySelector(".replies-container");
+      if (nestedRepliesContainer && comment.replies && comment.replies.length > 0) {
+        this._renderCommentsRecursive(comment.replies, nestedRepliesContainer, level + 1);
       }
-      allCommentsHTML += tempDiv.innerHTML;
     });
-    parentElement.innerHTML = allCommentsHTML;
-  }
+}
 
   // showComments(comments) {
   //   const container = document.getElementById("comments-list");

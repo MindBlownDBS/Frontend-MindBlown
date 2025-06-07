@@ -151,6 +151,7 @@ export default class CommentDetailPage {
       likeCount: commentData.likes?.length || commentData.likeCount || 0,
       replyCount: commentData.replies?.length || commentData.replyCount || 0,
       isOwner: this._currentUser?.username === commentData.username,
+      userLiked: commentData.userLiked || false,
     });
 
     if (commentData.replies && commentData.replies.length > 0) {
@@ -190,6 +191,7 @@ export default class CommentDetailPage {
         likeCount: comment.likes?.length || comment.likeCount || 0,
         replyCount: comment.replies?.length || comment.replyCount || 0,
         isOwner: isOwner,
+        userLiked: comment.userLiked || false,
       });
 
       const tempDiv = document.createElement("div");
