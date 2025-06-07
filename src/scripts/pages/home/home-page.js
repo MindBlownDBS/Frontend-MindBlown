@@ -5,7 +5,7 @@ import { getAccessToken } from "../../utils/auth";
 export default class HomePage {
   async render() {
     return `
-      <section class="md:ml-16 h-150 lg:min-h-screen flex items-center">
+      <section class="md:ml-16 h-150 md:h-screen lg:min-h-screen flex items-center">
         <div class="w-full flex items-center pb-20"> 
             <div class="max-w-2xl w-full mx-auto text-center">
                 <img src="images/logo.png" alt="Logo" class="w-27 h-27 mx-auto mb-3 lg:mb-10 mt-30">

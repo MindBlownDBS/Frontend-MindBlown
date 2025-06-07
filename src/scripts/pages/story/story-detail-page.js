@@ -36,15 +36,15 @@ export default class StoryDetailPage {
     const profilePicture = currentUser?.profilePicture || "./images/image.png";
 
     return `
-      <div class="ml-16 min-h-screen p-10">
+      <div class="md:ml-16 lg:ml-16 min-h-screen p-6 lg:p-10 pb-18">
         <div class="mb-1">
           <h1 class="text-2xl font-semibold text-gray-900 mb-2">Detail Story</h1>
           <p class="text-gray-600">Cerita lengkap dan komentar.</p>
           <hr class="mt-4 text-gray-300">
         </div>
 
-        <div class="grid grid-cols-2 gap-4 h-screen">
-          <div class="overflow-y-auto p-6 mr-10 border-gray-200">
+        <div class="lg:grid lg:grid-cols-2 gap-4 lg:h-screen">
+          <div class="lg:overflow-y-auto lg:p-6 lg:mr-10 border-gray-200">
             <div id="story-detail-container" class="space-y-6"></div>
             <div id="comments-container" class="mt-8 space-y-6">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">Komentar</h3>
@@ -52,13 +52,44 @@ export default class StoryDetailPage {
                 </div>
             </div>
           </div>
-
-          <div class="p-6">
+          
+          <div class="hidden lg:block lg:p-6">
             <div class="space-y-6 mt-4">
               ${commentFormTemplate({ username, handle, profilePicture })}
             </div>
           </div>
         </div>
+
+        <button id="add-comment-fab" class="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-teal-500 text-white shadow-lg flex items-center justify-center z-30 lg:hidden focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+
+        <div id="mobile-comment-modal" class="fixed inset-0 bg-white items-start justify-start z-50 hidden">
+        <div class="w-full h-full">
+          <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+            <button id="close-comment-modal" class="text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <button id="mobile-comment-submit" class="bg-teal-500 text-white px-4 py-1 rounded-full text-sm">kirim</button>
+          </div>
+          
+          <div class="p-4">
+            <div class="flex items-center gap-3 mb-4">
+              <img src="${profilePicture}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+              <span class="text-sm font-medium">${username}</span>
+            </div>
+            
+            <textarea id="mobile-comment-input" class="w-full border-0 focus:ring-0 text-gray-700 resize-none h-64 placeholder-gray-400" placeholder="Tulis komentar..."></textarea>
+          </div>
+        </div>
+      </div>
+
       </div>
     `;
   }
@@ -74,7 +105,90 @@ export default class StoryDetailPage {
     this.setupEventListeners();
     this._setupStoryDataChangedListener();
     this.#setupEditStoryModalListener();
+    this._setupMobileCommentButton();
   }
+
+  // _setupMobileCommentButton() {
+  //   const fabButton = document.getElementById("add-comment-fab");
+  //   const mobileModal = document.getElementById("mobile-comment-modal");
+  //   const closeModalBtn = document.getElementById("close-comment-modal");
+    
+  //   if (fabButton && mobileModal) {
+  //     fabButton.addEventListener("click", () => {
+  //       mobileModal.classList.remove("hidden");
+  //       mobileModal.classList.add("flex");
+  //     });
+  //   }
+    
+  //   if (closeModalBtn && mobileModal) {
+  //     closeModalBtn.addEventListener("click", () => {
+  //       mobileModal.classList.add("hidden");
+  //       mobileModal.classList.remove("flex");
+  //     });
+  //   }
+  // }
+
+_setupMobileCommentButton() {
+  const fabButton = document.getElementById("add-comment-fab");
+  const mobileModal = document.getElementById("mobile-comment-modal");
+  const closeModalBtn = document.getElementById("close-comment-modal");
+  const submitBtn = document.getElementById("mobile-comment-submit");
+  
+  if (fabButton && mobileModal) {
+    fabButton.addEventListener("click", () => {
+      mobileModal.classList.remove("hidden");
+      mobileModal.classList.add("flex");
+    });
+  }
+  
+  if (closeModalBtn && mobileModal) {
+    closeModalBtn.addEventListener("click", () => {
+      mobileModal.classList.add("hidden");
+      mobileModal.classList.remove("flex");
+      // Reset form
+      const commentInput = document.getElementById("mobile-comment-input");
+      if (commentInput) commentInput.value = "";
+    });
+  }
+   if (submitBtn) {
+    submitBtn.addEventListener("click", async () => {
+      const commentInput = document.getElementById("mobile-comment-input");
+      if (!commentInput || !commentInput.value.trim()) {
+        alert("Silakan masukkan komentar");
+        return;
+      }
+      
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Mengirim...";
+      
+      try {
+        if (this._presenter) {
+          const success = await this._presenter.addComment(
+            this._storyId,
+            commentInput.value.trim()
+          );
+          if (success) {
+            commentInput.value = "";
+            this._showToast("Komentar berhasil ditambahkan!");
+            mobileModal.classList.add("hidden");
+            mobileModal.classList.remove("flex");
+          }
+        }
+      } catch (error) {
+        console.error("Error submitting comment:", error);
+        alert(
+          "Gagal mengunggah komentar: " +
+          (error.message || "Terjadi kesalahan")
+        );
+         } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+  }
+}
+    
 
   #setupEditStoryModalListener() {
     this.#editStoryModalRequestHandler = (event) => {
@@ -102,39 +216,6 @@ export default class StoryDetailPage {
     );
   }
 
-  // _setupStoryDataChangedListener() {
-  //   this._storyDataChangedHandler = async (event) => {
-  //     const {
-  //       storyId: eventStoryId,
-  //       action,
-  //       entityId,
-  //       parentId,
-  //     } = event.detail;
-  //     if (
-  //       eventStoryId === this._storyId ||
-  //       (parentId === this._storyId && action === "commented") ||
-  //       action === "commentLiked" ||
-  //       action === "commentDeleted" ||
-  //       action === "replied"
-  //     ) {
-  //       console.log(
-  //         "StoryDetailPage: storyDataChanged event, reloading story details.",
-  //         event.detail
-  //       );
-  //       if (this._presenter) {
-  //         await this._presenter.loadStoryDetail(this._storyId);
-  //       }
-  //     }
-  //   };
-  //   document.addEventListener(
-  //     "storyDataChanged",
-  //     this._storyDataChangedHandler
-  //   );
-  //   document.addEventListener(
-  //     "commentDataChanged",
-  //     this._storyDataChangedHandler
-  //   );
-  // }
 
   _setupStoryDataChangedListener() {
     // Hapus listener lama jika ada
@@ -345,22 +426,6 @@ export default class StoryDetailPage {
     });
 }
 
-  // showComments(comments) {
-  //   const container = document.getElementById("comments-list");
-  //   if (container) {
-  //     container.innerHTML = comments
-  //       .map((comment) => {
-  //         return commentItemTemplate({
-  //           username: comment.username || "Pengguna",
-  //           content: comment.content,
-  //           timestamp: comment.createdAt || new Date().toISOString(),
-  //           profilePicture: comment.profilePicture || "./images/image.png",
-  //         });
-  //       })
-  //       .join("");
-  //   }
-  // }
-
   showComments(comments) {
     const container = document.getElementById("comments-list");
     if (container) {
@@ -393,46 +458,108 @@ export default class StoryDetailPage {
     }
   }
 
+  // setupEventListeners() {
+  //   const commentForm = document.getElementById("comment-form");
+  //   if (commentForm) {
+  //     commentForm.addEventListener("submit", async (e) => {
+  //       e.preventDefault();
+  //       const input = document.getElementById("comment-input");
+  //       const submitButton = commentForm.querySelector('button[type="submit"]');
+  //       const originalButtonText = submitButton.textContent;
+
+  //       if (!input || !input.value.trim()) {
+  //         alert("Silakan masukkan komentar");
+  //         return;
+  //       }
+
+  //       submitButton.disabled = true;
+  //       submitButton.textContent = "Mengunggah...";
+
+  //       try {
+  //         if (this._presenter) {
+  //           const success = await this._presenter.addComment(
+  //             this._storyId,
+  //             input.value.trim()
+  //           );
+  //           if (success) {
+  //             input.value = "";
+  //             this._showToast("Komentar berhasil ditambahkan!");
+  //           }
+  //         }
+  //       } catch (error) {
+  //         console.error("Error submitting comment:", error);
+  //         alert(
+  //           "Gagal mengunggah komentar: " +
+  //           (error.message || "Terjadi kesalahan")
+  //         );
+  //       } finally {
+  //         submitButton.disabled = false;
+  //         submitButton.textContent = "Unggah";
+  //       }
+  //     });
+  //   }
+  // }
+
   setupEventListeners() {
+    // Setup untuk form komentar desktop
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
-      commentForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const input = document.getElementById("comment-input");
-        const submitButton = commentForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.textContent;
+      this._setupCommentFormSubmit(commentForm);
+    }
+    
+    // Setup untuk form komentar di modal mobile
+    const mobileModal = document.getElementById("mobile-comment-modal");
+    if (mobileModal) {
+      const mobileForm = mobileModal.querySelector("#comment-form");
+      if (mobileForm) {
+        this._setupCommentFormSubmit(mobileForm);
+      }
+    }
+  }
 
-        if (!input || !input.value.trim()) {
-          alert("Silakan masukkan komentar");
-          return;
-        }
+  _setupCommentFormSubmit(form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = form.querySelector("#comment-input");
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.textContent;
 
-        submitButton.disabled = true;
-        submitButton.textContent = "Mengunggah...";
+      if (!input || !input.value.trim()) {
+        alert("Silakan masukkan komentar");
+        return;
+      }
 
-        try {
-          if (this._presenter) {
-            const success = await this._presenter.addComment(
-              this._storyId,
-              input.value.trim()
-            );
-            if (success) {
-              input.value = "";
-              this._showToast("Komentar berhasil ditambahkan!");
+      submitButton.disabled = true;
+      submitButton.textContent = "Mengunggah...";
+
+      try {
+        if (this._presenter) {
+          const success = await this._presenter.addComment(
+            this._storyId,
+            input.value.trim()
+          );
+          if (success) {
+            input.value = "";
+            this._showToast("Komentar berhasil ditambahkan!");
+             // Tutup modal jika terbuka
+            const mobileModal = document.getElementById("mobile-comment-modal");
+            if (mobileModal && mobileModal.classList.contains("flex")) {
+              mobileModal.classList.remove("flex");
+              mobileModal.classList.add("hidden");
             }
           }
-        } catch (error) {
-          console.error("Error submitting comment:", error);
-          alert(
-            "Gagal mengunggah komentar: " +
-            (error.message || "Terjadi kesalahan")
-          );
-        } finally {
-          submitButton.disabled = false;
-          submitButton.textContent = "Unggah";
         }
-      });
-    }
+      } catch (error) {
+        console.error("Error submitting comment:", error);
+        alert(
+          "Gagal mengunggah komentar: " +
+          (error.message || "Terjadi kesalahan")
+        );
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+      }
+    });
   }
 
   _showToast(message) {

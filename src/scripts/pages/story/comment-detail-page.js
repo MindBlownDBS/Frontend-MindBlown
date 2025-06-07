@@ -24,15 +24,15 @@ export default class CommentDetailPage {
       this._currentUser?.profilePicture || "./images/image.png";
 
     return `
-      <div class="ml-16 min-h-screen p-10">
+      <div class="md:ml-16 lg:ml-16 min-h-screen lg:p-10 p-6 pb-20 lg:pb-10">
         <div class="mb-1">
             <h1 class="text-2xl font-semibold text-gray-900 mb-2">Detail Komentar</h1>
             <p class="text-gray-600">Lihat komentar dan balasannya.</p>
             <hr class="mt-4 text-gray-300">
         </div>
 
-        <div class="grid grid-cols-2 gap-4 h-screen">
-            <div class="overflow-y-auto p-6 mr-10 border-gray-200">
+        <div class="lg:grid lg:grid-cols-2 gap-4 h-screen">
+            <div class="overflow-y-auto lg:p-6 lg:mr-10 border-gray-200">
             <div id="parent-comment-container" class="space-y-6"></div>
             <h3 class="text-lg font-semibold text-gray-900 mt-6">Balasan</h3>
 
@@ -41,8 +41,8 @@ export default class CommentDetailPage {
             </div>
             </div>
 
-            <div class="p-6">
-            <div class="space-y-6 mt-4">
+            <div class="hidden lg:p-6 lg:block">
+            <div class="lg:space-y-6 mt-4">
                 ${replyFormTemplate({
                   parentCommentId: this._commentId,
                   username,
@@ -52,6 +52,37 @@ export default class CommentDetailPage {
             </div>
             </div>
         </div>
+
+        <button id="add-reply-fab" class="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-teal-500 text-white shadow-lg flex items-center justify-center z-30 lg:hidden focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+
+         <div id="mobile-reply-modal" class="fixed inset-0 bg-white items-start justify-start z-50 hidden">
+          <div class="w-full h-full">
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+              <button id="close-reply-modal" class="text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+              <button id="mobile-reply-submit" class="bg-teal-500 text-white px-4 py-1 rounded-full text-sm">Posting</button>
+            </div>
+            
+            <div class="p-4">
+              <div class="flex items-center gap-3 mb-4">
+                <img src="${profilePicture}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                <span class="text-sm font-medium">${username}</span>
+              </div>
+              
+              <textarea id="mobile-reply-input" class="w-full border-0 focus:ring-0 text-gray-700 resize-none h-64 placeholder-gray-400" placeholder="Tulis balasan..."></textarea>
+            </div>
+          </div>
+        </div>
+
         </div>
     `;
   }
@@ -60,7 +91,69 @@ export default class CommentDetailPage {
     if (!this._presenter) return;
     await this._presenter.loadCommentDetail(this._commentId);
     this._setupReplyFormSubmit();
+    this._setupMobileReplyForm();
     this._setupCommentDataChangedListener();
+  }
+
+  _setupMobileReplyForm() {
+    const fabButton = document.getElementById("add-reply-fab");
+    const mobileModal = document.getElementById("mobile-reply-modal");
+    const closeModalBtn = document.getElementById("close-reply-modal");
+    const submitBtn = document.getElementById("mobile-reply-submit");
+    
+    // Buka modal
+    if (fabButton && mobileModal) {
+      fabButton.addEventListener("click", () => {
+        mobileModal.classList.remove("hidden");
+        mobileModal.classList.add("flex");
+      });
+    }
+    
+    // Tutup modal
+    if (closeModalBtn && mobileModal) {
+      closeModalBtn.addEventListener("click", () => {
+        mobileModal.classList.add("hidden");
+        mobileModal.classList.remove("flex");
+        document.getElementById("mobile-reply-input").value = "";
+      });
+    }
+
+     if (submitBtn) {
+      submitBtn.addEventListener("click", async () => {
+        const replyInput = document.getElementById("mobile-reply-input");
+        if (!replyInput || !replyInput.value.trim()) {
+          alert("Silakan masukkan balasan.");
+          return;
+        }
+        
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Mengirim...";
+        
+        try {
+          const successResponse = await this._presenter.addReplyToComment(
+            this._commentId,
+            replyInput.value.trim()
+          );
+          
+          if (!successResponse.error) {
+            replyInput.value = "";
+            mobileModal.classList.add("hidden");
+            mobileModal.classList.remove("flex");
+          } else {
+            alert(`Gagal mengirim balasan: ${successResponse.message}`);
+          }
+           } catch (error) {
+          console.error("Error submitting reply:", error);
+          alert(
+            "Gagal mengirim balasan: " + (error.message || "Terjadi kesalahan")
+          );
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+    }
   }
 
   _setupReplyFormSubmit() {
