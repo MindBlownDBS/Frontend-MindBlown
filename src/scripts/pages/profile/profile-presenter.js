@@ -46,6 +46,7 @@ export default class ProfilePresenter {
         .map((story) => ({
           ...story,
           likeCount: story.likeCount,
+          userLiked: story.userLiked || false,
           commentCount: story.comments?.length || 0,
           profilePicture: userData.profilePicture || "./images/image.png",
           name: userData.name,

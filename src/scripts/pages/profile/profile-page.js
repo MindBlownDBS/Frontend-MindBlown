@@ -369,6 +369,7 @@ export default class ProfilePage {
           isAnonymous: story.isAnonymous,
           storyId: storyId,
           likeCount: story.likeCount || story.likes?.length || 0,
+          userLiked: story.userLiked || false,
           commentCount: story.totalCommentCount,
           viewCount: story.viewCount || story.views || 0,
           profilePicture: displayProfilePicture,
