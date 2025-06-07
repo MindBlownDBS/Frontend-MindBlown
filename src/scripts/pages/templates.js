@@ -367,105 +367,6 @@ export function editProfileModalTemplate(userData) {
   `;
 }
 
-// export function storyItemTemplate({
-//   username = "Pengguna",
-//   handle = "Anonim",
-//   content = "",
-//   isAnonymous = true,
-//   likeCount = 0,
-//   commentCount = 0,
-//   viewCount = 0,
-//   storyId = "",
-//   profilePicture = "./images/image.png",
-//   createdAt = "",
-//   isOwner = false,
-// }) {
-//   let formattedDate = "";
-//   if (createdAt) {
-//     try {
-//       const date = new Date(createdAt);
-//       if (!isNaN(date.getTime())) {
-//         formattedDate = date.toLocaleDateString("id-ID", {
-//           day: "numeric",
-//           month: "short",
-//           year: "numeric",
-//           hour: "2-digit",
-//           minute: "2-digit",
-//         });
-//       } else {
-//         formattedDate = "Tanggal tidak valid";
-//       }
-//     } catch (e) {
-//       formattedDate = "Gagal memuat tanggal";
-//     }
-//   }
-
-//   return `
-//     <div class="story-container flex items-start gap-3 py-3 border-b border-gray-200 max-w-2xl" data-story-id="${storyId}">
-//     <div class="w-10 h-10 flex-shrink-0 user-info">
-//       <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
-//     </div>
-
-//     <div class="flex flex-col text-left story-content w-full">
-//       <div class="flex justify-between items-start">
-//       <div class="user-info">
-//         <div class="font-semibold text-base text-gray-800">${username}</div>
-//         <div class="text-sm text-gray-500">${handle}</div>
-//       </div>
-
-//         ${
-//           isOwner
-//             ? `
-//         <div class="relative">
-//           <button class="story-menu-btn p-1 text-gray-500 hover:text-gray-700">
-//             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-//               <circle cx="12" cy="12" r="1"></circle>
-//               <circle cx="12" cy="5" r="1"></circle>
-//               <circle cx="12" cy="19" r="1"></circle>
-//             </svg>
-//           </button>
-
-//           <div class="story-menu hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-//             <button class="edit-story-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-story-id="${storyId}">Edit</button>
-//             <button class="delete-story-btn w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100" data-story-id="${storyId}">Hapus</button>
-//           </div>
-//         </div>
-//         `
-//             : ""
-//         }
-//       </div>
-
-//       <p class="text-gray-700 mt-3 text-sm leading-relaxed">${content}</p>
-
-//       ${
-//         formattedDate
-//           ? `
-//         <div class="text-xs text-gray-400 mt-2">
-//           ${formattedDate}
-//         </div>
-//         `
-//           : ""
-//       }
-
-//         <div class="flex items-center gap-30 mt-3">
-//           <button class="like-btn flex items-center gap-1" data-story-id="${storyId}">
-//             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-//             <span class="like-count text-sm">${likeCount}</span>
-//           </button>
-//           <button class="comment-btn flex items-center gap-1" data-story-id="${storyId}">
-//             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-//             <span class="comment-count text-sm">${commentCount}</span>
-//           </button>
-//           <button class="view-btn flex items-center gap-1" data-story-id="${storyId}">
-//             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 17c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1s1 .45 1 1v5c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1s1 .45 1 1v8c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm2 2H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm1-16H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-//             <span class="view-count text-sm">${viewCount}</span>
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   `;
-// }
-
 export function storyItemTemplate({
   username = "Pengguna",
   handle = "Anonim",
@@ -478,7 +379,7 @@ export function storyItemTemplate({
   profilePicture = "./images/image.png",
   createdAt = "",
   isOwner = false,
-  userLiked = false, // Tambahkan parameter ini
+  userLiked = false,
   isLiked = false,
 }) {
   
@@ -502,74 +403,77 @@ export function storyItemTemplate({
     }
   }
 
-    const liked = userLiked || isLiked;
+  // Pastikan nilai liked dihitung dengan benar
+  const liked = userLiked || isLiked;
   
- 
+  // Definisikan kelas CSS berdasarkan status liked
   const likedClass = liked ? 'liked' : '';
   const heartFillClass = liked ? 'fill-red-500 text-red-500' : 'fill-none text-gray-500';
   const likeCountClass = liked ? 'text-red-500 font-semibold' : 'text-gray-600';
   
+  // Pastikan likeCount selalu berupa angka
+  const formattedLikeCount = parseInt(likeCount) || 0;
+  
   return `
     <div class="story-container flex items-start gap-3 py-3 border-b border-gray-200 max-w-2xl" data-story-id="${storyId}">
-    <div class="w-10 h-10 flex-shrink-0 user-info">
-      <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
-    </div>
-
-    <div class="flex flex-col text-left story-content w-full">
-      <div class="flex justify-between items-start">
-      <div class="user-info">
-        <div class="font-semibold text-base text-gray-800">${username}</div>
-        <div class="text-sm text-gray-500">${handle}</div>
+      <div class="w-10 h-10 flex-shrink-0 user-info">
+        <img src="${profilePicture}" alt="icon" class="w-10 h-10 object-cover rounded-full" />
       </div>
+
+      <div class="flex flex-col text-left story-content w-full">
+        <div class="flex justify-between items-start">
+          <div class="user-info">
+            <div class="font-semibold text-base text-gray-800">${username}</div>
+            <div class="text-sm text-gray-500">${handle}</div>
+          </div>
+
+          ${
+            isOwner
+              ? `
+          <div class="relative">
+            <button class="story-menu-btn p-1 text-gray-500 hover:text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="12" cy="5" r="1"></circle>
+                <circle cx="12" cy="19" r="1"></circle>
+              </svg>
+            </button>
+
+            <div class="story-menu hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+              <button class="edit-story-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-story-id="${storyId}">Sunting</button>
+              <button class="delete-story-btn w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100" data-story-id="${storyId}">Hapus</button>
+            </div>
+          </div>
+          `
+              : ""
+          }
+        </div>
+
+        <p class="text-gray-700 mt-3 text-sm leading-relaxed">${content}</p>
 
         ${
-          isOwner
+          formattedDate
             ? `
-        <div class="relative">
-          <button class="story-menu-btn p-1 text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="1"></circle>
-              <circle cx="12" cy="5" r="1"></circle>
-              <circle cx="12" cy="19" r="1"></circle>
-            </svg>
-          </button>
-
-          <div class="story-menu hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-            <button class="edit-story-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-story-id="${storyId}">Sunting</button>
-            <button class="delete-story-btn w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100" data-story-id="${storyId}">Hapus</button>
+          <div class="text-xs text-gray-400 mt-2">
+            ${formattedDate}
           </div>
-        </div>
-        `
+          `
             : ""
         }
-      </div>
-
-      <p class="text-gray-700 mt-3 text-sm leading-relaxed">${content}</p>
-
-      ${
-        formattedDate
-          ? `
-        <div class="text-xs text-gray-400 mt-2">
-          ${formattedDate}
-        </div>
-        `
-          : ""
-      }
 
         <div class="flex items-center justify-between md:justify-start md:gap-8 mt-3">
-        <button class="like-btn flex items-center gap-1" data-story-id="${storyId}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-          <span class="like-count text-sm">${likeCount}</span>
-        </button>
-        <button class="comment-btn flex items-center gap-1" data-story-id="${storyId}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-          <span class="comment-count text-sm">${commentCount}</span>
-        </button>
-        <button class="view-btn flex items-center gap-1" data-story-id="${storyId}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 17c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1s1 .45 1 1v5c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1s1 .45 1 1v8c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm2 2H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm1-16H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-          <span class="view-count text-sm">${viewCount}</span>
-        </button>
-      </div>
+          <button class="like-btn flex items-center gap-1 ${likedClass}" data-story-id="${storyId}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${heartFillClass}"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span class="like-count text-sm ${likeCountClass}" style="display:inline-block; min-width:16px; padding-left:4px;">${formattedLikeCount}</span>
+          </button>
+          <button class="comment-btn flex items-center gap-1" data-story-id="${storyId}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span class="comment-count text-sm">${commentCount}</span>
+          </button>
+          <button class="view-btn flex items-center gap-1" data-story-id="${storyId}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 17c-.55 0-1-.45-1-1v-5c0-.55.45-1 1-1s1 .45 1 1v5c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1s1 .45 1 1v8c0 .55-.45 1-1 1zm4 0c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm2 2H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm1-16H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            <span class="view-count text-sm">${viewCount}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -649,101 +553,6 @@ export function commentFormTemplate({
   `;
 }
 
-// export function commentItemTemplate({
-//   commentId = "",
-//   username = "Pengguna",
-//   handle = "Anonim",
-//   content = "",
-//   profilePicture = "./images/image.png",
-//   createdAt = "",
-//   likeCount = 0,
-//   replyCount = 0,
-//   isOwner = false,
-//   userLiked = false, 
-//   isLiked = false,
-// } = {}) {
-//   let formattedDate = "";
-//   if (createdAt) {
-//     try {
-//       const date = new Date(createdAt);
-//       if (!isNaN(date.getTime())) {
-//         formattedDate = date.toLocaleDateString("id-ID", {
-//           day: "numeric",
-//           month: "short",
-//           year: "numeric",
-//           hour: "2-digit",
-//           minute: "2-digit",
-//         });
-//       } else {
-//         formattedDate = "Tanggal tidak valid";
-//       }
-//     } catch (e) {
-//       formattedDate = "Gagal memuat tanggal";
-//     }
-//   }
-
-//   const liked = userLiked || isLiked;
-  
-//   const likedClass = liked ? 'liked' : '';
-//   const heartFillClass = liked ? 'fill-red-500 text-red-500' : 'fill-none text-gray-500';
-//   const likeCountClass = liked ? 'text-red-500 font-semibold' : 'text-gray-600';
-
-//   return `
-//     <div class="comment-item-container flex items-start gap-3 py-3 border-b border-gray-200" data-comment-id="${commentId}">
-//       <div class="w-8 h-8 flex-shrink-0 user-info">
-//         <img src="${profilePicture}" alt="icon" class="w-8 h-8 object-cover rounded-full" />
-//       </div>
-
-//       <div class="flex flex-col text-left comment-content w-full">
-//         <div class="flex justify-between items-start">
-//         <div class="user-info">
-//           <div class="font-semibold text-sm text-gray-800 username-comment">${username}</div>
-//           <div class="text-sm text-gray-500 mb-3 handle-comment">${handle}</div>
-//         </div>
-//           ${
-//             isOwner
-//               ? `
-//             <div class="relative comment-actions-menu">
-//               <button class="comment-menu-btn p-1 text-gray-500 hover:text-gray-700">
-//                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-//                 <circle cx="12" cy="12" r="1"></circle>
-//                 <circle cx="12" cy="5" r="1"></circle>
-//                 <circle cx="12" cy="19" r="1"></circle>
-//               </svg>
-//               </button>
-//               <div class="comment-menu hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-//                 <button class="delete-comment-btn w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100" data-comment-id="${commentId}">Hapus</button>
-//               </div>
-//             </div>
-//           `
-//               : ""
-//           }
-//         </div>
-
-//         <p class="text-gray-700 mt-1 text-sm leading-relaxed">${content}</p>
-
-//         ${
-//           formattedDate
-//             ? `<div class="text-xs text-gray-400">${formattedDate}</div>`
-//             : ""
-//         }
-
-//         <div class="flex items-center gap-4 mt-2">
-//           <button class="comment-like-btn flex items-center gap-1 text-xs text-gray-500 hover:text-red-500" data-comment-id="${commentId}">
-//             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-//             <span class="comment-like-count">${likeCount}</span>
-//           </button>
-//           <a href="#/comment/${commentId}" class="comment-reply-link flex items-center gap-1 text-xs text-gray-500 hover:text-teal-500">
-//             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-//             <span class="comment-reply-count">${replyCount}</span>
-//           </a>
-//         </div>
-//         <div class="replies-container mt-4 pl-4 border-l-2 border-gray-200 space-y-4" hidden>
-//         </div>
-//       </div>
-//     </div>
-//   `;
-// }
 
 export function commentItemTemplate({
   commentId = "",
