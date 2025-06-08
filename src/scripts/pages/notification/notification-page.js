@@ -16,11 +16,12 @@ export default class NotificationPage {
 
   async render() {
     return `
-      <section class="lg:p-8 p-6 pt-2 md:p-6 pb-20">
-        <div class="max-w-xl w-full ml-0 md:ml-16 lg:ml-24 text-left">
-          <div class="flex justify-between items-center mb-8 mt-3">
-            <h1 class="text-2xl font-semibold">Pemberitahuan</h1>     
+      <section class="lg:p-10 p-6 md:p-6 pb-20">
+        <div class="max-w-xl w-full ml-0 md:ml-16 lg:ml-16 text-left">
+          <div class="flex justify-between items-center ">
+            <h1 class="text-2xl font-semibold">Pemberitahuan</h1> 
           </div>
+          <hr class="my-4 text-gray-300">
 
         <div class="flex justify-between items-center mb-6"> 
           <div id="push-notification-container">

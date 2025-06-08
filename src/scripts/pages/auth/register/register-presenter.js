@@ -7,11 +7,16 @@ export default class RegisterPresenter {
         this.#model = model;
     }
 
-    async getRegistered({ username, name, email, password }) {
+    async getRegistered({ username, name, preferences, email, password }) {
         this.#view.showSubmitLoadingButton();
         try {
-            console.log(username, name, email, password);
-            const response = await this.#model.getRegister(username, name, email, password);
+            console.log(username, name, preferences, email, password);
+
+            if (!preferences || !Array.isArray(preferences) || preferences.length === 0) {
+                throw new Error("Minimal satu preferensi harus dipilih");
+            }
+
+            const response = await this.#model.getRegister(username, name, preferences, email, password);
 
             if (response.error || response.status >= 400) {
                 this.#view.registeredFailed(response.message);

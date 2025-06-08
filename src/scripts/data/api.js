@@ -13,8 +13,8 @@ const ENDPOINTS = {
   UNSUBSCRIBE_PUSH: "/notifications/push/unsubscribe",
 };
 
-export async function getRegister(username, name, email, password) {
-  const data = JSON.stringify({ username, name, email, password });
+export async function getRegister(username, name, preferences, email, password) {
+  const data = JSON.stringify({ username, name, preferences, email, password });
   const response = await fetch(`${BASE_URL}${ENDPOINTS.REGISTER}`, {
     method: "POST",
     headers: {

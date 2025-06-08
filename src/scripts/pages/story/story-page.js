@@ -34,6 +34,11 @@ export default class StoryPage {
 
           <div class="lg:grid lg:grid-cols-2 gap-4 lg:h-screen">
             <div class="overflow-y-auto lg:p-6 lg:mr-10 border-gray-200">
+            <div id="stories-loader" class="py-10 flex flex-col items-center justify-center">
+              <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500 mb-3"></div>
+                <p class="text-gray-500">Memuat cerita...</p>
+              </div>
+
               <div id="stories-container" class="space-y-6">
               </div>
             </div>
@@ -114,6 +119,24 @@ export default class StoryPage {
       console.error("Error in afterRender (StoryPage):", error);
       this.showError(error.message || "Gagal memuat konten halaman cerita.");
     }
+  }
+
+  _showLoading() {
+    this._isLoading = true;
+    const loader = document.getElementById('stories-loader');
+    const container = document.getElementById('stories-container');
+    
+    if (loader) loader.classList.remove('hidden');
+    if (container) container.classList.add('hidden');
+  }
+
+  _hideLoading() {
+    this._isLoading = false;
+    const loader = document.getElementById('stories-loader');
+    const container = document.getElementById('stories-container');
+    
+    if (loader) loader.classList.add('hidden');
+    if (container) container.classList.remove('hidden');
   }
 
    _setupMobileFormModal() {
@@ -212,6 +235,7 @@ export default class StoryPage {
     if (!stories || stories.length === 0) {
       container.innerHTML =
         '<p class="text-gray-500 text-center py-8">Belum ada cerita untuk ditampilkan.</p>';
+        this._hideLoading();
       return;
     }
 
@@ -253,7 +277,7 @@ export default class StoryPage {
                 `Error fetching profile for ${story.username}:`,
                 error
               );
-            }
+            } 
           }
 
           return storyItemTemplate({

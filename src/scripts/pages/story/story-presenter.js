@@ -21,6 +21,7 @@ export default class StoryPresenter {
 
   async loadStories() {
     try {
+      this._view._showLoading();
       const response = await getStories();
       if (!response.error) {
         this._stories = (response.data || []).map((story) => ({
@@ -35,11 +36,14 @@ export default class StoryPresenter {
       }
     } catch (error) {
       console.error("Failed to load stories:", error);
+    } finally {
+      this._view._hideLoading();
     }
   }
 
   async postNewStory(content, isAnonymous) {
     try {
+      this._view._showLoading();
       if (!content || typeof content !== "string" || content.trim() === "") {
         throw new Error("Content is required");
       }
@@ -104,6 +108,8 @@ export default class StoryPresenter {
         alert("Terjadi kesalahan. Silakan coba lagi.");
       }
       return false;
+    } finally {
+      this._view._hideLoading();
     }
   }
 

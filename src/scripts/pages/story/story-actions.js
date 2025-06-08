@@ -83,14 +83,51 @@ export const setupStoryActions = (
       activeMenu = null;
 
       const storyId = deleteBtn.dataset.storyId;
+      const storyElement = deleteBtn.closest(".story-container");
 
       if (confirm("Apakah Anda yakin ingin menghapus cerita ini?")) {
         try {
-          await presenter.deleteStory(storyId);
+          const response = await presenter.deleteStory(storyId);
+          
+          if (response && !response.error) {
+          
+            if (storyElement) {         
+              storyElement.style.transition = "opacity 0.3s ease";
+              storyElement.style.opacity = "0";
+              
+              setTimeout(() => {
+                storyElement.remove();
+                
+                if (container.querySelectorAll(".story-container").length === 0) {
+                  container.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada cerita untuk ditampilkan.</p>';
+                }
+                
+                showSuccessToast("Cerita berhasil dihapus");
+              }, 300);
+               } else {
+              window.location.reload();
+            }
+          } else {
+            throw new Error(response?.message || "Gagal menghapus cerita");
+          }
         } catch (error) {
+          console.error("Error deleting story:", error);
           alert(error.message || "Gagal menghapus cerita");
         }
       }
     }
   });
+
+  function showSuccessToast(message) {
+    const toastElement = document.createElement("div");
+    toastElement.className = "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50";
+    toastElement.textContent = message;
+    document.body.appendChild(toastElement);
+    
+    setTimeout(() => {
+      toastElement.style.opacity = "0";
+      toastElement.style.transition = "opacity 0.5s ease";
+      setTimeout(() => toastElement.remove(), 500);
+    }, 3000);
+  }
 };
