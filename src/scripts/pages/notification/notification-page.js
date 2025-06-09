@@ -25,9 +25,8 @@ export default class NotificationPage {
 
         <div class="flex justify-between items-center mb-6"> 
           <div id="push-notification-container">
-            <!-- Push notification button akan di-render di sini -->
           </div>
-          <button id="mark-all-read-btn" class="text-sm text-third hover:text-third/80 hidden">
+          <button id="mark-all-read-btn" class="text-xs lg:text-sm text-third hover:text-third/80 hidden">
             Tandai Semua Dibaca
           </button>
         </div>
@@ -43,9 +42,9 @@ export default class NotificationPage {
             
             <div id="pagination-container" class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200 hidden">
               <button id="prev-btn" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                <!-- Desktop: Text lengkap -->
+              
                 <span class="hidden sm:inline">← Sebelumnya</span>
-                <!-- Mobile: Simbol -->
+            
                 <span class="sm:hidden text-lg">‹</span>
               </button>
               
@@ -55,9 +54,9 @@ export default class NotificationPage {
               </span>
               
               <button id="next-btn" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                <!-- Desktop: Text lengkap -->
+               
                 <span class="hidden sm:inline">Selanjutnya →</span>
-                <!-- Mobile: Simbol -->
+            
                 <span class="sm:hidden text-lg">›</span>
               </button>
             </div>

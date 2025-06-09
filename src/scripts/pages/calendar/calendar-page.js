@@ -93,6 +93,7 @@ export default class CalendarPage {
             currentDate.setMonth(currentDate.getMonth() - 1);
             this.presenter.setCurrentDate(currentDate);
             generateCalendar(currentDate, this.presenter.getMonthNames());
+            this.updateTodayButtonState();
         });
 
         document.getElementById('nextMonth').addEventListener('click', () => {
@@ -100,17 +101,19 @@ export default class CalendarPage {
             currentDate.setMonth(currentDate.getMonth() + 1);
             this.presenter.setCurrentDate(currentDate);
             generateCalendar(currentDate, this.presenter.getMonthNames());
+            this.updateTodayButtonState();
         });
 
         document.getElementById('todayBtn').addEventListener('click', () => {
             this.presenter.setCurrentDate(new Date());
             generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
+            this.updateTodayButtonState();
         });
 
         document.getElementById('trackTodayBtn').addEventListener('click', async () => {
             try {
                 const result = await this.presenter.checkTodayEntry();
-                
+
                 if (result.exists) {
                     alert('Anda sudah mengisi Mind Tracker untuk hari ini.');
                     return;
@@ -129,6 +132,21 @@ export default class CalendarPage {
                 this.handleDayClick(dayElement);
             }
         });
+    }
+
+    updateTodayButtonState() {
+        const todayBtn = document.getElementById('todayBtn');
+        const currentDate = this.presenter.getCurrentDate();
+        const today = new Date();
+
+        const isCurrentMonth = currentDate.getMonth() === today.getMonth() &&
+            currentDate.getFullYear() === today.getFullYear();
+
+        if (isCurrentMonth) {
+            todayBtn.className = "bg-gray-200 text-gray-400 text-sm px-4 py-2 rounded-md";
+        } else {
+            todayBtn.className = "bg-third text-white text-sm px-4 py-2 rounded-md hover:bg-third/80 transition-colors";
+        }
     }
 
     async handleDayClick(dayElement) {
@@ -155,9 +173,9 @@ export default class CalendarPage {
 
         const isCalendarView = document.getElementById('calendarDays').contains(document.activeElement);
         const finalViewMode = isCalendarView ? true : isViewMode;
-    
+
         document.body.insertAdjacentHTML('beforeend', mindTrackerModalTemplate(finalViewMode));
-        
+
         const modal = document.getElementById('mindTrackerModal');
         const modalTitle = document.getElementById('modalTitle');
         const closeModalBtn = document.getElementById('closeModalBtn');
@@ -206,7 +224,7 @@ export default class CalendarPage {
                 e.stopPropagation();
 
                 const formData = new FormData(form);
-                
+
                 const data = {
                     date: this.presenter.parseDateString(formattedDate).toISOString(),
                     mood: formData.get('mood'),
@@ -215,7 +233,7 @@ export default class CalendarPage {
 
                 try {
                     const result = await this.presenter.saveEntry(data);
-                    
+
                     if (!result.error) {
                         modal.classList.add('hidden');
                         modal.classList.remove('flex');

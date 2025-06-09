@@ -1,9 +1,16 @@
 import { formatTimeAgo } from "../utils";
 
-export function mindTrackerModalTemplate(isViewMode = true) {
+export function mindTrackerModalTemplate(isViewMode = true, selectedMood = '') {
+   const moods = [
+    { value: 'sadness', emoji: '😞', label: 'Sedih' },
+    { value: 'neutral', emoji: '😐', label: 'Netral' },
+    { value: 'joy', emoji: '😊', label: 'Senang' },
+    { value: 'angry', emoji: '😠', label: 'Marah' }
+  ];
+
   return `
-    <div id="mindTrackerModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden">
-        <div class="bg-white rounded-lg shadow-lg p-6 md:w-lg lg:w-full lg:max-w-lg">
+    <div id="mindTrackerModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden ">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-[90%] md:w-lg lg:w-full lg:max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="modalTitle" class="text-lg font-semibold">Mind Tracker</h3>
                 <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
@@ -11,24 +18,19 @@ export function mindTrackerModalTemplate(isViewMode = true) {
             <hr class="my-4 text-gray-300">
             <form id="mindTrackerForm">
                 <div class="text-center mb-4">
-                    <p class="text-sm my-4">Perasaanmu Hari ini</p>
-                    <div class="flex justify-center space-x-6 mb-2 gap-15">
-                        <label class="flex flex-col gap-3 cursor-pointer">
-                            <input type="radio" name="mood" value="buruk" class="hidden peer" required>
-                            <span class="text-3xl peer-checked:scale-125 transition">😞</span>
-                            <div class="text-xs">Buruk</div>
-                        </label>
-                        <label class="flex flex-col gap-3 cursor-pointer">
-                            <input type="radio" name="mood" value="oke" class="hidden peer" required>
-                            <span class="text-3xl peer-checked:scale-125 transition">🙂</span>
-                            <div class="text-xs">Oke</div>
-                        </label>
-                        <label class="flex flex-col gap-3 cursor-pointer">
-                            <input type="radio" name="mood" value="sempurna" class="hidden peer" required>
-                            <span class="text-3xl peer-checked:scale-125 transition">🥳</span>
-                            <div class="text-xs">Sempurna</div>
-                        </label>
+                    <p class="text-md my-4">Perasaanmu Hari ini</p>
+                    
+                    <div class="flex justify-center mb-2 gap-6">
+                        ${moods.map(mood => `
+                            <div class="mood-display flex flex-col gap-3 items-center" data-mood="${mood.value}">
+                                <span class="text-4xl ${selectedMood === mood.value ? 'scale-125' : ''}">${mood.emoji}</span>
+                                <div class="text-sm">${mood.label}</div>
+                            </div>
+                        `).join('')}
                     </div>
+
+                    <input type="hidden" name="mood" id="selected-mood" value="${selectedMood || ''}">
+
                     <p class="mb-4 mt-8">Progres kamu</p>
                     <textarea name="progress" class="w-full border p-2 rounded-xl overflow-hidden" rows="3" placeholder="Ceritakan bagaimana harimu dan perasaanmu sekarang" required ${
                       isViewMode ? "readonly" : ""
