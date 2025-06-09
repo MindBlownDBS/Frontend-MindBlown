@@ -1,4 +1,4 @@
-import { checkTodayEntry, getEntryByDate, saveEntry } from '../../data/api';
+import { checkTodayEntry, getEntryByDate, saveEntry, getUserRecommendations, regenerateRecommendations } from '../../data/api';
 
 export default class CalendarPresenter {
     constructor() {
@@ -7,6 +7,7 @@ export default class CalendarPresenter {
             'January', 'February', 'March', 'April', 'May', 'June',
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
+        this.userRecommendations = [];
     }
 
     async checkTodayEntry() {
@@ -47,6 +48,55 @@ export default class CalendarPresenter {
             console.error('Presenter: Error saving entry:', error);
             throw error;
         }
+    }
+
+     async loadRecommendations() {
+        try {
+            const user = JSON.parse(localStorage.getItem('user')) || {};
+            if (!user.username) {
+                throw new Error('User data not found');
+            }
+
+            const result = await getUserRecommendations(user.username);
+            if (result.error) {
+                throw new Error(result.message);
+            }
+
+            this.userRecommendations = result.data.recommendations || [];
+            console.log('Loaded recommendations:', this.userRecommendations);
+            return this.userRecommendations;
+        } catch (error) {
+            console.error('Presenter: Error loading recommendations:', error);
+            return [];
+        }
+    }
+
+    async regenerateRecommendations() {
+  try {
+
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    if (!user.username) {
+      throw new Error('User data not found');
+    }
+    
+    console.log("Regenerating recommendations for username:", user.username);
+    
+    const result = await regenerateRecommendations(user.username);
+    console.log("API response for regeneration:", result);
+    
+    if (result.error) {
+      throw new Error(result.message || "Failed to regenerate recommendations");
+    }
+    
+    return await this.loadRecommendations();
+  } catch (error) {
+    console.error('Presenter: Error regenerating recommendations:', error);
+    throw error;
+  }
+}
+
+     getRecommendations() {
+        return this.userRecommendations || [];
     }
 
     getCurrentDate() {

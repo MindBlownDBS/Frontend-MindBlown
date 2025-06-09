@@ -713,3 +713,107 @@ export function editStoryModalTemplate(storyData) {
     </div>
   `;
 }
+
+
+export function activityRecommendationsTemplate(recommendations = []) {
+  if (!recommendations || recommendations.length === 0) {
+    return `
+      <div class="mt-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-left font-medium text-gray-800">Rekomendasi Aktivitas Untukmu</h3>
+          <button id="regenerate-recommendations" class="text-sm text-third hover:text-third/80 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+            </svg>
+            Rekomendasi Lain
+          </button>
+        </div>
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center text-gray-500">
+          Belum ada rekomendasi aktivitas untuk ditampilkan.
+        </div>
+      </div>
+    `;
+  }
+  
+  const getEnergyContext = (level) => {
+    const energyContexts = {
+      "Rendah": "Cocok untuk energi terbatas",
+      "Sedang": "Membutuhkan energi sedang",
+      "Tinggi": "Membutuhkan energi penuh",
+      "Rendah-Sedang": "Cocok untuk energi rendah ke sedang",
+      "Sedang-Lama": "Membutuhkan energi sedang untuk waktu yang lebih lama",
+      "Lama": "Membutuhkan waktu lama untuk menyelesaikan"
+    };
+    
+    return energyContexts[level] || level;
+  };
+  
+  return `
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-left font-medium text-gray-800">Rekomendasi Aktivitas Untukmu</h3>
+        <button id="regenerate-recommendations" class="text-sm text-third hover:text-third/80 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+          </svg>
+          Rekomendasi Lain
+        </button>
+      </div>
+      <div class="space-y-3">
+        ${recommendations.map(rec => `
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+            <div class="flex items-center mb-2">
+              <span class="bg-third/10 text-third text-xs px-2 py-1 rounded-md">${rec.category}</span>
+              <span class="ml-2 text-xs text-gray-500">${rec.duration}</span>
+            </div>
+            <h4 class="font-medium text-sm text-left">${rec.name}</h4>
+            <div class="flex items-center mt-2">
+              <span class="bg-gray-100 text-xs px-2 py-1 rounded-md flex items-center">
+                <span class="text-gray-600">${getEnergyContext(rec.energy_needed)}</span>
+              </span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+
+export function showToast(message, type = 'success') {
+    const existingToast = document.getElementById('toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    
+    const toastHTML = `
+        <div id="toast-notification" class="fixed bottom-4 right-4 ${bgColor} text-white py-2 px-4 rounded-md shadow-lg flex items-center z-50 transform transition-all duration-300 opacity-0 translate-y-2">
+            ${type === 'success' ? 
+                `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>` :
+                `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`
+            }
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', toastHTML);
+    
+    const toast = document.getElementById('toast-notification');
+    
+    setTimeout(() => {
+        toast.classList.remove('opacity-0', 'translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+    }, 10);
+    
+    setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+            toast.remove();
+        }, 300); 
+    }, 3000); 
+}

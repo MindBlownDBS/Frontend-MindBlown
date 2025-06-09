@@ -1,4 +1,4 @@
-import { mindTrackerModalTemplate } from '../templates';
+import { mindTrackerModalTemplate, activityRecommendationsTemplate, showToast } from '../templates';
 import { generateCalendar } from '../../utils/generate-calendar';
 import { weeklyMoodTrackerTemplate } from '../templates';
 import CalendarPresenter from './calendar-presenter';
@@ -35,8 +35,12 @@ export default class CalendarPage {
                 </button>
             </div>
 
+           <div id="recommendations-container">
+            ${activityRecommendationsTemplate([])}
+        </div>
+
             <div>
-             <h2 class="font-semibold text-base mb-1 lg:mb-3">Mood dalam 1 Minggu</h2> 
+             <h2 class="font-semibold text-base mt-5 mb-1 lg:mb-3">Mood dalam 1 Minggu</h2> 
              ${weeklyMoodTrackerTemplate(moods)}
             </div>
 
@@ -88,6 +92,14 @@ export default class CalendarPage {
     async afterRender() {
         generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
 
+        try {
+            const recommendations = await this.presenter.loadRecommendations();
+            this.updateRecommendationsSection(recommendations);
+            this.setupRegenerateButton();
+        } catch (error) {
+            console.error('Failed to load recommendations:', error);
+        }
+
         document.getElementById('prevMonth').addEventListener('click', () => {
             const currentDate = this.presenter.getCurrentDate();
             currentDate.setMonth(currentDate.getMonth() - 1);
@@ -134,6 +146,42 @@ export default class CalendarPage {
         });
     }
 
+    updateRecommendationsSection(recommendations) {
+        const recommendationsContainer = document.getElementById('recommendations-container');
+        if (recommendationsContainer) {
+            recommendationsContainer.innerHTML = activityRecommendationsTemplate(recommendations);
+        }
+    }
+
+    setupRegenerateButton() {
+        document.addEventListener('click', async (e) => {
+            if (e.target.closest('#regenerate-recommendations')) {
+                try {
+                   
+                    const button = e.target.closest('#regenerate-recommendations');
+                    const originalText = button.innerHTML;
+                    button.innerHTML = `
+                    <svg class="animate-spin h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Memuat...
+                    `;
+                    button.disabled = true;
+   
+                    const recommendations = await this.presenter.regenerateRecommendations();
+                    this.updateRecommendationsSection(recommendations);
+                
+                    showToast('Rekomendasi aktivitas baru telah dimuat!');
+                } catch (error) {
+                    console.error('Failed to regenerate recommendations:', error);
+                    showToast(error.message || 'Gagal memuat rekomendasi baru', 'error');
+                }
+            }
+        });
+    }
+
+
     updateTodayButtonState() {
         const todayBtn = document.getElementById('todayBtn');
         const currentDate = this.presenter.getCurrentDate();
@@ -176,6 +224,7 @@ export default class CalendarPage {
 
         document.body.insertAdjacentHTML('beforeend', mindTrackerModalTemplate(finalViewMode));
 
+
         const modal = document.getElementById('mindTrackerModal');
         const modalTitle = document.getElementById('modalTitle');
         const closeModalBtn = document.getElementById('closeModalBtn');
@@ -186,7 +235,6 @@ export default class CalendarPage {
         modal.classList.add('flex');
 
         if (existingData) {
-            document.querySelector(`input[name="mood"][value="${existingData.mood}"]`).checked = true;
             document.querySelector('textarea[name="progress"]').value = existingData.progress || '';
         }
 
@@ -224,10 +272,15 @@ export default class CalendarPage {
                 e.stopPropagation();
 
                 const formData = new FormData(form);
+                const progressText = formData.get('progress');
+
+                if (!progressText || progressText.trim() === '') {
+                    alert('Silakan isi progress Anda hari ini.');
+                    return false;
+                }
 
                 const data = {
                     date: this.presenter.parseDateString(formattedDate).toISOString(),
-                    mood: formData.get('mood'),
                     progress: formData.get('progress')
                 };
 

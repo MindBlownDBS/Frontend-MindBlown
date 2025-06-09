@@ -11,6 +11,7 @@ const ENDPOINTS = {
   MARK_ALL_NOTIFICATIONS_READ: "/notifications/read-all",
   SUBSCRIBE_PUSH: "/notifications/push/subscribe",
   UNSUBSCRIBE_PUSH: "/notifications/push/unsubscribe",
+  RECOMMENDATIONS: "/recommendations",
 };
 
 export async function getRegister(username, name, preferences, email, password) {
@@ -644,4 +645,82 @@ export async function getCommentDetail(commentId) {
     throw new Error(`Failed to fetch comment detail: ${response.statusText}`);
   }
   return await response.json();
+}
+
+export async function getUserRecommendations(username) {
+  try {
+    if (!username) {
+      throw new Error("Username is required");
+    }
+    
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    console.log(`Sending request to: ${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}`);
+    
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}`, {
+      method: "GET", 
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      }
+    });
+
+    console.log("Response status:", response.status);
+    const result = await response.json();
+    console.log("Response data:", result);
+
+    if (!response.ok) {
+      throw new Error(result.message || `Error ${response.status}: Terjadi kesalahan saat mengambil rekomendasi`);
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching recommendations:", error);
+    return {
+      error: true,
+      message: error.message || "Gagal mengambil rekomendasi aktivitas",
+      data: { recommendations: [] }
+    };
+  }
+}
+
+export async function regenerateRecommendations(username) {
+  try {
+    if (!username) {
+      throw new Error("Username is required");
+    }
+    
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    console.log(`Sending request to: ${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}/regenerate`);
+    
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}/regenerate`, {
+      method: "POST", 
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      }
+    });
+
+    console.log("Response status:", response.status);
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || `Error ${response.status}: Terjadi kesalahan saat meregenerasi rekomendasi`);
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error regenerating recommendations:", error);
+    return {
+      error: true,
+      message: error.message || "Gagal meregenerasi rekomendasi aktivitas"
+    };
+  }
 }
