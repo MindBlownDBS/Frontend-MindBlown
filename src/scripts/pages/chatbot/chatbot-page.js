@@ -68,20 +68,8 @@ export default class ChatbotPage {
 
         input.addEventListener('input', () => autoResize(input));
 
-        const ensurePaddingElement = () => {
-            let paddingElement = document.getElementById('chat-bottom-padding');
-            if (!paddingElement) {
-                paddingElement = document.createElement('div');
-                paddingElement.id = 'chat-bottom-padding';
-                paddingElement.className = 'h-32 md:h-24 w-full';
-                chatContainer.appendChild(paddingElement);
-            }
-            return paddingElement;
-        };
-
         const scrollToBottom = () => {
             requestAnimationFrame(() => {
-                ensurePaddingElement();
 
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             });
@@ -115,7 +103,7 @@ export default class ChatbotPage {
                             Chat baru
                         </span>
                     </div>`);
-                ensurePaddingElement();
+                    
                 scrollToBottom();
                 
             }
@@ -277,7 +265,6 @@ export default class ChatbotPage {
 
                             chatContainer.insertAdjacentHTML('beforeend',
                                 botChatBubble(data.data.response));
-                            ensurePaddingElement();
                             scrollToBottom();
 
                             this.pendingRequests.delete(data.requestId);
