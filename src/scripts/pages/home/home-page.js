@@ -1,8 +1,12 @@
 import { autoResize } from "../../utils";
-import { welcomeModalTemplate } from "../templates";
+import { welcomeModalTemplate,userChatBubble, botTypingBubble } from "../templates";
 import { getAccessToken } from "../../utils/auth";
 
 export default class HomePage {
+  constructor() {
+    this.isProcessing = false; 
+  }
+
   async render() {
     return `
       <section class="md:ml-16 h-150 md:h-screen lg:min-h-screen flex items-center">
@@ -38,22 +42,57 @@ export default class HomePage {
     }
 
     const input = document.getElementById('chat-input');
+    const form = document.getElementById('chat-form');
+    const chatContainer = document.getElementById('chat-container');
+
     input.addEventListener('input', () => autoResize(input));
-    this.#setupForm();
+
+    const pendingMessage = localStorage.getItem('pendingChatMessage');
+    if (pendingMessage) {
+      localStorage.removeItem('pendingChatMessage');
+    }
+
+    this.#setupForm(chatContainer, input, form);
   }
 
-  #setupForm() {
-    document.getElementById('chat-form').addEventListener('submit', function (e) {
+  #setupForm(chatContainer, input, form) {
+    const scrollToBottom = () => {
+      requestAnimationFrame(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      });
+    };
+    
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const input = document.getElementById('chat-input');
+      
+      if (this.isProcessing) return;
+      
       const text = input.value.trim();
       if (!text) return;
+      
+      this.isProcessing = true;
+      input.disabled = true;
+      
+      const sendButton = form.querySelector('button');
+      if (sendButton) {
+        sendButton.disabled = true;
+      }
 
+      chatContainer.insertAdjacentHTML('beforeend', userChatBubble(text));
+      scrollToBottom();
+      
+      input.value = '';
+      input.style.height = '';
+      
+      chatContainer.insertAdjacentHTML('beforeend', botTypingBubble('Mengarahkan ke chatbot...'));
+      scrollToBottom();
+      
       localStorage.setItem('pendingChatMessage', text);
-
+      
       window.location.hash = '/chatbot';
     });
   }
+      
 
   #showWelcomeModal() {
     if (document.getElementById('welcome-modal')) return;

@@ -229,5 +229,8 @@ export default class ProfilePresenter {
   handleLogout() {
     this.#authModel.getLogout();
     this.#view.logoutSuccess();
+    localStorage.removeItem('user');
+    localStorage.removeItem('sessionId');
+    sessionStorage.removeItem('welcomeModalShown');
   }
 }

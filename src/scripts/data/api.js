@@ -12,6 +12,7 @@ const ENDPOINTS = {
   SUBSCRIBE_PUSH: "/notifications/push/subscribe",
   UNSUBSCRIBE_PUSH: "/notifications/push/unsubscribe",
   RECOMMENDATIONS: "/recommendations",
+  CHATBOT_HISTORY: "/chatbot/history",
 };
 
 export async function getRegister(username, name, preferences, email, password) {
@@ -721,6 +722,48 @@ export async function regenerateRecommendations(username) {
     return {
       error: true,
       message: error.message || "Gagal meregenerasi rekomendasi aktivitas"
+    };
+  }
+}
+
+export async function getChatHistory() {
+  try {
+    const accessToken = getAccessToken();
+    
+
+    if (!accessToken) {
+      console.log('No access token available, skipping chat history fetch');
+      return {
+        error: false,
+        message: "User not logged in",
+        data: { chats: [], total: 0 }
+      };
+    }
+
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.CHATBOT_HISTORY}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      }
+    });
+
+    const result = await response.json();
+    
+    if (!response.ok) {
+      console.warn(`API error ${response.status}:`, result.message);
+      return {
+        error: true,
+        message: result.message || `Error ${response.status}: Terjadi kesalahan saat mengambil riwayat chat`,
+        data: { chats: [], total: 0 }
+      };
+    }
+
+    return result;
+  } catch (error) {
+    console.warn("Error fetching chat history:", error);
+    return {
+      error: true,
+      message: error.message || "Gagal mengambil riwayat chat",
+      data: { chats: [], total: 0 }
     };
   }
 }

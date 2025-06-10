@@ -91,17 +91,18 @@ export function userChatBubble(text) {
 export function botChatBubble(text) {
   return `
         <div class="flex justify-start mb-3">
-            <div class="flex items-start max-w-[80%]">
-                <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
-                    <img src="images/logo.png" alt="Bot" class="w-7 h-7 lg:w-8 lg:h-8 object-cover">
+            <div class="flex items-start gap-2 max-w-[90%] lg:max-w-[80%]">
+                <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <img src="images/logo.png" alt="MindBlown" class="w-4 h-4 object-contain">
                 </div>
-                <div class="bg-white px-3 py-2 rounded-lg text-sm text-gray-800 text-left">
+                <div class="bg-white px-3 py-2 rounded-lg text-xs lg:text-sm text-gray-800 text-left">
                     ${text}
                 </div>
             </div>
         </div>
     `;
 }
+
 
 export function weeklyMoodTrackerTemplate(moods) {
   const desktopPointGap = 200;
@@ -405,15 +406,13 @@ export function storyItemTemplate({
     }
   }
 
-  // Pastikan nilai liked dihitung dengan benar
   const liked = userLiked || isLiked;
   
-  // Definisikan kelas CSS berdasarkan status liked
   const likedClass = liked ? 'liked' : '';
   const heartFillClass = liked ? 'fill-red-500 text-red-500' : 'fill-none text-gray-500';
   const likeCountClass = liked ? 'text-red-500 font-semibold' : 'text-gray-600';
   
-  // Pastikan likeCount selalu berupa angka
+
   const formattedLikeCount = parseInt(likeCount) || 0;
   
   return `
@@ -590,10 +589,8 @@ export function commentItemTemplate({
   }
 
    const formattedLikeCount = parseInt(likeCount) || 0;
-  // Tentukan status liked berdasarkan userLiked atau isLiked
   const liked = userLiked || isLiked;
   
-  // Tentukan kelas CSS berdasarkan status liked
   const likedClass = liked ? 'liked' : '';
   const heartFillClass = liked ? 'fill-red-500 text-red-500' : 'fill-none text-gray-500';
   const likeCountClass = liked ? 'text-red-500 font-semibold' : 'text-gray-600';
@@ -816,4 +813,22 @@ export function showToast(message, type = 'success') {
             toast.remove();
         }, 300); 
     }, 3000); 
+}
+
+
+export function botTypingBubble(message = 'Sedang mengetik...', requestId = null) {
+    const id = requestId ? `typing-${requestId}` : 'typing-indicator';
+    
+    return `
+    <div id="${id}" class="flex justify-start mb-4">
+        <div class="bg-gray-100 rounded-2xl p-3 px-4 max-w-[75%] text-left">
+            <div class="flex items-center">
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse mr-1"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-75 mr-1"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">${message}</div>
+        </div>
+    </div>
+    `;
 }

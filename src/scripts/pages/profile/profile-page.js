@@ -408,6 +408,6 @@ export default class ProfilePage {
   }
 
   logoutSuccess() {
-    window.location.hash = "/login";
+    window.location.hash = "/";
   }
 }
