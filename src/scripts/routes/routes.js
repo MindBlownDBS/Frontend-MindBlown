@@ -1,6 +1,6 @@
 import HomePage from "../pages/home/home-page";
 import StoryPage from "../pages/story/story-page";
-import CalendarPage from "../pages/calendar/calendar-page";
+import MindTrackerPage from "../pages/mindtracker/mindtracker-page";
 import NotificationPage from "../pages/notification/notification-page";
 import ProfilePage from "../pages/profile/profile-page";
 import LoginPage from "../pages/auth/login/login-page";
@@ -20,7 +20,7 @@ const routes = {
   "/register": () => checkUnauthenticatedRouteOnly(new RegisterPage()),
   "/": () => new HomePage(),
   "/story": () => checkProtectedRoute(new StoryPage()),
-  "/calendar": () => checkProtectedRoute(new CalendarPage()),
+  "/mindtracker": () => checkProtectedRoute(new MindTrackerPage()), 
   "/notification": () => checkProtectedRoute(new NotificationPage()),
   "/profile": () => checkProtectedRoute(new ProfilePage()),
   "/chatbot": () => new ChatbotPage(),

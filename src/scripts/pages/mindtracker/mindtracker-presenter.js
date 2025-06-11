@@ -1,6 +1,6 @@
 import { checkTodayEntry, getEntryByDate, saveEntry, getUserRecommendations, regenerateRecommendations } from '../../data/api';
 
-export default class CalendarPresenter {
+export default class MindTracakerPresenter {
     constructor() {
         this.currentDate = new Date();
         this.monthNames = [

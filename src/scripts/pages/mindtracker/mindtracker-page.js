@@ -1,11 +1,11 @@
 import { mindTrackerModalTemplate, activityRecommendationsTemplate, showToast } from '../templates';
 import { generateCalendar } from '../../utils/generate-calendar';
 import { weeklyMoodTrackerTemplate } from '../templates';
-import CalendarPresenter from './calendar-presenter';
+import MindTrackerPresenter from './mindtracker-presenter';
 
-export default class CalendarPage {
+export default class MindTrackerPage {
     constructor() {
-        this.presenter = new CalendarPresenter();
+        this.presenter = new MindTrackerPresenter();
     }
 
     async render() {
