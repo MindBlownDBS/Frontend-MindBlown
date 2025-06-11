@@ -8,23 +8,20 @@ export const setupStoryInteractions = (
     return;
   }
 
-  // Remove existing event listener to prevent duplicates
   const handlerKey = `_storyInteractionHandler_${containerId}`;
   if (storiesContainer[handlerKey]) {
     storiesContainer.removeEventListener("click", storiesContainer[handlerKey]);
     delete storiesContainer[handlerKey];
   }
 
-  // Create new event handler
   const clickHandler = async (e) => {
-    // Get story container and ID
+
     const storyContainer = e.target.closest(".story-container");
     if (!storyContainer) return;
 
     const storyId = storyContainer.dataset.storyId;
     if (!storyId) return;
 
-    // Handle like button clicks
     const likeButton = e.target.closest(".like-btn");
     if (likeButton) {
       e.preventDefault();
@@ -33,7 +30,6 @@ export const setupStoryInteractions = (
       return;
     }
 
-    // Handle comment button clicks - navigate to story detail
     const commentBtn = e.target.closest(".comment-btn");
     if (commentBtn) {
       e.stopPropagation();
@@ -41,7 +37,6 @@ export const setupStoryInteractions = (
       return;
     }
 
-    // Handle view button clicks - navigate to story detail
     const viewBtn = e.target.closest(".view-btn");
     if (viewBtn) {
       e.stopPropagation();
@@ -49,7 +44,6 @@ export const setupStoryInteractions = (
       return;
     }
 
-    // Ignore clicks on menu buttons
     if (
       e.target.closest(".story-menu-btn") ||
       e.target.closest(".story-menu") ||
@@ -58,7 +52,6 @@ export const setupStoryInteractions = (
       return;
     }
 
-    // Ignore clicks on user info
     if (e.target.closest(".user-info")) {
       return;
     }
@@ -73,12 +66,10 @@ export const setupStoryInteractions = (
     }
   };
 
-  // Register event listener
   storiesContainer[handlerKey] = clickHandler;
   storiesContainer.addEventListener("click", clickHandler);
 };
 
-// Handle like/unlike functionality
 const handleLike = async (presenter, storyId, likeBtn) => {
   const heartSvg = likeBtn.querySelector('svg');
   const likeCountElement = likeBtn.querySelector('.like-count');
@@ -88,7 +79,6 @@ const handleLike = async (presenter, storyId, likeBtn) => {
     return;
   }
 
-  // Prevent double clicks
   if (likeBtn.disabled) return;
 
   const wasLiked = likeBtn.classList.contains('liked');
@@ -100,25 +90,21 @@ const handleLike = async (presenter, storyId, likeBtn) => {
     currentCount
   });
 
-  // Disable button temporarily
+
   likeBtn.disabled = true;
   likeBtn.style.pointerEvents = 'none';
 
   try {
-    // Optimistic UI update
     updateLikeUI(likeBtn, heartSvg, likeCountElement, !wasLiked, wasLiked ? currentCount - 1 : currentCount + 1);
 
-    // Add heart beat animation for likes
     if (!wasLiked) {
       heartSvg.classList.add('like-heart-beat');
       setTimeout(() => heartSvg.classList.remove('like-heart-beat'), 600);
     }
 
-    // Call API
     const response = await presenter.likeStory(storyId);
     console.log(`✅ ${wasLiked ? 'Unliked' : 'Liked'} story:`, response);
 
-    // Update with backend response
     if (response?.data?.story) {
       const story = response.data.story;
       updateLikeUI(
@@ -133,12 +119,10 @@ const handleLike = async (presenter, storyId, likeBtn) => {
   } catch (error) {
     console.error("Failed to like/unlike story:", error);
     
-    // Revert UI on error
     updateLikeUI(likeBtn, heartSvg, likeCountElement, wasLiked, currentCount);
     
     alert(error.message || "Gagal melakukan like/unlike");
   } finally {
-    // Re-enable button after a short delay
     setTimeout(() => {
       likeBtn.disabled = false;
       likeBtn.style.pointerEvents = '';
@@ -146,37 +130,15 @@ const handleLike = async (presenter, storyId, likeBtn) => {
   }
 };
 
-// Helper function to update like UI
-// const updateLikeUI = (likeBtn, heartSvg, likeCountElement, isLiked, count) => {
-//   if (isLiked) {
-//     // Liked state
-//     likeBtn.classList.add('liked');
-//     heartSvg.classList.remove('text-gray-500', 'fill-none');
-//     heartSvg.classList.add('text-red-500', 'fill-red-500');
-//     likeCountElement.classList.remove('text-gray-600');
-//     likeCountElement.classList.add('text-red-500', 'font-semibold');
-//   } else {
-//     // Unliked state
-//     likeBtn.classList.remove('liked');
-//     heartSvg.classList.remove('text-red-500', 'fill-red-500');
-//     heartSvg.classList.add('text-gray-500', 'fill-none');
-//     likeCountElement.classList.remove('text-red-500', 'font-semibold');
-//     likeCountElement.classList.add('text-gray-600');
-//   }
-  
-//   likeCountElement.textContent = Math.max(0, count);
-// };
 
 const updateLikeUI = (likeBtn, heartSvg, likeCountElement, isLiked, count) => {
   if (isLiked) {
-    // Liked state
     likeBtn.classList.add('liked');
     heartSvg.classList.add('fill-red-500', 'text-red-500');
     heartSvg.classList.remove('fill-none', 'text-gray-500');
     likeCountElement.classList.add('text-red-500', 'font-semibold');
     likeCountElement.classList.remove('text-gray-600');
   } else {
-    // Unliked state
     likeBtn.classList.remove('liked');
     heartSvg.classList.add('fill-none', 'text-gray-500');
     heartSvg.classList.remove('fill-red-500', 'text-red-500');

@@ -432,7 +432,7 @@ export function storyItemTemplate({
             isOwner
               ? `
           <div class="relative">
-            <button class="story-menu-btn p-1 text-gray-500 hover:text-gray-700">
+            <button class="story-menu-btn p-1 text-gray-500 hover:text-gray-700 cursor-pointer">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="1"></circle>
                 <circle cx="12" cy="5" r="1"></circle>
@@ -546,7 +546,7 @@ export function commentFormTemplate({
               id="comment-input"
               class="text-[#8c8c8c] w-full h-24 px-4 py-3 pr-14 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent overflow-hidden"
               placeholder="Unggah komentarmu..."></textarea>
-            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 justify-end" type="submit">Unggah</button>
+            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full bg-[#eee] p-2 w-25 text-white py-2 mt-2 hover:bg-teal-500 focus:bg-teal-500 justify-end" type="submit">Unggah</button>
           </div>
         </div>
       </div>

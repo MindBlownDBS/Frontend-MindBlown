@@ -127,14 +127,14 @@ export default class CalendarPage {
                 const result = await this.presenter.checkTodayEntry();
 
                 if (result.exists) {
-                    alert('Anda sudah mengisi Mind Tracker untuk hari ini.');
+                    showToast('Anda sudah mengisi Mind Tracker untuk hari ini.', 'error');
                     return;
                 }
 
                 this.showModal(result.formattedDate, null, false);
             } catch (error) {
                 console.error('Error checking mind tracker entry:', error);
-                alert(error.message || 'Terjadi kesalahan server');
+                showToast(error.message || 'Terjadi kesalahan server', 'error');
             }
         });
 
@@ -157,7 +157,7 @@ export default class CalendarPage {
         document.addEventListener('click', async (e) => {
             if (e.target.closest('#regenerate-recommendations')) {
                 try {
-                   
+
                     const button = e.target.closest('#regenerate-recommendations');
                     const originalText = button.innerHTML;
                     button.innerHTML = `
@@ -168,10 +168,10 @@ export default class CalendarPage {
                     Memuat...
                     `;
                     button.disabled = true;
-   
+
                     const recommendations = await this.presenter.regenerateRecommendations();
                     this.updateRecommendationsSection(recommendations);
-                
+
                     showToast('Rekomendasi aktivitas baru telah dimuat!');
                 } catch (error) {
                     console.error('Failed to regenerate recommendations:', error);
@@ -209,7 +209,7 @@ export default class CalendarPage {
             this.showModal(result.formattedDate, result.data, true);
         } catch (error) {
             console.error('Error fetching mind tracker data:', error);
-            alert(error.message || 'Terjadi kesalahan server');
+            showToast(error.message || 'Terjadi kesalahan server', 'error');
         }
     }
 
@@ -275,7 +275,7 @@ export default class CalendarPage {
                 const progressText = formData.get('progress');
 
                 if (!progressText || progressText.trim() === '') {
-                    alert('Silakan isi progress Anda hari ini.');
+                    showToast('Silakan isi progress Anda hari ini.', 'error');
                     return false;
                 }
 
@@ -292,13 +292,13 @@ export default class CalendarPage {
                         modal.classList.remove('flex');
                         form.reset();
                         generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
-                        alert(result.message);
+                        showToast(result.message, 'success');
                     } else {
                         throw new Error(result.message);
                     }
                 } catch (error) {
                     console.error('Error saving mind tracker:', error);
-                    alert(error.message || 'Terjadi kesalahan server');
+                    showToast(error.message || 'Terjadi kesalahan server', 'error');
                 }
 
                 return false;
