@@ -5,8 +5,12 @@ export function mindTrackerModalTemplate(isViewMode = true, selectedMood = '') {
     { value: 'sadness', emoji: '😞', label: 'Sedih' },
     { value: 'neutral', emoji: '😐', label: 'Netral' },
     { value: 'joy', emoji: '😊', label: 'Senang' },
-    { value: 'angry', emoji: '😠', label: 'Marah' }
+    { value: 'anger', emoji: '😠', label: 'Marah' }
   ];
+
+  const selectedMoodObj = moods.find(m => m.value === selectedMood) || {};
+  const moodEmoji = selectedMoodObj.emoji || '';
+  const moodLabel = selectedMoodObj.label || '';
 
   return `
     <div id="mindTrackerModal" class="fixed inset-0 items-center justify-center bg-black/40 z-50 hidden ">
@@ -18,18 +22,20 @@ export function mindTrackerModalTemplate(isViewMode = true, selectedMood = '') {
             <hr class="my-4 text-gray-300">
             <form id="mindTrackerForm">
                 <div class="text-center mb-4">
-                    <p class="text-md my-4">Perasaanmu Hari ini</p>
-                    
-                    <div class="flex justify-center mb-2 gap-6">
-                        ${moods.map(mood => `
-                            <div class="mood-display flex flex-col gap-3 items-center" data-mood="${mood.value}">
-                                <span class="text-4xl ${selectedMood === mood.value ? 'scale-125' : ''}">${mood.emoji}</span>
-                                <div class="text-sm">${mood.label}</div>
+                    ${isViewMode && selectedMood ? `
+                        <p class="text-md my-4">Perasaanmu Terdeteksi</p>
+                        <div class="flex justify-center mb-2">
+                            <div class="flex flex-col items-center">
+                                <span class="text-4xl">${moodEmoji}</span>
+                                <div class="text-sm mt-2">${moodLabel}</div>
                             </div>
-                        `).join('')}
-                    </div>
-
-                    <input type="hidden" name="mood" id="selected-mood" value="${selectedMood || ''}">
+                        </div>
+                    ` : isViewMode ? `
+                        <p class="text-md my-4">Belum ada data mood</p>
+                    ` : `
+                        <p class="text-md my-4">Perasaanmu Hari ini</p>
+                        <p class="text-xs text-gray-500 mb-4">(Akan terdeteksi otomatis dari teks yang kamu tulis)</p>
+                    `}
 
                     <p class="mb-4 mt-8">Progres kamu</p>
                     <textarea name="progress" class="w-full border p-2 rounded-xl overflow-hidden" rows="3" placeholder="Ceritakan bagaimana harimu dan perasaanmu sekarang" required ${
@@ -40,7 +46,7 @@ export function mindTrackerModalTemplate(isViewMode = true, selectedMood = '') {
                   !isViewMode
                     ? `
                 <div id="submit-mind-tracker" class="flex justify-end">
-                    <button type="submit" class="w-25 bg-third text-white py-2 rounded-lg mt-2 justify-end">Kirim</button>
+                    <button type="submit" class="w-25 bg-third text-white py-2 px-4 rounded-lg mt-2 justify-end">Kirim</button>
                 </div>
                 `
                     : ""
@@ -103,118 +109,6 @@ export function botChatBubble(text) {
     `;
 }
 
-
-export function weeklyMoodTrackerTemplate(moods) {
-  const desktopPointGap = 200;
-  const mobilePointGap = 65;
-  const emojiY = [40, 10, 60, 35, 50, 25, 45, 0];
-
-  const desktopWidth = (moods.length - 1) * desktopPointGap + 40;
-  const mobileWidth = (Math.min(4, moods.length) - 1) * mobilePointGap + 40;
-  const height = 80;
-
-  const desktopPoints = moods
-    .map((_, i) => {
-      const x = 20 + i * desktopPointGap;
-      const y = emojiY[i] || 40;
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  const mobilePoints = moods
-    .slice(0, 4)
-    .map((_, i) => {
-      const x = 20 + i * mobilePointGap;
-      const y = emojiY[i] || 40;
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  return `
-    <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
-      <div class="flex items-center justify-between">
-        <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodPrevBtn">
-          &larr;
-        </button>
-        <div class="flex-1 flex flex-col items-center">
-          <!-- Desktop View -->
-          <div class="hidden lg:block" style="position:relative; width:${desktopWidth}px; height:${
-    height + 40
-  }px;">
-            <svg width="${desktopWidth}" height="${height}" style="position:absolute;top:0;left:0;">
-              <polyline
-                fill="none"
-                stroke="#bbb"
-                stroke-width="2"
-                points="${desktopPoints}"
-              />
-            </svg>
-            ${moods
-              .map((mood, i) => {
-                const x = 20 + i * desktopPointGap;
-                const y = emojiY[i] || 40;
-                return `
-                <div style="position:absolute;left:${x - 18}px;top:${
-                  y - 18
-                }px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
-                  <span style="font-size:2rem;line-height:1;">${
-                    mood.emoji
-                  }</span>
-                </div>
-                <div style="position:absolute;left:${x - 30}px;top:${
-                  height + 5
-                }px;width:60px;text-align:center;font-size:12px;color:#666;">
-                  ${mood.date}
-                </div>
-              `;
-              })
-              .join("")}
-          </div>
-
-          <!-- Mobile View -->
-          <div class="lg:hidden" style="position:relative; width:${mobileWidth}px; height:${
-    height + 40
-  }px;">
-            <svg width="${mobileWidth}" height="${height}" style="position:absolute;top:0;left:0;">
-              <polyline
-                fill="none"
-                stroke="#bbb"
-                stroke-width="2"
-                points="${mobilePoints}"
-              />
-            </svg>
-            ${moods
-              .slice(0, 4)
-              .map((mood, i) => {
-                const x = 20 + i * mobilePointGap;
-                const y = emojiY[i] || 40;
-                return `
-                <div style="position:absolute;left:${x - 18}px;top:${
-                  y - 18
-                }px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;">
-                  <span style="font-size:1.5rem;line-height:1;">${
-                    mood.emoji
-                  }</span>
-                </div>
-                <div style="position:absolute;left:${x - 30}px;top:${
-                  height + 5
-                }px;width:60px;text-align:center;font-size:12px;color:#666;">
-                  ${mood.date}
-                </div>
-              `;
-              })
-              .join("")}
-          </div>
-        </div>
-        <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodNextBtn">
-          &rarr;
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-
 export function weeklyMoodTrackerGridTemplate(weeklyData = { weekRange: {}, entries: [] }) {
   if (!weeklyData.entries || weeklyData.entries.length === 0) {
     return `
@@ -228,46 +122,40 @@ export function weeklyMoodTrackerGridTemplate(weeklyData = { weekRange: {}, entr
 
   const { entries, weekRange } = weeklyData;
   
-  // Format dates for header
   const startDate = new Date(weekRange.start);
   const endDate = new Date(weekRange.end);
   const formattedDateRange = `${startDate.toLocaleDateString('id-ID', { day: 'numeric' })} - ${endDate.toLocaleDateString('id-ID', { day: 'numeric' })} ${endDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
   
-  // Set up chart dimensions
-  const desktopPointGap = 100;  // Smaller gap to fit better on screen
-  const mobilePointGap = 80;    // Spacing for mobile view
+  
+  const desktopPointGap = 100; 
+  const mobilePointGap = 80;    
   const height = 80;
   
-  // Track entries with moods and setup Y positions for emojis
   const entriesWithMood = entries.filter(entry => entry.hasEntry);
   const hasEntries = entriesWithMood.length > 0;
   
-  // Map entries to their mood heights (Y positions)
   const emojiY = entries.map(entry => {
-    if (!entry.hasEntry) return 40; // Default Y position
+    if (!entry.hasEntry) return 40; 
     
-    // Map mood types to vertical positions (higher = happier)
+   
     const moodPositions = {
-      'joy': 25,
-      'happy': 30,
+      'joy': 20,
       'neutral': 45,
-      'sad': 60,
-      'sadness': 60,
-      'angry': 70
+      'sadness': 70,
+      'anger': 70
     };
     
     return moodPositions[entry.mood] || 45;
   });
   
-  // Calculate dimensions
   const desktopWidth = Math.max(500, (entries.length - 1) * desktopPointGap + 40);
   
-  // For mobile, we'll show 3 days at a time in the visible area
+
   const visibleMobileDays = 3;
-  const mobileWidth = (visibleMobileDays - 1) * mobilePointGap + 80; // Width of visible area
-  const fullMobileWidth = (entries.length - 1) * mobilePointGap + 80; // Full width of all entries
+  const mobileWidth = (visibleMobileDays - 1) * mobilePointGap + 80;
+  const fullMobileWidth = (entries.length - 1) * mobilePointGap + 80; 
   
-  // Generate SVG points for desktop and mobile
+
   const desktopPoints = entries
     .filter(entry => entry.hasEntry)
     .map((entry, i) => {
@@ -288,7 +176,6 @@ export function weeklyMoodTrackerGridTemplate(weeklyData = { weekRange: {}, entr
     })
     .join(" ");
   
-  // Create empty chart message if no entries with moods
   if (!hasEntries) {
     return `
       <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
@@ -337,7 +224,7 @@ export function weeklyMoodTrackerGridTemplate(weeklyData = { weekRange: {}, entr
                 const x = 20 + (i * desktopPointGap);
                 const y = emojiY[i];
                 
-                // Display emoji for entries or question mark for missing days
+                
                 let emoji = '❓';
                 let clickableClass = '';
                 if (entry.hasEntry) {

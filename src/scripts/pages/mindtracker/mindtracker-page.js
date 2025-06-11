@@ -70,13 +70,13 @@ export default class MindTrackerPage {
 
             <div class="bg-white shadow-sm">
                 <div class="grid grid-cols-7 gap-0 border-t border-r border-gray-100">
-                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Su</div>
-                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Mo</div>
-                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Tu</div>
-                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">We</div>
-                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Th</div>
-                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Fr</div>
-                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Sa</div>
+                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Min</div>
+                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Sen</div>
+                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Sel</div>
+                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Rab</div>
+                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Kam</div>
+                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Jum</div>
+                    <div class="text-xs text-gray-500 text-center py-2 border-t border-r border-gray-100">Sab</div>
 
                     <div id="calendarDays" class="col-span-7 grid grid-cols-7"></div>
                 </div>
@@ -152,10 +152,9 @@ export default class MindTrackerPage {
             const weeklyContainer = document.querySelector('.weekly-tracker-container');
 
             if (weeklyContainer) {
-                // Render the template
+
                 weeklyContainer.innerHTML = weeklyMoodTrackerGridTemplate(weeklyData);
 
-                // Add click handlers to mood points (both in desktop and mobile views)
                 const moodPoints = weeklyContainer.querySelectorAll('[data-date][data-mood]');
                 moodPoints.forEach(point => {
                     if (point.classList.contains('cursor-pointer')) {
@@ -164,7 +163,7 @@ export default class MindTrackerPage {
                             const mood = point.dataset.mood;
                             const progress = point.dataset.progress;
 
-                            // Show modal with entry details
+
                             this.showModal(date.split('T')[0], {
                                 mood: mood,
                                 progress: progress
@@ -173,18 +172,18 @@ export default class MindTrackerPage {
                     }
                 });
 
-                // Set up mobile carousel functionality before adding button listeners
+
                 this.setupMobileCarousel();
 
-                // Add event listeners for navigation buttons
+
                 const prevButton = weeklyContainer.querySelector('#moodPrevBtn');
                 const nextButton = weeklyContainer.querySelector('#moodNextBtn');
 
                 if (prevButton) {
                     prevButton.addEventListener('click', async (event) => {
-                        // Check if we're in mobile carousel mode or changing weeks
+
                         const carousel = document.querySelector('.mood-mobile-carousel');
-                        if (carousel && window.innerWidth < 1024) { // lg breakpoint
+                        if (carousel && window.innerWidth < 1024) {
                             event.preventDefault();
                             this.mobileCarouselPrev();
                         } else {
@@ -196,9 +195,9 @@ export default class MindTrackerPage {
 
                 if (nextButton) {
                     nextButton.addEventListener('click', async (event) => {
-                        // Check if we're in mobile carousel mode or changing weeks
+
                         const carousel = document.querySelector('.mood-mobile-carousel');
-                        if (carousel && window.innerWidth < 1024) { // lg breakpoint
+                        if (carousel && window.innerWidth < 1024) {
                             event.preventDefault();
                             this.mobileCarouselNext();
                         } else {
@@ -228,7 +227,7 @@ export default class MindTrackerPage {
         const slides = carousel.querySelector('.mood-mobile-carousel-slides');
         const dots = carousel.querySelectorAll('.mobile-carousel-dot');
 
-        // Store these as class properties so they can be accessed by prev/next methods
+
         this.mobileCarouselState = {
             slides,
             dots,
@@ -237,15 +236,14 @@ export default class MindTrackerPage {
             totalSlides: Math.ceil(this.presenter.getWeeklyEntries().length / 3)
         };
 
-        // Add event listeners to dots for direct navigation
         dots.forEach((dot, i) => {
             dot.addEventListener('click', () => this.goToMobileSlide(i));
         });
 
-        // Initialize to first slide
+
         this.goToMobileSlide(0);
 
-        // Optional: Add touch swipe functionality for mobile
+
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -259,13 +257,13 @@ export default class MindTrackerPage {
         }, { passive: true });
 
         const handleSwipe = () => {
-            const swipeThreshold = 50; // Minimum distance for swipe
+            const swipeThreshold = 50;
             if (touchEndX < touchStartX - swipeThreshold) {
-                // Swiped left
+
                 this.mobileCarouselNext();
             }
             if (touchEndX > touchStartX + swipeThreshold) {
-                // Swiped right
+
                 this.mobileCarouselPrev();
             }
         };
@@ -280,14 +278,14 @@ export default class MindTrackerPage {
 
         state.currentSlide = index;
 
-        // Calculate the sliding distance based on visible slides
-        const slideWidth = 80; // This should match the mobilePointGap
+
+        const slideWidth = 80;
         const slideOffset = index * (state.visibleDays * slideWidth);
 
-        // Apply the transform
+
         state.slides.style.transform = `translateX(-${slideOffset}px)`;
 
-        // Update dots
+
         state.dots.forEach((dot, i) => {
             if (i === state.currentSlide) {
                 dot.classList.add('bg-third');
@@ -298,11 +296,11 @@ export default class MindTrackerPage {
             }
         });
 
-        // Update button states for visual feedback
+
         const prevButton = document.querySelector('#moodPrevBtn');
         const nextButton = document.querySelector('#moodNextBtn');
 
-        if (window.innerWidth < 1024) { // Only in mobile view
+        if (window.innerWidth < 1024) {
             if (prevButton) {
                 prevButton.disabled = state.currentSlide === 0;
                 if (state.currentSlide === 0) {
@@ -476,20 +474,37 @@ export default class MindTrackerPage {
         const isCalendarView = document.getElementById('calendarDays').contains(document.activeElement);
         const finalViewMode = isCalendarView ? true : isViewMode;
 
-        document.body.insertAdjacentHTML('beforeend', mindTrackerModalTemplate(finalViewMode));
+        const selectedMood = existingData?.mood || '';
 
+        document.body.insertAdjacentHTML('beforeend', mindTrackerModalTemplate(finalViewMode, selectedMood));
 
         const modal = document.getElementById('mindTrackerModal');
         const modalTitle = document.getElementById('modalTitle');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const mindTrackerForm = document.getElementById('mindTrackerForm');
 
-        modalTitle.textContent = `Mind Tracker — ${formattedDate}`;
+        let displayDate = formattedDate;
+        if (formattedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            const dateParts = formattedDate.split('-');
+            const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); 
+            displayDate = dateObj.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        modalTitle.textContent = `Mind Tracker — ${displayDate}`;
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
         if (existingData) {
             document.querySelector('textarea[name="progress"]').value = existingData.progress || '';
+
+            const moodInput = document.getElementById('selected-mood');
+            if (moodInput && existingData.mood) {
+                moodInput.value = existingData.mood;
+            }
         }
 
         if (finalViewMode) {
@@ -507,6 +522,23 @@ export default class MindTrackerPage {
 
     setupModalEventListeners(modal, form, formattedDate) {
         const closeModalBtn = document.getElementById('closeModalBtn');
+        const moodOptions = document.querySelectorAll('.mood-option');
+        const moodInput = document.getElementById('selected-mood');
+
+        if (!form.querySelector('textarea[name="progress"]').readOnly) {
+            moodOptions.forEach(option => {
+                option.addEventListener('click', () => {
+
+                    moodOptions.forEach(m => {
+                        m.querySelector('span').classList.remove('scale-125');
+                    });
+
+                    const moodValue = option.dataset.mood;
+                    option.querySelector('span').classList.add('scale-125');
+                    moodInput.value = moodValue;
+                });
+            });
+        }
 
         closeModalBtn.addEventListener('click', () => {
             modal.classList.add('hidden');
@@ -527,6 +559,7 @@ export default class MindTrackerPage {
 
                 const formData = new FormData(form);
                 const progressText = formData.get('progress');
+                const selectedMood = formData.get('mood');
 
                 if (!progressText || progressText.trim() === '') {
                     showToast('Silakan isi progress Anda hari ini.', 'error');
@@ -546,6 +579,7 @@ export default class MindTrackerPage {
                         modal.classList.remove('flex');
                         form.reset();
                         generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
+                        await this.loadAndRenderWeeklyEntries();
                         showToast(result.message, 'success');
                     } else {
                         throw new Error(result.message);

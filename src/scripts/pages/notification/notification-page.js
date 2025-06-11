@@ -372,7 +372,7 @@ export default class NotificationPage {
       } else if (notification.type === 'reply' && notification.storyId) {
         window.location.hash = `#/story/${notification.storyId}`;
       } else if (notification.type === 'reminder') {
-        window.location.hash = '#/calendar';
+        window.location.hash = '#/mindtracker';
       }
 
       if (wasUnread) {
