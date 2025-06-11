@@ -272,7 +272,6 @@ export default class CommentDetailPage {
 
     let allCommentsHTML = "";
     commentsArray.forEach((comment) => {
-      console.log(comment);
       const isOwner = this._currentUser?.username === comment.username;
       const commentHTML = commentItemTemplate({
         commentId: comment._id,
@@ -325,6 +324,5 @@ export default class CommentDetailPage {
       );
       this._commentDataChangedHandler = null;
     }
-    console.log("CommentDetailPage destroyed and listeners cleaned up.");
   }
 }

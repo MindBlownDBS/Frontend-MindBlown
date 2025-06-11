@@ -10,7 +10,6 @@ export default class RegisterPresenter {
     async getRegistered({ username, name, preferences, email, password }) {
         this.#view.showSubmitLoadingButton();
         try {
-            console.log(username, name, preferences, email, password);
 
             if (!preferences || !Array.isArray(preferences) || preferences.length === 0) {
                 throw new Error("Minimal satu preferensi harus dipilih");

@@ -125,7 +125,7 @@ export default class StoryPage {
     this._isLoading = true;
     const loader = document.getElementById('stories-loader');
     const container = document.getElementById('stories-container');
-    
+
     if (loader) loader.classList.remove('hidden');
     if (container) container.classList.add('hidden');
   }
@@ -134,12 +134,12 @@ export default class StoryPage {
     this._isLoading = false;
     const loader = document.getElementById('stories-loader');
     const container = document.getElementById('stories-container');
-    
+
     if (loader) loader.classList.add('hidden');
     if (container) container.classList.remove('hidden');
   }
 
-   _setupMobileFormModal() {
+  _setupMobileFormModal() {
     const fabButton = document.getElementById("add-story-fab");
     const mobileModal = document.getElementById("mobile-story-modal");
     const closeModalBtn = document.getElementById("close-story-modal");
@@ -149,7 +149,7 @@ export default class StoryPage {
     const privacyOptions = document.querySelectorAll(".privacy-option");
     const privacyDisplay = document.getElementById("privacy-display");
     const anonymousCheckbox = document.getElementById("mobile-post-anonymously");
-    
+
     // Buka modal
     if (fabButton && mobileModal) {
       fabButton.addEventListener("click", () => {
@@ -165,14 +165,13 @@ export default class StoryPage {
         document.getElementById("mobile-story-textarea").value = "";
       });
     }
-    
+
     // Toggle dropdown privacy
     if (dropdownToggle && dropdownMenu) {
       dropdownToggle.addEventListener("click", () => {
         dropdownMenu.classList.toggle("hidden");
       });
-      
-      // Klik diluar dropdown untuk menutup
+
       document.addEventListener("click", (event) => {
         if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
           dropdownMenu.classList.add("hidden");
@@ -180,7 +179,7 @@ export default class StoryPage {
       });
     }
 
-     privacyOptions.forEach(option => {
+    privacyOptions.forEach(option => {
       option.addEventListener("click", () => {
         const isAnonymous = option.getAttribute("data-anonymous") === "true";
         anonymousCheckbox.checked = isAnonymous;
@@ -188,22 +187,22 @@ export default class StoryPage {
         dropdownMenu.classList.add("hidden");
       });
     });
-    
+
     // Submit form mobile
     if (submitBtn) {
       submitBtn.addEventListener("click", async () => {
         const content = document.getElementById("mobile-story-textarea").value.trim();
         const isAnonymous = anonymousCheckbox.checked;
-        
+
         if (!content) {
           alert("Silakan masukkan konten cerita.");
           return;
         }
 
-         const originalText = submitBtn.textContent;
+        const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.textContent = "Mengirim...";
-        
+
         try {
           if (this._presenter) {
             const success = await this._presenter.postNewStory(content, isAnonymous);
@@ -227,15 +226,16 @@ export default class StoryPage {
 
   async showStories(stories) {
     const container = document.getElementById("stories-container");
+
     if (!container) {
-      console.error("StoryPage: 'stories-container' element not found.");
-      return;
+      console.log("StoryPage: stories-container not found, possibly not on story page");
+      return; 
     }
 
     if (!stories || stories.length === 0) {
       container.innerHTML =
         '<p class="text-gray-500 text-center py-8">Belum ada cerita untuk ditampilkan.</p>';
-        this._hideLoading();
+      this._hideLoading();
       return;
     }
 
@@ -277,7 +277,7 @@ export default class StoryPage {
                 `Error fetching profile for ${story.username}:`,
                 error
               );
-            } 
+            }
           }
 
           return storyItemTemplate({
@@ -292,7 +292,7 @@ export default class StoryPage {
             profilePicture: profilePicture,
             createdAt: story.createdAt,
             isOwner: isOwner,
-            userLiked: story.userLiked || false, 
+            userLiked: story.userLiked || false,
           });
         })
       );
@@ -338,9 +338,7 @@ export default class StoryPage {
         ["posted", "edited", "deleted", "liked", "commented"].includes(action)
       ) {
         console.log(
-          "StoryPage: Reloading stories due to storyDataChanged",
-          event.detail
-        );
+          "StoryPage: Reloading stories due to storyDataChanged");
         if (this._presenter) {
           await this._presenter.loadStories();
         }

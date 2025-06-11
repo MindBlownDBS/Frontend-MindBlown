@@ -5,37 +5,26 @@ async function handleCommentLike(presenter, commentId, likeBtn) {
 
   try {
     const response = await presenter.likeExistingComment(commentId);
-    console.log("Response dari server:", response); // Debug log
-    console.log("Data detail dari server:", JSON.stringify(response.data)); // Debug struktur data
     
     if (!response.error) {
       const likeCountElement = likeBtn.querySelector(".comment-like-count");
       const svgIcon = likeBtn.querySelector("svg");
       
-      // Akses nilai likeCount dengan benar
       const newLikeCount = response.data?.comment?.likeCount || 
                            response.data?.likeCount || 
                            response.newLikeCount || 0;
-                           
-      console.log(`🔍 Nilai like yang diambil: ${newLikeCount}`);
-      console.log(`🔍 Path data: comment.likeCount=${response.data?.comment?.likeCount}, data.likeCount=${response.data?.likeCount}, newLikeCount=${response.newLikeCount}`);
       
-      // Update jumlah like dengan nilai yang diterima dari server
       if (likeCountElement) {
         likeCountElement.textContent = String(newLikeCount);
-        console.log(`🔍 Update like count element: ${likeCountElement.textContent} (dari newLikeCount: ${newLikeCount})`);
       }
       
-      // Update tampilan tombol like berdasarkan status
       const isLiked = response.data?.comment?.userLiked || 
                       response.userLiked ||
                       response.message?.includes("disukai") || 
                       false;
       
-      console.log(`🔍 Status like: ${isLiked}`);
       
       if (isLiked) {
-        // Komentar disukai
         svgIcon.classList.add("fill-red-500", "text-red-500");
         svgIcon.classList.remove("fill-none", "text-gray-500");
         likeBtn.classList.add("liked");
@@ -44,7 +33,6 @@ async function handleCommentLike(presenter, commentId, likeBtn) {
           likeCountElement.classList.remove("text-gray-600");
         }
       } else {
-        // Komentar unlike
         svgIcon.classList.add("fill-none", "text-gray-500");
         svgIcon.classList.remove("fill-red-500", "text-red-500");
         likeBtn.classList.remove("liked");
@@ -54,7 +42,6 @@ async function handleCommentLike(presenter, commentId, likeBtn) {
         }
       }
       
-      console.log(`Comment ${commentId} like count updated to: ${newLikeCount}`);
     } else {
       alert(`Gagal menyukai komentar: ${response.message}`);
       likeBtn.innerHTML = originalHTML;

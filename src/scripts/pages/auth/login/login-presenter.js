@@ -13,7 +13,6 @@ export default class LoginPresenter {
         this.#view.showSubmitLoadingButton();
         try {
             const response = await this.#model.getLogin(usernameOrEmail, password);
-            // console.log(response);
 
             if (response.error || response.status >= 400) {
                 this.#view.loginFailed(response.message);

@@ -56,7 +56,6 @@ export const setupStoryInteractions = (
       return;
     }
 
-    // Default: navigate to story detail for other clicks
     if (
       !e.target.closest(".like-btn") &&
       !e.target.closest(".comment-btn") &&
@@ -84,13 +83,6 @@ const handleLike = async (presenter, storyId, likeBtn) => {
   const wasLiked = likeBtn.classList.contains('liked');
   const currentCount = parseInt(likeCountElement.textContent) || 0;
 
-  console.log(`🎯 Like action:`, {
-    storyId,
-    wasLiked,
-    currentCount
-  });
-
-
   likeBtn.disabled = true;
   likeBtn.style.pointerEvents = 'none';
 
@@ -103,7 +95,6 @@ const handleLike = async (presenter, storyId, likeBtn) => {
     }
 
     const response = await presenter.likeStory(storyId);
-    console.log(`✅ ${wasLiked ? 'Unliked' : 'Liked'} story:`, response);
 
     if (response?.data?.story) {
       const story = response.data.story;

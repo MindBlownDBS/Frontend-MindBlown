@@ -108,26 +108,6 @@ export default class StoryDetailPage {
     this._setupMobileCommentButton();
   }
 
-  // _setupMobileCommentButton() {
-  //   const fabButton = document.getElementById("add-comment-fab");
-  //   const mobileModal = document.getElementById("mobile-comment-modal");
-  //   const closeModalBtn = document.getElementById("close-comment-modal");
-    
-  //   if (fabButton && mobileModal) {
-  //     fabButton.addEventListener("click", () => {
-  //       mobileModal.classList.remove("hidden");
-  //       mobileModal.classList.add("flex");
-  //     });
-  //   }
-    
-  //   if (closeModalBtn && mobileModal) {
-  //     closeModalBtn.addEventListener("click", () => {
-  //       mobileModal.classList.add("hidden");
-  //       mobileModal.classList.remove("flex");
-  //     });
-  //   }
-  // }
-
 _setupMobileCommentButton() {
   const fabButton = document.getElementById("add-comment-fab");
   const mobileModal = document.getElementById("mobile-comment-modal");
@@ -145,7 +125,6 @@ _setupMobileCommentButton() {
     closeModalBtn.addEventListener("click", () => {
       mobileModal.classList.add("hidden");
       mobileModal.classList.remove("flex");
-      // Reset form
       const commentInput = document.getElementById("mobile-comment-input");
       if (commentInput) commentInput.value = "";
     });
@@ -218,44 +197,32 @@ _setupMobileCommentButton() {
 
 
   _setupStoryDataChangedListener() {
-    // Hapus listener lama jika ada
     if (this._storyDataChangedHandler) {
       document.removeEventListener("storyDataChanged", this._storyDataChangedHandler);
       document.removeEventListener("commentDataChanged", this._storyDataChangedHandler);
     }
 
     this._storyDataChangedHandler = (event) => {
-      console.log("🎯 StoryDetailPage: Event received", event.type, event.detail);
 
       const { action, entityId, userLiked, newLikeCount, message } = event.detail;
-      console.log(`🎯 Action: ${action}, EntityId: ${entityId}, UserLiked: ${userLiked}, NewLikeCount: ${newLikeCount}`);
+     
 
-      // Handle comment liked event without reloading
       if (action === "commentLiked" && entityId) {
-        // Log detail selectors untuk debugging
-        console.log(`🔍 Looking for comment element with selector: .comment-item-container[data-comment-id="${entityId}"]`);
 
-        // Find the comment element
         const commentElement = document.querySelector(`.comment-item-container[data-comment-id="${entityId}"]`);
-        console.log(`🔍 Comment element found:`, commentElement);
+       
 
         if (commentElement) {
           const likeBtn = commentElement.querySelector('.comment-like-btn');
           const heartSvg = likeBtn?.querySelector('svg');
           const likeCountElement = likeBtn?.querySelector('.comment-like-count');
 
-          console.log(`🔍 Like button:`, likeBtn);
-          console.log(`🔍 Heart SVG:`, heartSvg);
-          console.log(`🔍 Like count element:`, likeCountElement);
 
           if (likeBtn && heartSvg && likeCountElement) {
-            // Gunakan nilai userLiked langsung jika tersedia
+            
             const isLiked = userLiked !== undefined ? userLiked :
               message?.includes('disukai');
-
-            console.log(`🎯 Updating comment like UI for ${entityId}:`, { isLiked, newLikeCount });
-
-            // Update UI
+           
             if (isLiked) {
               likeBtn.classList.add('liked');
               heartSvg.classList.add('fill-red-500', 'text-red-500');
@@ -270,11 +237,6 @@ _setupMobileCommentButton() {
               likeCountElement.classList.remove('text-red-500', 'font-semibold');
             }
 
-            // Selalu update count untuk kepastian UI
-            // likeCountElement.textContent = newLikeCount !== undefined ? 
-            //                              Math.max(0, newLikeCount) : 
-            //                              parseInt(likeCountElement.textContent || '0') + (isLiked ? 1 : -1);
-
             const currentCount = parseInt(likeCountElement.textContent || '0');
             let newCount;
 
@@ -284,15 +246,9 @@ _setupMobileCommentButton() {
               newCount = isLiked ? Math.max(1, currentCount) : Math.max(0, currentCount - 1);
             }
 
-            console.log(`🎯 Setting like count: ${currentCount} -> ${newCount} (isLiked: ${isLiked})`);
             likeCountElement.textContent = String(newCount);
-            
-
-            // Log untuk memastikan nilai diatur dengan benar
-            console.log(`🎯 After update, count element text: "${likeCountElement.textContent}"`);
-
-            console.log(`🎯 Like UI updated successfully`);
-            return; // Skip reloading the entire story
+                    
+            return; 
           } else {
             console.warn(`⚠️ Could not find all required elements for comment ${entityId}`);
           }
@@ -301,18 +257,13 @@ _setupMobileCommentButton() {
         }
       }
 
-      console.log(`🔄 Reloading entire story for action: ${action}`);
-      // For other actions or if direct update failed, reload the entire story
       if (this._storyId) {
         this._presenter.loadStoryDetail(this._storyId);
       }
     };
 
-    // Dengarkan kedua jenis event untuk keamanan
     document.addEventListener("storyDataChanged", this._storyDataChangedHandler);
     document.addEventListener("commentDataChanged", this._storyDataChangedHandler);
-
-    console.log("🎯 Story data changed listener set up");
   }
 
   destroy() {
@@ -330,13 +281,12 @@ _setupMobileCommentButton() {
       );
       this.#editStoryModalRequestHandler = null;
     }
-    console.log("StoryDetailPage destroyed and listeners cleaned up.");
   }
 
   showStoryDetail(story) {
     const container = document.getElementById("story-detail-container");
     if (!container) {
-      console.error("Element with ID 'story-detail-container' not found.");
+      console.warn("Element with ID 'story-detail-container' not found.");
       return;
     }
 
@@ -394,7 +344,6 @@ _setupMobileCommentButton() {
 
     this._currentUser = this._presenter.getCurrentUser();
 
-    // Bersihkan element sebelum menambahkan konten baru
     parentElement.innerHTML = '';
 
     commentsArray.forEach((comment) => {
@@ -414,11 +363,9 @@ _setupMobileCommentButton() {
         userLiked: comment.isLiked || false,
       });
       
-      // Tambahkan elemen komentar langsung ke parentElement
       const commentElement = tempDiv.firstElementChild;
       parentElement.appendChild(commentElement);
       
-      // Cari container untuk balasan di dalam komentar yang baru ditambahkan
       const nestedRepliesContainer = commentElement.querySelector(".replies-container");
       if (nestedRepliesContainer && comment.replies && comment.replies.length > 0) {
         this._renderCommentsRecursive(comment.replies, nestedRepliesContainer, level + 1);
@@ -445,12 +392,11 @@ _setupMobileCommentButton() {
             likeCount: comment.likeCount || comment.likes?.length || 0,
             replyCount: comment.repliesCount || comment.replies?.length || 0,
             isOwner: isOwner,
-            userLiked: comment.userLiked || false, // Tambahkan parameter userLiked
+            userLiked: comment.userLiked || false,
           });
         })
         .join("");
 
-      // Setup interaksi komentar setelah render
       if (this._presenter) {
         setupCommentInteractions(this._presenter, "comments-list");
         setupCommentActions(this._presenter, "comments-list");
@@ -458,56 +404,13 @@ _setupMobileCommentButton() {
     }
   }
 
-  // setupEventListeners() {
-  //   const commentForm = document.getElementById("comment-form");
-  //   if (commentForm) {
-  //     commentForm.addEventListener("submit", async (e) => {
-  //       e.preventDefault();
-  //       const input = document.getElementById("comment-input");
-  //       const submitButton = commentForm.querySelector('button[type="submit"]');
-  //       const originalButtonText = submitButton.textContent;
-
-  //       if (!input || !input.value.trim()) {
-  //         alert("Silakan masukkan komentar");
-  //         return;
-  //       }
-
-  //       submitButton.disabled = true;
-  //       submitButton.textContent = "Mengunggah...";
-
-  //       try {
-  //         if (this._presenter) {
-  //           const success = await this._presenter.addComment(
-  //             this._storyId,
-  //             input.value.trim()
-  //           );
-  //           if (success) {
-  //             input.value = "";
-  //             this._showToast("Komentar berhasil ditambahkan!");
-  //           }
-  //         }
-  //       } catch (error) {
-  //         console.error("Error submitting comment:", error);
-  //         alert(
-  //           "Gagal mengunggah komentar: " +
-  //           (error.message || "Terjadi kesalahan")
-  //         );
-  //       } finally {
-  //         submitButton.disabled = false;
-  //         submitButton.textContent = "Unggah";
-  //       }
-  //     });
-  //   }
-  // }
 
   setupEventListeners() {
-    // Setup untuk form komentar desktop
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
       this._setupCommentFormSubmit(commentForm);
     }
     
-    // Setup untuk form komentar di modal mobile
     const mobileModal = document.getElementById("mobile-comment-modal");
     if (mobileModal) {
       const mobileForm = mobileModal.querySelector("#comment-form");
@@ -541,7 +444,6 @@ _setupMobileCommentButton() {
           if (success) {
             input.value = "";
             this._showToast("Komentar berhasil ditambahkan!");
-             // Tutup modal jika terbuka
             const mobileModal = document.getElementById("mobile-comment-modal");
             if (mobileModal && mobileModal.classList.contains("flex")) {
               mobileModal.classList.remove("flex");

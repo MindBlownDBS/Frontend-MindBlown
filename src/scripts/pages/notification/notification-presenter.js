@@ -82,7 +82,6 @@ export default class NotificationPresenter {
 
   async markAllAsRead() {
     try {
-      console.log('Presenter: Marking all notifications as read');
       const result = await markAllNotificationsAsRead();
       
       if (result.error) {
@@ -99,7 +98,6 @@ export default class NotificationPresenter {
         return false;
       }
 
-      console.log('Successfully marked all notifications as read');
       this.view.updateAllNotificationsReadStatus();
       this.view.showSuccessMessage('Semua notifikasi ditandai sebagai dibaca');
       return true;

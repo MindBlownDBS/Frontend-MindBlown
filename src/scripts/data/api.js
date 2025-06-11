@@ -348,14 +348,12 @@ export async function markNotificationAsRead(notificationId) {
     });
 
     const contentType = response.headers.get("content-type");
-    console.log("Content-Type:", contentType);
 
     let result;
     if (contentType && contentType.includes("application/json")) {
       result = await response.json();
     } else {
       const text = await response.text();
-      console.log("Non-JSON response text:", text);
       throw new Error(`Server returned non-JSON response: ${text}`);
     }
 
@@ -390,9 +388,6 @@ export async function markAllNotificationsAsRead() {
       throw new Error("Anda belum login. Silakan login terlebih dahulu.");
     }
 
-    console.log("Attempting to mark all notifications as read");
-    console.log("URL:", `${BASE_URL}${ENDPOINTS.MARK_ALL_NOTIFICATIONS_READ}`);
-
     const response = await fetch(
       `${BASE_URL}${ENDPOINTS.MARK_ALL_NOTIFICATIONS_READ}`,
       {
@@ -404,21 +399,14 @@ export async function markAllNotificationsAsRead() {
       }
     );
 
-    console.log("Response received:");
-    console.log("Status:", response.status);
-    console.log("Status Text:", response.statusText);
-    console.log("OK:", response.ok);
 
-    // Check if the response is actually JSON
     const contentType = response.headers.get("content-type");
-    console.log("Content-Type:", contentType);
 
     let result;
     if (contentType && contentType.includes("application/json")) {
       result = await response.json();
     } else {
       const text = await response.text();
-      console.log("Non-JSON response text:", text);
       throw new Error(`Server returned non-JSON response: ${text}`);
     }
 
@@ -658,8 +646,6 @@ export async function getUserRecommendations(username) {
     if (!accessToken) {
       throw new Error("Anda belum login. Silakan login terlebih dahulu.");
     }
-
-    console.log(`Sending request to: ${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}`);
     
     const response = await fetch(`${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}`, {
       method: "GET", 
@@ -669,9 +655,7 @@ export async function getUserRecommendations(username) {
       }
     });
 
-    console.log("Response status:", response.status);
     const result = await response.json();
-    console.log("Response data:", result);
 
     if (!response.ok) {
       throw new Error(result.message || `Error ${response.status}: Terjadi kesalahan saat mengambil rekomendasi`);
@@ -698,8 +682,6 @@ export async function regenerateRecommendations(username) {
     if (!accessToken) {
       throw new Error("Anda belum login. Silakan login terlebih dahulu.");
     }
-
-    console.log(`Sending request to: ${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}/regenerate`);
     
     const response = await fetch(`${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}/regenerate`, {
       method: "POST", 
@@ -709,7 +691,6 @@ export async function regenerateRecommendations(username) {
       }
     });
 
-    console.log("Response status:", response.status);
     const result = await response.json();
 
     if (!response.ok) {
@@ -732,7 +713,6 @@ export async function getChatHistory() {
     
 
     if (!accessToken) {
-      console.log('No access token available, skipping chat history fetch');
       return {
         error: false,
         message: "User not logged in",

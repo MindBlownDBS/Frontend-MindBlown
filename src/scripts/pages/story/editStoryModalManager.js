@@ -1,10 +1,5 @@
 import { editStoryModalTemplate } from "../templates.js";
 
-/**
- * @param {string} storyId
- * @param {string} currentContent
- * @param {object} presenter
- */
 export function displayAndManageEditStoryModal(
   storyId,
   currentContent,

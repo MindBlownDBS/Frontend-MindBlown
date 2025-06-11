@@ -12,7 +12,6 @@ export default class MindTracakerPresenter {
 
     async checkTodayEntry() {
         try {
-            console.log('Presenter: Checking today entry');
             const result = await checkTodayEntry();
             return {
                 exists: result.exists,
@@ -26,7 +25,7 @@ export default class MindTracakerPresenter {
 
     async getEntryByDate(dateStr) {
         try {
-            console.log('Presenter: Getting entry for date:', dateStr);
+
             const result = await getEntryByDate(dateStr);
             return {
                 data: result.data,
@@ -40,9 +39,7 @@ export default class MindTracakerPresenter {
 
     async saveEntry(data) {
         try {
-            console.log('Presenter: Saving entry data:', data);
             const result = await saveEntry(data);
-            console.log('Presenter: Save entry result:', result);
             return result;
         } catch (error) {
             console.error('Presenter: Error saving entry:', error);
@@ -63,7 +60,7 @@ export default class MindTracakerPresenter {
             }
 
             this.userRecommendations = result.data.recommendations || [];
-            console.log('Loaded recommendations:', this.userRecommendations);
+
             return this.userRecommendations;
         } catch (error) {
             console.error('Presenter: Error loading recommendations:', error);
@@ -79,10 +76,7 @@ export default class MindTracakerPresenter {
       throw new Error('User data not found');
     }
     
-    console.log("Regenerating recommendations for username:", user.username);
-    
     const result = await regenerateRecommendations(user.username);
-    console.log("API response for regeneration:", result);
     
     if (result.error) {
       throw new Error(result.message || "Failed to regenerate recommendations");

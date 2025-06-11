@@ -29,7 +29,6 @@ export default class StoryPresenter {
           likeCount: story.likeCount,
           commentCount: story.comments?.length || 0,
         }));
-        console.log("Stories loaded successfully:", this._stories);
         this._view.showStories(this._stories);
       } else {
         console.error("Error loading stories:", response.message);
@@ -89,7 +88,7 @@ export default class StoryPresenter {
 
       document.dispatchEvent(
         new CustomEvent("storyDataChanged", {
-          detail: { story: newStory, action: "posted" },
+          detail: { action: "posted" },
         })
       );
 
@@ -176,8 +175,6 @@ export default class StoryPresenter {
       }
 
       const story = response.data;
-      // story.likeCount = story.likes?.length || 0;
-      // story.commentCount = story.comments?.length || 0;
 
       if (!story.isAnonymous && story.username) {
         const userData = await this.getCompleteUserData(story.username);
@@ -375,13 +372,7 @@ export default class StoryPresenter {
       if (response.error) {
         throw new Error(response.message || "Gagal menyukai komentar.");
       }
-      // Ambil data dari struktur yang benar
-    const commentData = response.data?.comment || {};
-
-    console.log("🔍 Response data:", response.data);
-    console.log("🔍 Comment data:", commentData);
-    console.log("🔍 userLiked:", commentData.userLiked);
-    console.log("🔍 likeCount:", commentData.likeCount);
+      const commentData = response.data?.comment || {};
 
       document.dispatchEvent(
         new CustomEvent("commentDataChanged", {
@@ -407,6 +398,12 @@ export default class StoryPresenter {
       if (response.error) {
         throw new Error(response.message || "Gagal menghapus komentar.");
       }
+
+      const currentUrl = window.location.hash;
+      const isCommentDetailPage = currentUrl.includes('/comment/');
+      const currentCommentId = isCommentDetailPage ? currentUrl.split('/').pop() : null;
+      const isDeletingCurrentComment = currentCommentId === commentId;
+
       document.dispatchEvent(
         new CustomEvent("commentDataChanged", {
           detail: {
@@ -415,6 +412,17 @@ export default class StoryPresenter {
           },
         })
       );
+
+       if (isDeletingCurrentComment) {
+      const storyId = response.data?.storyId;
+
+      if (storyId) {
+        window.location.hash = `/story/${storyId}`;
+      } else {
+        window.location.hash = '/story';
+      }
+    }
+
       return response;
     } catch (error) {
       console.error("Failed to delete comment:", error);
