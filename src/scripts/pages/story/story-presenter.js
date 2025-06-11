@@ -243,14 +243,14 @@ export default class StoryPresenter {
 
       return responseData;
 
-      const storyIndex = this._stories.findIndex(
-        (s) => s.id === storyId || s._id === storyId
-      );
-      if (storyIndex !== -1) {
-        this._stories[storyIndex].likeCount = newLikeCount;
-        if (Array.isArray(responseData.data?.likes))
-          this._stories[storyIndex].likes = responseData.data.likes;
-      }
+      // const storyIndex = this._stories.findIndex(
+      //   (s) => s.id === storyId || s._id === storyId
+      // );
+      // if (storyIndex !== -1) {
+      //   this._stories[storyIndex].likeCount = newLikeCount;
+      //   if (Array.isArray(responseData.data?.likes))
+      //     this._stories[storyIndex].likes = responseData.data.likes;
+      // }
     } catch (error) {
       console.error("Failed to like story:", error);
       throw error;

@@ -229,7 +229,7 @@ export default class StoryPage {
 
     if (!container) {
       console.log("StoryPage: stories-container not found, possibly not on story page");
-      return; 
+      return;
     }
 
     if (!stories || stories.length === 0) {
@@ -333,6 +333,13 @@ export default class StoryPage {
 
   #setupStoryDataChangedListener() {
     this.#storyDataChangedHandler = async (event) => {
+
+      const storiesContainer = document.getElementById("stories-container");
+      if (!storiesContainer) {
+        console.log("StoryPage: Not on story page, ignoring storyDataChanged");
+        return;
+      }
+
       const { action, storyId } = event.detail;
       if (
         ["posted", "edited", "deleted", "liked", "commented"].includes(action)
@@ -420,7 +427,7 @@ export default class StoryPage {
       if (pageContainer) {
         pageContainer.innerHTML = `<p class="text-red-500 p-6 text-center">${message}</p>`;
       } else {
-        alert(message);
+        console.log(message);
       }
     }
   }

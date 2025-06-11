@@ -214,6 +214,236 @@ export function weeklyMoodTrackerTemplate(moods) {
   `;
 }
 
+
+export function weeklyMoodTrackerGridTemplate(weeklyData = { weekRange: {}, entries: [] }) {
+  if (!weeklyData.entries || weeklyData.entries.length === 0) {
+    return `
+      <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
+        <div class="text-center py-4 text-gray-500">
+          <p>Belum ada data mood tracker untuk minggu ini.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  const { entries, weekRange } = weeklyData;
+  
+  // Format dates for header
+  const startDate = new Date(weekRange.start);
+  const endDate = new Date(weekRange.end);
+  const formattedDateRange = `${startDate.toLocaleDateString('id-ID', { day: 'numeric' })} - ${endDate.toLocaleDateString('id-ID', { day: 'numeric' })} ${endDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
+  
+  // Set up chart dimensions
+  const desktopPointGap = 100;  // Smaller gap to fit better on screen
+  const mobilePointGap = 80;    // Spacing for mobile view
+  const height = 80;
+  
+  // Track entries with moods and setup Y positions for emojis
+  const entriesWithMood = entries.filter(entry => entry.hasEntry);
+  const hasEntries = entriesWithMood.length > 0;
+  
+  // Map entries to their mood heights (Y positions)
+  const emojiY = entries.map(entry => {
+    if (!entry.hasEntry) return 40; // Default Y position
+    
+    // Map mood types to vertical positions (higher = happier)
+    const moodPositions = {
+      'joy': 25,
+      'happy': 30,
+      'neutral': 45,
+      'sad': 60,
+      'sadness': 60,
+      'angry': 70
+    };
+    
+    return moodPositions[entry.mood] || 45;
+  });
+  
+  // Calculate dimensions
+  const desktopWidth = Math.max(500, (entries.length - 1) * desktopPointGap + 40);
+  
+  // For mobile, we'll show 3 days at a time in the visible area
+  const visibleMobileDays = 3;
+  const mobileWidth = (visibleMobileDays - 1) * mobilePointGap + 80; // Width of visible area
+  const fullMobileWidth = (entries.length - 1) * mobilePointGap + 80; // Full width of all entries
+  
+  // Generate SVG points for desktop and mobile
+  const desktopPoints = entries
+    .filter(entry => entry.hasEntry)
+    .map((entry, i) => {
+      const entryIndex = entries.findIndex(e => e.date === entry.date);
+      const x = 20 + entryIndex * desktopPointGap;
+      const y = emojiY[entryIndex];
+      return `${x},${y}`;
+    })
+    .join(" ");
+    
+  const mobilePoints = entries
+    .filter(entry => entry.hasEntry)
+    .map((entry, i) => {
+      const entryIndex = entries.findIndex(e => e.date === entry.date);
+      const x = 20 + entryIndex * mobilePointGap;
+      const y = emojiY[entryIndex];
+      return `${x},${y}`;
+    })
+    .join(" ");
+  
+  // Create empty chart message if no entries with moods
+  if (!hasEntries) {
+    return `
+      <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
+        <div class="text-center py-4 text-gray-500">
+          <p>Belum ada data mood yang direkam minggu ini.</p>
+          <p class="text-xs mt-1">Rekam mood harianmu untuk melihat grafik.</p>
+        </div>
+      </div>
+    `;
+  }
+  
+  return `
+    <div class="bg-white rounded-xl border border-gray-200 p-4 mt-6 mb-8">
+      <div class="mb-2">
+        <h3 class="text-base font-medium text-gray-700">Mood dalam 1 Minggu</h3>
+        <p class="text-xs text-gray-500">${formattedDateRange}</p>
+      </div>
+      
+      <div class="flex items-center justify-between">
+        <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodPrevBtn" aria-label="Sebelumnya">
+          &larr;
+        </button>
+        
+        <!-- Desktop View -->
+        <div class="flex-1 hidden lg:block overflow-hidden">
+          <div class="relative w-full" style="height:${height + 40}px;">
+            <div style="position:relative; width:${desktopWidth}px; height:${height + 40}px; margin:0 auto;">
+              ${desktopPoints ? `
+              <svg width="${desktopWidth}" height="${height}" style="position:absolute;top:0;left:0;">
+                <polyline
+                  fill="none"
+                  stroke="#333"
+                  stroke-width="2"
+                  points="${desktopPoints}"
+                />
+              </svg>
+              ` : ''}
+              
+              ${entries.map((entry, i) => {
+                const date = new Date(entry.date);
+                const dayName = date.toLocaleDateString('id-ID', { weekday: 'short' });
+                const dayNumber = date.getDate();
+                const monthName = date.toLocaleDateString('id-ID', { month: 'short' });
+                const dayLabel = `${dayName}, ${dayNumber} ${monthName}`;
+                
+                const x = 20 + (i * desktopPointGap);
+                const y = emojiY[i];
+                
+                // Display emoji for entries or question mark for missing days
+                let emoji = '❓';
+                let clickableClass = '';
+                if (entry.hasEntry) {
+                  emoji = getMoodEmoji(entry.mood);
+                  clickableClass = 'cursor-pointer';
+                }
+                
+                return `
+                  <div style="position:absolute;left:${x - 18}px;top:${y - 18}px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;"
+                      class="${clickableClass}" 
+                      data-date="${entry.date}" 
+                      data-mood="${entry.mood || ''}"
+                      data-progress="${entry.progress || ''}">
+                    <span style="font-size:2rem;line-height:1;">${emoji}</span>
+                  </div>
+                  <div style="position:absolute;left:${x - 30}px;top:${height + 5}px;width:60px;text-align:center;font-size:10px;color:#666;">
+                    ${dayLabel}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile View - Using main arrows only -->
+        <div class="flex-1 lg:hidden">
+          <div class="mood-mobile-carousel relative w-full" style="height:${height + 40}px;">
+            <div class="mood-mobile-carousel-inner" style="position:relative; width:${mobileWidth}px; height:${height + 40}px; margin:0 auto; overflow:hidden;">
+              <div class="mood-mobile-carousel-slides" style="position:absolute; top:0; left:0; width:${fullMobileWidth}px; height:${height + 40}px; transition: transform 0.3s ease;">
+                ${mobilePoints ? `
+                <svg width="${fullMobileWidth}" height="${height}" style="position:absolute;top:0;left:0;">
+                  <polyline
+                    fill="none"
+                    stroke="#333"
+                    stroke-width="2"
+                    points="${mobilePoints}"
+                  />
+                </svg>
+                ` : ''}
+                
+                ${entries.map((entry, i) => {
+                  const date = new Date(entry.date);
+                  const dayName = date.toLocaleDateString('id-ID', { weekday: 'short' });
+                  const dayNumber = date.getDate();
+                  const monthName = date.toLocaleDateString('id-ID', { month: 'short' });
+                  const dayLabel = `${dayName}, ${dayNumber} ${monthName.slice(0,3)}`;
+                  
+                  const x = 20 + (i * mobilePointGap);
+                  const y = emojiY[i];
+                  
+                  let emoji = '❓';
+                  let clickableClass = '';
+                  if (entry.hasEntry) {
+                    emoji = getMoodEmoji(entry.mood);
+                    clickableClass = 'cursor-pointer';
+                  }
+                  
+                  return `
+                    <div style="position:absolute;left:${x - 18}px;top:${y - 18}px;width:36px;height:36px;display:flex;flex-direction:column;align-items:center;"
+                        class="${clickableClass}" 
+                        data-date="${entry.date}" 
+                        data-mood="${entry.mood || ''}"
+                        data-progress="${entry.progress || ''}">
+                      <span style="font-size:1.5rem;line-height:1;">${emoji}</span>
+                    </div>
+                    <div style="position:absolute;left:${x - 30}px;top:${height + 5}px;width:60px;text-align:center;font-size:9px;color:#666;">
+                      ${dayLabel}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              
+              <!-- Mobile navigation indicator dots -->
+              <div class="absolute bottom-0 left-0 right-0 flex justify-center gap-1 pt-1">
+                ${Array.from({ length: Math.ceil(entries.length / visibleMobileDays) }).map((_, i) => 
+                  `<span class="mobile-carousel-dot w-1.5 h-1.5 rounded-full bg-gray-300 ${i === 0 ? 'active bg-third' : ''}" data-index="${i}"></span>`
+                ).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button class="rounded-full border border-gray-300 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100" id="moodNextBtn" aria-label="Selanjutnya">
+          &rarr;
+        </button>
+      </div>
+      
+      <div class="text-xs text-gray-500 text-right mt-2">
+        Tap emoji untuk detail
+      </div>
+    </div>
+  `;
+}
+
+
+function getMoodEmoji(mood) {
+  const moodMap = {
+    'joy': '😄',
+    'neutral': '😐',
+    'sadness': '😔',
+    'anger': '😠',
+  };
+  
+  return moodMap[mood] || '❓';
+}
+
 export function notificationListTemplate(notifications) {
   return `
         <div class="">

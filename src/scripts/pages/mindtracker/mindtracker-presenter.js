@@ -1,4 +1,4 @@
-import { checkTodayEntry, getEntryByDate, saveEntry, getUserRecommendations, regenerateRecommendations } from '../../data/api';
+import { checkTodayEntry, getEntryByDate, saveEntry, getUserRecommendations, regenerateRecommendations, getWeeklyTrackerEntries } from '../../data/api';
 
 export default class MindTracakerPresenter {
     constructor() {
@@ -8,6 +8,8 @@ export default class MindTracakerPresenter {
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
         this.userRecommendations = [];
+        this.weeklyEntries = [];
+        this.currentWeekOffset = 0;
     }
 
     async checkTodayEntry() {
@@ -47,7 +49,7 @@ export default class MindTracakerPresenter {
         }
     }
 
-     async loadRecommendations() {
+    async loadRecommendations() {
         try {
             const user = JSON.parse(localStorage.getItem('user')) || {};
             if (!user.username) {
@@ -69,27 +71,102 @@ export default class MindTracakerPresenter {
     }
 
     async regenerateRecommendations() {
-  try {
+        try {
 
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-    if (!user.username) {
-      throw new Error('User data not found');
-    }
-    
-    const result = await regenerateRecommendations(user.username);
-    
-    if (result.error) {
-      throw new Error(result.message || "Failed to regenerate recommendations");
-    }
-    
-    return await this.loadRecommendations();
-  } catch (error) {
-    console.error('Presenter: Error regenerating recommendations:', error);
-    throw error;
-  }
-}
+            const user = JSON.parse(localStorage.getItem('user')) || {};
+            if (!user.username) {
+                throw new Error('User data not found');
+            }
 
-     getRecommendations() {
+            const result = await regenerateRecommendations(user.username);
+
+            if (result.error) {
+                throw new Error(result.message || "Failed to regenerate recommendations");
+            }
+
+            return await this.loadRecommendations();
+        } catch (error) {
+            console.error('Presenter: Error regenerating recommendations:', error);
+            throw error;
+        }
+    }
+
+    // async loadWeeklyEntries() {
+    //     try {
+    //         const result = await getWeeklyTrackerEntries();
+    //         if (result.error) {
+    //             throw new Error(result.message);
+    //         }
+
+    //         this.weeklyEntries = result.data.weeklyDetails || [];
+    //         return {
+    //             weekRange: result.data.weekRange,
+    //             entries: this.weeklyEntries
+    //         };
+    //     } catch (error) {
+    //         console.error('Presenter: Error loading weekly entries:', error);
+    //         return {
+    //             weekRange: { start: '', end: '' },
+    //             entries: []
+    //         };
+    //     }
+    // }
+
+    async loadWeeklyEntries() {
+        try {
+            // Get params for API call - we could modify the URL to include week offset
+            // For now, let's assume the API always returns the current week
+            const result = await getWeeklyTrackerEntries(this.currentWeekOffset);
+            console.log('Presenter: Loaded weekly entries:', result);
+            if (result.error) {
+                throw new Error(result.message);
+            }
+
+            this.weeklyEntries = result.data.weeklyDetails || [];
+            return {
+                weekRange: result.data.weekRange,
+                entries: this.weeklyEntries
+            };
+        } catch (error) {
+            console.error('Presenter: Error loading weekly entries:', error);
+            return {
+                weekRange: { start: '', end: '' },
+                entries: []
+            };
+        }
+    }
+
+    async loadPreviousWeekEntries() {
+        this.currentWeekOffset -= 1;
+        return this.loadWeeklyEntries();
+    }
+
+    async loadNextWeekEntries() {
+        if (this.currentWeekOffset < 0) {
+            this.currentWeekOffset += 1;
+        } else if (this.currentWeekOffset === 0) {
+            // Don't allow going to future weeks
+            return this.loadWeeklyEntries();
+        }
+        return this.loadWeeklyEntries();
+    }
+
+    getWeeklyEntries() {
+        return this.weeklyEntries;
+    }
+
+    getMoodEmoji(mood) {
+        const moodMap = {
+            'joy': '😄',
+            'neutral': '😐',
+            'sadness': '😔',
+            'anger': '😠',
+        };
+
+        return moodMap[mood] || '❓';
+    }
+
+    getRecommendations() {
         return this.userRecommendations || [];
     }
 

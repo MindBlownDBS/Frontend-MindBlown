@@ -6,6 +6,7 @@ const ENDPOINTS = {
   REGISTER: "/register",
   MIND_TRACKER: "/mind-tracker",
   MIND_TRACKER_CHECK: "/mind-tracker/check",
+  MIND_TRACKER_WEEKLY: "/mind-tracker/weekly",
   NOTIFICATIONS: "/notifications",
   MARK_NOTIFICATION_READ: "/notifications",
   MARK_ALL_NOTIFICATIONS_READ: "/notifications/read-all",
@@ -115,6 +116,75 @@ export async function saveEntry(data) {
   }
 
   return result;
+}
+
+// export async function getWeeklyTrackerEntries() {
+//   try {
+//     const accessToken = getAccessToken();
+//     if (!accessToken) {
+//       throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+//     }
+
+//     const response = await fetch(`${BASE_URL}${ENDPOINTS.MIND_TRACKER_WEEKLY}`, {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     });
+
+//     const result = await response.json();
+
+//     if (!response.ok) {
+//       throw new Error(
+//         result.message || "Terjadi kesalahan saat mengambil data tracker mingguan"
+//       );
+//     }
+
+//     return result;
+//   } catch (error) {
+//     console.error("Error fetching weekly tracker entries:", error);
+//     return {
+//       error: true,
+//       message: error.message || "Gagal mengambil data tracker mingguan",
+//       data: { weeklyDetails: [] }
+//     };
+//   }
+// }
+
+export async function getWeeklyTrackerEntries(weekOffset = 0) {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      throw new Error("Anda belum login. Silakan login terlebih dahulu.");
+    }
+
+    let url = `${BASE_URL}${ENDPOINTS.MIND_TRACKER_WEEKLY}`;
+    if (weekOffset !== 0) {
+      url += `?offset=${weekOffset}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || "Terjadi kesalahan saat mengambil data tracker mingguan"
+      );
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching weekly tracker entries:", error);
+    return {
+      error: true,
+      message: error.message || "Gagal mengambil data tracker mingguan",
+      data: { weeklyDetails: [] }
+    };
+  }
 }
 
 export async function getStories() {
@@ -571,7 +641,7 @@ export const deleteStory = async (storyId) => {
       );
       throw new Error(
         errorData.message ||
-          `Failed to delete story. Status: ${response.status}`
+        `Failed to delete story. Status: ${response.status}`
       );
     }
 
@@ -641,14 +711,14 @@ export async function getUserRecommendations(username) {
     if (!username) {
       throw new Error("Username is required");
     }
-    
+
     const accessToken = getAccessToken();
     if (!accessToken) {
       throw new Error("Anda belum login. Silakan login terlebih dahulu.");
     }
-    
+
     const response = await fetch(`${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}`, {
-      method: "GET", 
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
@@ -677,14 +747,14 @@ export async function regenerateRecommendations(username) {
     if (!username) {
       throw new Error("Username is required");
     }
-    
+
     const accessToken = getAccessToken();
     if (!accessToken) {
       throw new Error("Anda belum login. Silakan login terlebih dahulu.");
     }
-    
+
     const response = await fetch(`${BASE_URL}${ENDPOINTS.RECOMMENDATIONS}/${username}/regenerate`, {
-      method: "POST", 
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
@@ -710,7 +780,7 @@ export async function regenerateRecommendations(username) {
 export async function getChatHistory() {
   try {
     const accessToken = getAccessToken();
-    
+
 
     if (!accessToken) {
       return {
@@ -727,7 +797,7 @@ export async function getChatHistory() {
     });
 
     const result = await response.json();
-    
+
     if (!response.ok) {
       console.warn(`API error ${response.status}:`, result.message);
       return {

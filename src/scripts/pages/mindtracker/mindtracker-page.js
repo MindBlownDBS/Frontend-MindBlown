@@ -1,6 +1,6 @@
 import { mindTrackerModalTemplate, activityRecommendationsTemplate, showToast } from '../templates';
 import { generateCalendar } from '../../utils/generate-calendar';
-import { weeklyMoodTrackerTemplate } from '../templates';
+import { weeklyMoodTrackerGridTemplate } from '../templates';
 import MindTrackerPresenter from './mindtracker-presenter';
 
 export default class MindTrackerPage {
@@ -9,14 +9,6 @@ export default class MindTrackerPage {
     }
 
     async render() {
-        const moods = [
-            { date: 'Kamis, 1 Mei', emoji: '🙂' },
-            { date: 'Jumat, 2 Mei', emoji: '😊' },
-            { date: 'Sabtu, 3 Mei', emoji: '😄' },
-            { date: 'Minggu, 4 Mei', emoji: '🤗' },
-            { date: 'Senin, 5 Mei', emoji: '🤔' },
-        ];
-
         return `
         <div class="p-4 lg:p-10 pb-20 lg:pb-10 md:pb-10">
         <div class="max-w-md md:max-w-[90%] ml-0 md:ml-16 lg:ml-16 mx-auto">
@@ -39,9 +31,14 @@ export default class MindTrackerPage {
             ${activityRecommendationsTemplate([])}
         </div>
 
-            <div>
-             <h2 class="font-semibold text-base mt-5 mb-1 lg:mb-3">Mood dalam 1 Minggu</h2> 
-             ${weeklyMoodTrackerTemplate(moods)}
+           <div class="mt-8 mb-6">
+                <h2 class="font-semibold text-base mb-4">Mood Tracker Minggu Ini</h2>
+                <div class="weekly-tracker-container">
+                    <!-- Loading indicator -->
+                    <div class="bg-white rounded-xl border border-gray-200 p-4 flex justify-center items-center h-32">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-third"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="flex items-center justify-between py-2">
@@ -96,6 +93,8 @@ export default class MindTrackerPage {
             const recommendations = await this.presenter.loadRecommendations();
             this.updateRecommendationsSection(recommendations);
             this.setupRegenerateButton();
+
+            await this.loadAndRenderWeeklyEntries();
         } catch (error) {
             console.error('Failed to load recommendations:', error);
         }
@@ -145,6 +144,261 @@ export default class MindTrackerPage {
             }
         });
     }
+
+
+    async loadAndRenderWeeklyEntries() {
+        try {
+            const weeklyData = await this.presenter.loadWeeklyEntries();
+            const weeklyContainer = document.querySelector('.weekly-tracker-container');
+
+            if (weeklyContainer) {
+                // Render the template
+                weeklyContainer.innerHTML = weeklyMoodTrackerGridTemplate(weeklyData);
+
+                // Add click handlers to mood points (both in desktop and mobile views)
+                const moodPoints = weeklyContainer.querySelectorAll('[data-date][data-mood]');
+                moodPoints.forEach(point => {
+                    if (point.classList.contains('cursor-pointer')) {
+                        point.addEventListener('click', () => {
+                            const date = point.dataset.date;
+                            const mood = point.dataset.mood;
+                            const progress = point.dataset.progress;
+
+                            // Show modal with entry details
+                            this.showModal(date.split('T')[0], {
+                                mood: mood,
+                                progress: progress
+                            }, true);
+                        });
+                    }
+                });
+
+                // Set up mobile carousel functionality before adding button listeners
+                this.setupMobileCarousel();
+
+                // Add event listeners for navigation buttons
+                const prevButton = weeklyContainer.querySelector('#moodPrevBtn');
+                const nextButton = weeklyContainer.querySelector('#moodNextBtn');
+
+                if (prevButton) {
+                    prevButton.addEventListener('click', async (event) => {
+                        // Check if we're in mobile carousel mode or changing weeks
+                        const carousel = document.querySelector('.mood-mobile-carousel');
+                        if (carousel && window.innerWidth < 1024) { // lg breakpoint
+                            event.preventDefault();
+                            this.mobileCarouselPrev();
+                        } else {
+                            await this.presenter.loadPreviousWeekEntries();
+                            this.loadAndRenderWeeklyEntries();
+                        }
+                    });
+                }
+
+                if (nextButton) {
+                    nextButton.addEventListener('click', async (event) => {
+                        // Check if we're in mobile carousel mode or changing weeks
+                        const carousel = document.querySelector('.mood-mobile-carousel');
+                        if (carousel && window.innerWidth < 1024) { // lg breakpoint
+                            event.preventDefault();
+                            this.mobileCarouselNext();
+                        } else {
+                            await this.presenter.loadNextWeekEntries();
+                            this.loadAndRenderWeeklyEntries();
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load weekly entries:', error);
+            const weeklyContainer = document.querySelector('.weekly-tracker-container');
+            if (weeklyContainer) {
+                weeklyContainer.innerHTML = `
+                <div class="bg-white rounded-xl border border-gray-200 p-4 text-center text-red-500">
+                    <p>Gagal memuat data mood tracker mingguan.</p>
+                </div>
+            `;
+            }
+        }
+    }
+
+    setupMobileCarousel() {
+        const carousel = document.querySelector('.mood-mobile-carousel');
+        if (!carousel) return;
+
+        const slides = carousel.querySelector('.mood-mobile-carousel-slides');
+        const dots = carousel.querySelectorAll('.mobile-carousel-dot');
+
+        // Store these as class properties so they can be accessed by prev/next methods
+        this.mobileCarouselState = {
+            slides,
+            dots,
+            currentSlide: 0,
+            visibleDays: 3,
+            totalSlides: Math.ceil(this.presenter.getWeeklyEntries().length / 3)
+        };
+
+        // Add event listeners to dots for direct navigation
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => this.goToMobileSlide(i));
+        });
+
+        // Initialize to first slide
+        this.goToMobileSlide(0);
+
+        // Optional: Add touch swipe functionality for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        carousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        const handleSwipe = () => {
+            const swipeThreshold = 50; // Minimum distance for swipe
+            if (touchEndX < touchStartX - swipeThreshold) {
+                // Swiped left
+                this.mobileCarouselNext();
+            }
+            if (touchEndX > touchStartX + swipeThreshold) {
+                // Swiped right
+                this.mobileCarouselPrev();
+            }
+        };
+    }
+
+    goToMobileSlide(index) {
+        const state = this.mobileCarouselState;
+        if (!state) return;
+
+        if (index >= state.totalSlides) index = 0;
+        if (index < 0) index = state.totalSlides - 1;
+
+        state.currentSlide = index;
+
+        // Calculate the sliding distance based on visible slides
+        const slideWidth = 80; // This should match the mobilePointGap
+        const slideOffset = index * (state.visibleDays * slideWidth);
+
+        // Apply the transform
+        state.slides.style.transform = `translateX(-${slideOffset}px)`;
+
+        // Update dots
+        state.dots.forEach((dot, i) => {
+            if (i === state.currentSlide) {
+                dot.classList.add('bg-third');
+                dot.classList.remove('bg-gray-300');
+            } else {
+                dot.classList.remove('bg-third');
+                dot.classList.add('bg-gray-300');
+            }
+        });
+
+        // Update button states for visual feedback
+        const prevButton = document.querySelector('#moodPrevBtn');
+        const nextButton = document.querySelector('#moodNextBtn');
+
+        if (window.innerWidth < 1024) { // Only in mobile view
+            if (prevButton) {
+                prevButton.disabled = state.currentSlide === 0;
+                if (state.currentSlide === 0) {
+                    prevButton.classList.add('opacity-50');
+                } else {
+                    prevButton.classList.remove('opacity-50');
+                }
+            }
+
+            if (nextButton) {
+                nextButton.disabled = state.currentSlide === state.totalSlides - 1;
+                if (state.currentSlide === state.totalSlides - 1) {
+                    nextButton.classList.add('opacity-50');
+                } else {
+                    nextButton.classList.remove('opacity-50');
+                }
+            }
+        }
+    }
+
+    mobileCarouselPrev() {
+        const state = this.mobileCarouselState;
+        if (!state || state.currentSlide <= 0) return;
+        this.goToMobileSlide(state.currentSlide - 1);
+    }
+
+    mobileCarouselNext() {
+        const state = this.mobileCarouselState;
+        if (!state || state.currentSlide >= state.totalSlides - 1) return;
+        this.goToMobileSlide(state.currentSlide + 1);
+    }
+
+
+    renderWeeklyEntries(container, { weekRange, entries }) {
+        if (!entries || entries.length === 0) {
+            container.innerHTML = `
+            <div class="text-center py-4 text-gray-500">
+                <p>Belum ada data mood tracker untuk minggu ini.</p>
+            </div>
+        `;
+            return;
+        }
+
+        const startDate = new Date(weekRange.start);
+        const endDate = new Date(weekRange.end);
+
+        const formattedDateRange = `${startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+        let html = `
+        <div class="mb-3">
+            <h3 class="text-sm font-medium text-gray-500">Minggu Ini (${formattedDateRange})</h3>
+        </div>
+        <div class="grid grid-cols-7 gap-2">
+    `;
+
+        entries.forEach(entry => {
+            const date = new Date(entry.date);
+            const dayNumber = date.getDate();
+            const moodEmoji = entry.hasEntry ? this.presenter.getMoodEmoji(entry.mood) : '—';
+            const bgColor = entry.hasEntry ? 'bg-third/10' : 'bg-gray-100';
+            const textColor = entry.hasEntry ? 'text-gray-800' : 'text-gray-400';
+
+            html += `
+            <div class="${bgColor} rounded-lg p-2 text-center ${textColor}">
+                <div class="text-xs font-medium">${entry.dayName.slice(0, 3)}</div>
+                <div class="text-lg font-bold">${dayNumber}</div>
+                <div class="text-xl my-1">${moodEmoji}</div>
+            </div>
+        `;
+        });
+
+        html += `</div>`;
+
+        if (entries.some(entry => entry.hasEntry)) {
+            html += `
+            <div class="mt-3 text-xs text-gray-500 text-right">
+                <span>Tap tanggal untuk melihat detail</span>
+            </div>
+        `;
+        }
+
+        container.innerHTML = html;
+        const moodCells = container.querySelectorAll('.grid > div');
+        entries.forEach((entry, index) => {
+            if (entry.hasEntry) {
+                moodCells[index].classList.add('cursor-pointer', 'hover:bg-third/20');
+                moodCells[index].addEventListener('click', () => {
+                    this.showModal(entry.date.split('T')[0], {
+                        progress: entry.progress,
+                        mood: entry.mood
+                    }, true);
+                });
+            }
+        });
+    }
+
 
     updateRecommendationsSection(recommendations) {
         const recommendationsContainer = document.getElementById('recommendations-container');
