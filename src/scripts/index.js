@@ -27,6 +27,21 @@ function handleNavbarVisibility() {
     }
 }
 
+function setupSmartNavigation() {
+    const logoDesktop = document.querySelector('#sidebar a.block');
+    const logoMobile = document.querySelector('#mobile-navbar a:first-child');
+    
+    const handleLogoClick = (e) => {
+        if (localStorage.getItem('hasInteractedWithChatbot') === 'true') {
+            e.preventDefault();
+            window.location.href = "#/chatbot";
+        }
+    };
+    
+    if (logoDesktop) logoDesktop.addEventListener('click', handleLogoClick);
+    if (logoMobile) logoMobile.addEventListener('click', handleLogoClick);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const app = new App({
         content: document.querySelector('#main-content'),
@@ -39,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await registerServiceWorker();
     console.log('Berhasil mendaftarkan service worker.');
     handleNavbarVisibility();
+    setupSmartNavigation();
 
     window.addEventListener('hashchange', async () => {
         await app.renderPage();

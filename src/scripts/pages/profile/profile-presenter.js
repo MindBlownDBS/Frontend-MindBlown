@@ -232,5 +232,6 @@ export default class ProfilePresenter {
     localStorage.removeItem('user');
     localStorage.removeItem('sessionId');
     sessionStorage.removeItem('welcomeModalShown');
+    localStorage.removeItem('hasInteractedWithChatbot');
   }
 }

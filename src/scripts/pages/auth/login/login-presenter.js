@@ -19,6 +19,8 @@ export default class LoginPresenter {
                 this.#view.loginFailed(response.message);
             } else {
                 localStorage.setItem('user', JSON.stringify(response.data));
+                localStorage.removeItem('hasInteractedWithChatbot');
+
                 this.#view.loginSuccessfully(response.message);
                 window.location.hash = '#/';
 

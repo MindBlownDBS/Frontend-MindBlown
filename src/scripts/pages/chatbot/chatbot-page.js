@@ -2,6 +2,7 @@ import ChatbotPresenter from './chatbot-presenter';
 import { userChatBubble, botChatBubble, botTypingBubble, showToast } from '../templates';
 import { autoResize } from '../../utils';
 
+
 export default class ChatbotPage {
     constructor() {
         this.sessionId = localStorage.getItem('sessionId') || this.#generateSessionId();
@@ -147,6 +148,8 @@ export default class ChatbotPage {
             e.preventDefault();
             const text = input.value.trim();
             if (!text) return;
+
+            localStorage.setItem('hasInteractedWithChatbot', 'true');
 
             const requestId = this.#generateRequestId();
 

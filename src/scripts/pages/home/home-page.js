@@ -88,6 +88,8 @@ export default class HomePage {
       scrollToBottom();
       
       localStorage.setItem('pendingChatMessage', text);
+      localStorage.setItem('hasInteractedWithChatbot', 'true');
+
       
       window.location.hash = '/chatbot';
     });
