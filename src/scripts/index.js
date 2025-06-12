@@ -29,7 +29,7 @@ function handleNavbarVisibility() {
 
 function setupSmartNavigation() {
     const logoDesktop = document.querySelector('#sidebar a.block');
-    const logoMobile = document.querySelector('#mobile-navbar a:first-child');
+    const logoMobile = document.querySelector('#logo-mobile');
     
     const handleLogoClick = (e) => {
         if (localStorage.getItem('hasInteractedWithChatbot') === 'true') {

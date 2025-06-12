@@ -11,7 +11,7 @@ export default class MindTrackerPage {
     async render() {
         return `
         <div class="md:ml-16 lg:ml-16 min-h-screen p-6 lg:p-10 pb-20 lg:pb-10">
-        <div class="max-w-md md:max-w-[90%] ml-0 md:ml-16 lg:ml-16 mx-auto">
+        <div class="max-w-md md:max-w-[90%] ml-0 mx-auto">
             <div class="mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900 mb-2">Mind Tracker</h1>
                 <p class="text-gray-600 text-sm lg:text-md">Hari ini rasanya gimana? Ini tracker ini buat bantu kamu lebih sadar sama perasaan dan progressmu.</p>
