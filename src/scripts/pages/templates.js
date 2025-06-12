@@ -439,7 +439,7 @@ export function profileTemplate(userData) {
             
         <div class="flex gap-4 mt-6 md:mt-0">
           <button id="editProfileBtn" class="w-25 border border-primary rounded-lg text-primary mt-2 justify-end hidden md:block">Sunting</button>
-          <button id="logoutBtnDesktop" class="w-25 bg-red-300 text-white py-2 rounded-lg mt-2 justify-end hidden md:block">Keluar</button>
+          <button id="logoutBtnDesktop" class="w-25 bg-red-300 hover:bg-red-500 text-white py-2 rounded-lg mt-2 justify-end hidden md:block" hover:transition>Keluar</button>
           </div>
         </div>
         </div>

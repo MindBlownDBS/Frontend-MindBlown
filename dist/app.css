@@ -1,6 +1,45 @@
 nav {
     view-transition-name: header;
 }
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+::view-transition-old(root) {
+    animation-name: fade-out;
+    animation-duration: 900ms;
+    animation-timing-function: ease;
+}
+
+::view-transition-new(root) {
+    animation-name: fade-in;
+    animation-duration: 900ms;
+    animation-timing-function: ease;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}
 /*! tailwindcss v4.1.10 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
@@ -482,9 +521,6 @@ nav {
   }
   .max-h-60 {
     max-height: calc(var(--spacing) * 60);
-  }
-  .max-h-\[75vh\] {
-    max-height: 75vh;
   }
   .max-h-full {
     max-height: 100%;
@@ -1196,6 +1232,13 @@ nav {
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-gray-200);
+      }
+    }
+  }
+  .hover\:bg-red-500 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-red-500);
       }
     }
   }

@@ -150,7 +150,6 @@ export default class StoryPage {
     const privacyDisplay = document.getElementById("privacy-display");
     const anonymousCheckbox = document.getElementById("mobile-post-anonymously");
 
-    // Buka modal
     if (fabButton && mobileModal) {
       fabButton.addEventListener("click", () => {
         mobileModal.classList.remove("hidden");
@@ -166,7 +165,6 @@ export default class StoryPage {
       });
     }
 
-    // Toggle dropdown privacy
     if (dropdownToggle && dropdownMenu) {
       dropdownToggle.addEventListener("click", () => {
         dropdownMenu.classList.toggle("hidden");
@@ -188,7 +186,6 @@ export default class StoryPage {
       });
     });
 
-    // Submit form mobile
     if (submitBtn) {
       submitBtn.addEventListener("click", async () => {
         const content = document.getElementById("mobile-story-textarea").value.trim();

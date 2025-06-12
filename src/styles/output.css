@@ -480,9 +480,6 @@
   .max-h-60 {
     max-height: calc(var(--spacing) * 60);
   }
-  .max-h-\[75vh\] {
-    max-height: 75vh;
-  }
   .max-h-full {
     max-height: 100%;
   }
@@ -1193,6 +1190,13 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-gray-200);
+      }
+    }
+  }
+  .hover\:bg-red-500 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-red-500);
       }
     }
   }

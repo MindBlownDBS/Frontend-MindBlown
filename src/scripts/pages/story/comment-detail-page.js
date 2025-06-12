@@ -101,7 +101,6 @@ export default class CommentDetailPage {
     const closeModalBtn = document.getElementById("close-reply-modal");
     const submitBtn = document.getElementById("mobile-reply-submit");
     
-    // Buka modal
     if (fabButton && mobileModal) {
       fabButton.addEventListener("click", () => {
         mobileModal.classList.remove("hidden");
@@ -109,7 +108,6 @@ export default class CommentDetailPage {
       });
     }
     
-    // Tutup modal
     if (closeModalBtn && mobileModal) {
       closeModalBtn.addEventListener("click", () => {
         mobileModal.classList.add("hidden");
