@@ -6,7 +6,7 @@ const ENDPOINTS = {
   REGISTER: "/register",
   MIND_TRACKER: "/mind-tracker",
   MIND_TRACKER_CHECK: "/mind-tracker/check",
-  MIND_TRACKER_WEEKLY: "/mind-tracker/weekly",
+  MIND_TRACKER_MONTHLY: "/mind-tracker/monthly",
   NOTIFICATIONS: "/notifications",
   MARK_NOTIFICATION_READ: "/notifications",
   MARK_ALL_NOTIFICATIONS_READ: "/notifications/read-all",
@@ -118,48 +118,17 @@ export async function saveEntry(data) {
   return result;
 }
 
-// export async function getWeeklyTrackerEntries() {
-//   try {
-//     const accessToken = getAccessToken();
-//     if (!accessToken) {
-//       throw new Error("Anda belum login. Silakan login terlebih dahulu.");
-//     }
 
-//     const response = await fetch(`${BASE_URL}${ENDPOINTS.MIND_TRACKER_WEEKLY}`, {
-//       headers: {
-//         Authorization: `Bearer ${accessToken}`,
-//       },
-//     });
-
-//     const result = await response.json();
-
-//     if (!response.ok) {
-//       throw new Error(
-//         result.message || "Terjadi kesalahan saat mengambil data tracker mingguan"
-//       );
-//     }
-
-//     return result;
-//   } catch (error) {
-//     console.error("Error fetching weekly tracker entries:", error);
-//     return {
-//       error: true,
-//       message: error.message || "Gagal mengambil data tracker mingguan",
-//       data: { weeklyDetails: [] }
-//     };
-//   }
-// }
-
-export async function getWeeklyTrackerEntries(weekOffset = 0) {
+export async function getMonthlyTrackerEntries(monthOffset = 0) {
   try {
     const accessToken = getAccessToken();
     if (!accessToken) {
       throw new Error("Anda belum login. Silakan login terlebih dahulu.");
     }
 
-    let url = `${BASE_URL}${ENDPOINTS.MIND_TRACKER_WEEKLY}`;
-    if (weekOffset !== 0) {
-      url += `?offset=${weekOffset}`;
+    let url = `${BASE_URL}${ENDPOINTS.MIND_TRACKER_MONTHLY}`;
+    if (monthOffset !== 0) {
+      url += `?offset=${monthOffset}`;
     }
 
     const response = await fetch(url, {
@@ -172,17 +141,17 @@ export async function getWeeklyTrackerEntries(weekOffset = 0) {
 
     if (!response.ok) {
       throw new Error(
-        result.message || "Terjadi kesalahan saat mengambil data tracker mingguan"
+        result.message || "Terjadi kesalahan saat mengambil data tracker bulanan"
       );
     }
 
     return result;
   } catch (error) {
-    console.error("Error fetching weekly tracker entries:", error);
+    console.error("Error fetching monthly tracker entries:", error);
     return {
       error: true,
-      message: error.message || "Gagal mengambil data tracker mingguan",
-      data: { weeklyDetails: [] }
+      message: error.message || "Gagal mengambil data tracker bulanan",
+      data: { monthlyDetails: [] }
     };
   }
 }

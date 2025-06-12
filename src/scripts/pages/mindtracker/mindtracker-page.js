@@ -11,7 +11,7 @@ export default class MindTrackerPage {
     async render() {
         return `
         <div class="md:ml-16 lg:ml-16 min-h-screen p-6 lg:p-10 pb-20 lg:pb-10">
-        <div class="max-w-md md:max-w-[90%] ml-0 mx-auto">
+        <div class="max-w-md md:max-w-[90%] ml-0 mx-auto lg:max-w-full">
             <div class="mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900 mb-2">Mind Tracker</h1>
                 <p class="text-gray-600 text-sm lg:text-md">Hari ini rasanya gimana? Ini tracker ini buat bantu kamu lebih sadar sama perasaan dan progressmu.</p>
@@ -32,7 +32,7 @@ export default class MindTrackerPage {
         </div>
 
            <div class="mt-8 mb-6">
-                <h2 class="font-semibold text-base mb-4">Mood Tracker Minggu Ini</h2>
+                <h2 class="font-semibold text-base mb-4">Mood Tracker Bulan Ini</h2>
                 <div class="weekly-tracker-container">
                     <!-- Loading indicator -->
                     <div class="bg-white rounded-xl border border-gray-200 p-4 flex justify-center items-center h-32">
@@ -145,15 +145,13 @@ export default class MindTrackerPage {
         });
     }
 
-
     async loadAndRenderWeeklyEntries() {
         try {
-            const weeklyData = await this.presenter.loadWeeklyEntries();
+            const monthlyData = await this.presenter.loadMonthlyEntries();
             const weeklyContainer = document.querySelector('.weekly-tracker-container');
 
             if (weeklyContainer) {
-
-                weeklyContainer.innerHTML = weeklyMoodTrackerGridTemplate(weeklyData);
+                weeklyContainer.innerHTML = weeklyMoodTrackerGridTemplate(monthlyData);
 
                 const moodPoints = weeklyContainer.querySelectorAll('[data-date][data-mood]');
                 moodPoints.forEach(point => {
@@ -163,7 +161,6 @@ export default class MindTrackerPage {
                             const mood = point.dataset.mood;
                             const progress = point.dataset.progress;
 
-
                             this.showModal(date.split('T')[0], {
                                 mood: mood,
                                 progress: progress
@@ -172,22 +169,25 @@ export default class MindTrackerPage {
                     }
                 });
 
-
+                
                 this.setupMobileCarousel();
-
 
                 const prevButton = weeklyContainer.querySelector('#moodPrevBtn');
                 const nextButton = weeklyContainer.querySelector('#moodNextBtn');
 
                 if (prevButton) {
                     prevButton.addEventListener('click', async (event) => {
+                        const mobileCarousel = document.querySelector('.mood-mobile-carousel');
+                        const desktopCarousel = document.querySelector('.mood-desktop-carousel');
 
-                        const carousel = document.querySelector('.mood-mobile-carousel');
-                        if (carousel && window.innerWidth < 1024) {
+                        if (mobileCarousel && window.innerWidth < 1024) {
                             event.preventDefault();
                             this.mobileCarouselPrev();
+                        } else if (desktopCarousel && window.innerWidth >= 1024) {
+                            event.preventDefault();
+                            this.desktopCarouselPrev();
                         } else {
-                            await this.presenter.loadPreviousWeekEntries();
+                            await this.presenter.loadPreviousMonthEntries();
                             this.loadAndRenderWeeklyEntries();
                         }
                     });
@@ -195,25 +195,29 @@ export default class MindTrackerPage {
 
                 if (nextButton) {
                     nextButton.addEventListener('click', async (event) => {
+                        const mobileCarousel = document.querySelector('.mood-mobile-carousel');
+                        const desktopCarousel = document.querySelector('.mood-desktop-carousel');
 
-                        const carousel = document.querySelector('.mood-mobile-carousel');
-                        if (carousel && window.innerWidth < 1024) {
+                        if (mobileCarousel && window.innerWidth < 1024) {
                             event.preventDefault();
                             this.mobileCarouselNext();
+                        } else if (desktopCarousel && window.innerWidth >= 1024) {
+                            event.preventDefault();
+                            this.desktopCarouselNext();
                         } else {
-                            await this.presenter.loadNextWeekEntries();
+                            await this.presenter.loadNextMonthEntries();
                             this.loadAndRenderWeeklyEntries();
                         }
                     });
                 }
             }
         } catch (error) {
-            console.error('Failed to load weekly entries:', error);
+            console.error('Failed to load monthly entries:', error);
             const weeklyContainer = document.querySelector('.weekly-tracker-container');
             if (weeklyContainer) {
                 weeklyContainer.innerHTML = `
                 <div class="bg-white rounded-xl border border-gray-200 p-4 text-center text-red-500">
-                    <p>Gagal memuat data mood tracker mingguan.</p>
+                    <p>Gagal memuat data mood tracker bulanan.</p>
                 </div>
             `;
             }
@@ -221,52 +225,150 @@ export default class MindTrackerPage {
     }
 
     setupMobileCarousel() {
-        const carousel = document.querySelector('.mood-mobile-carousel');
-        if (!carousel) return;
+        const mobileCarousel = document.querySelector('.mood-mobile-carousel');
+        if (mobileCarousel) {
+            const mobileSlides = mobileCarousel.querySelector('.mood-mobile-carousel-slides');
+            const mobileDots = mobileCarousel.querySelectorAll('.mobile-carousel-dot');
 
-        const slides = carousel.querySelector('.mood-mobile-carousel-slides');
-        const dots = carousel.querySelectorAll('.mobile-carousel-dot');
+            this.mobileCarouselState = {
+                slides: mobileSlides,
+                dots: mobileDots,
+                currentSlide: 0,
+                visibleDays: 3,
+                totalSlides: Math.ceil(this.presenter.getMonthlyEntries().length / 3)
+            };
 
+            mobileDots.forEach((dot, i) => {
+                dot.addEventListener('click', () => this.goToMobileSlide(i));
+            });
 
-        this.mobileCarouselState = {
-            slides,
-            dots,
-            currentSlide: 0,
-            visibleDays: 3,
-            totalSlides: Math.ceil(this.presenter.getWeeklyEntries().length / 3)
-        };
+            this.goToMobileSlide(0);
+        }
 
-        dots.forEach((dot, i) => {
-            dot.addEventListener('click', () => this.goToMobileSlide(i));
-        });
+        const desktopCarousel = document.querySelector('.mood-desktop-carousel');
+        if (desktopCarousel) {
+            const desktopSlides = desktopCarousel.querySelector('.mood-desktop-carousel-slides');
+            const desktopDots = desktopCarousel.querySelectorAll('.desktop-carousel-dot');
 
+            this.desktopCarouselState = {
+                slides: desktopSlides,
+                dots: desktopDots,
+                currentSlide: 0,
+                visibleDays: 7,
+                totalSlides: Math.ceil(this.presenter.getMonthlyEntries().length / 7)
+            };
 
-        this.goToMobileSlide(0);
+            desktopDots.forEach((dot, i) => {
+                dot.addEventListener('click', () => this.goToDesktopSlide(i));
+            });
 
+            this.goToDesktopSlide(0);
+        }
 
         let touchStartX = 0;
         let touchEndX = 0;
 
-        carousel.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
+        const mobileCarouselInner = document.querySelector('.mood-mobile-carousel-inner');
+        if (mobileCarouselInner) {
+            mobileCarouselInner.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
 
-        carousel.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, { passive: true });
+            mobileCarouselInner.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, { passive: true });
+        }
+
+        const desktopCarouselInner = document.querySelector('.mood-desktop-carousel-inner');
+        if (desktopCarouselInner) {
+            desktopCarouselInner.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            desktopCarouselInner.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, { passive: true });
+        }
 
         const handleSwipe = () => {
             const swipeThreshold = 50;
             if (touchEndX < touchStartX - swipeThreshold) {
-
-                this.mobileCarouselNext();
+                if (window.innerWidth < 1024) {
+                    this.mobileCarouselNext();
+                } else {
+                    this.desktopCarouselNext();
+                }
             }
             if (touchEndX > touchStartX + swipeThreshold) {
-
-                this.mobileCarouselPrev();
+                if (window.innerWidth < 1024) {
+                    this.mobileCarouselPrev();
+                } else {
+                    this.desktopCarouselPrev();
+                }
             }
         };
+    }
+
+goToDesktopSlide(index) {
+    const state = this.desktopCarouselState;
+    if (!state) return;
+    
+    if (index >= state.totalSlides) index = 0;
+    if (index < 0) index = state.totalSlides - 1;
+    
+    state.currentSlide = index;
+    
+    const desktopPointGap = 100; 
+    const slideOffset = index * (state.visibleDays * desktopPointGap);
+    
+    state.slides.style.transform = `translateX(-${slideOffset}px)`;
+    
+    state.dots.forEach((dot, i) => {
+        if (i === state.currentSlide) {
+            dot.classList.add('bg-third');
+            dot.classList.remove('bg-gray-300');
+        } else {
+            dot.classList.remove('bg-third');
+            dot.classList.add('bg-gray-300');
+        }
+    });
+    
+    const prevButton = document.querySelector('#moodPrevBtn');
+    const nextButton = document.querySelector('#moodNextBtn');
+    
+    if (window.innerWidth >= 1024) {
+        if (prevButton) {
+            prevButton.disabled = state.currentSlide === 0;
+            if (state.currentSlide === 0) {
+                prevButton.classList.add('opacity-50');
+            } else {
+                prevButton.classList.remove('opacity-50');
+            }
+        }
+        
+        if (nextButton) {
+            nextButton.disabled = state.currentSlide === state.totalSlides - 1;
+            if (state.currentSlide === state.totalSlides - 1) {
+                nextButton.classList.add('opacity-50');
+            } else {
+                nextButton.classList.remove('opacity-50');
+            }
+        }
+    }
+}
+
+    desktopCarouselPrev() {
+        const state = this.desktopCarouselState;
+        if (!state || state.currentSlide <= 0) return;
+        this.goToDesktopSlide(state.currentSlide - 1);
+    }
+
+    desktopCarouselNext() {
+        const state = this.desktopCarouselState;
+        if (!state || state.currentSlide >= state.totalSlides - 1) return;
+        this.goToDesktopSlide(state.currentSlide + 1);
     }
 
     goToMobileSlide(index) {
@@ -278,13 +380,10 @@ export default class MindTrackerPage {
 
         state.currentSlide = index;
 
-
-        const slideWidth = 80;
-        const slideOffset = index * (state.visibleDays * slideWidth);
-
+        const mobilePointGap = 60;
+        const slideOffset = index * (state.visibleDays * mobilePointGap);
 
         state.slides.style.transform = `translateX(-${slideOffset}px)`;
-
 
         state.dots.forEach((dot, i) => {
             if (i === state.currentSlide) {
@@ -295,7 +394,6 @@ export default class MindTrackerPage {
                 dot.classList.add('bg-gray-300');
             }
         });
-
 
         const prevButton = document.querySelector('#moodPrevBtn');
         const nextButton = document.querySelector('#moodNextBtn');
@@ -338,7 +436,7 @@ export default class MindTrackerPage {
         if (!entries || entries.length === 0) {
             container.innerHTML = `
             <div class="text-center py-4 text-gray-500">
-                <p>Belum ada data mood tracker untuk minggu ini.</p>
+                <p>Belum ada data mood tracker untuk Bulan ini.</p>
             </div>
         `;
             return;

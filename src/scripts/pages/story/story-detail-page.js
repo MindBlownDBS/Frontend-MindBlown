@@ -85,7 +85,7 @@ export default class StoryDetailPage {
               <span class="text-sm font-medium">${username}</span>
             </div>
             
-            <textarea id="mobile-comment-input" class="w-full border-0 focus:ring-0 text-gray-700 resize-none h-64 placeholder-gray-400" placeholder="Tulis komentar..."></textarea>
+           <textarea id="mobile-comment-input" class="w-full text-gray-700 resize-none h-64 placeholder-gray-400 border-0 focus:ring-0 focus:outline-none" placeholder="Tulis komentar..."></textarea>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { checkTodayEntry, getEntryByDate, saveEntry, getUserRecommendations, regenerateRecommendations, getWeeklyTrackerEntries } from '../../data/api';
+import { checkTodayEntry, getEntryByDate, saveEntry, getUserRecommendations, regenerateRecommendations, getMonthlyTrackerEntries } from '../../data/api';
 
 export default class MindTracakerPresenter {
     constructor() {
@@ -8,8 +8,8 @@ export default class MindTracakerPresenter {
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
         this.userRecommendations = [];
-        this.weeklyEntries = [];
-        this.currentWeekOffset = 0;
+        this.monthlyEntries = [];
+        this.currentMonthOffset = 0; 
     }
 
     async checkTodayEntry() {
@@ -92,69 +92,54 @@ export default class MindTracakerPresenter {
         }
     }
 
-    // async loadWeeklyEntries() {
-    //     try {
-    //         const result = await getWeeklyTrackerEntries();
-    //         if (result.error) {
-    //             throw new Error(result.message);
-    //         }
-
-    //         this.weeklyEntries = result.data.weeklyDetails || [];
-    //         return {
-    //             weekRange: result.data.weekRange,
-    //             entries: this.weeklyEntries
-    //         };
-    //     } catch (error) {
-    //         console.error('Presenter: Error loading weekly entries:', error);
-    //         return {
-    //             weekRange: { start: '', end: '' },
-    //             entries: []
-    //         };
-    //     }
-    // }
-
-    async loadWeeklyEntries() {
-        try {
-            // Get params for API call - we could modify the URL to include week offset
-            // For now, let's assume the API always returns the current week
-            const result = await getWeeklyTrackerEntries(this.currentWeekOffset);
-            console.log('Presenter: Loaded weekly entries:', result);
-            if (result.error) {
-                throw new Error(result.message);
-            }
-
-            this.weeklyEntries = result.data.weeklyDetails || [];
-            return {
-                weekRange: result.data.weekRange,
-                entries: this.weeklyEntries
-            };
-        } catch (error) {
-            console.error('Presenter: Error loading weekly entries:', error);
-            return {
-                weekRange: { start: '', end: '' },
-                entries: []
-            };
+  async loadMonthlyEntries() {
+    try {
+        const result = await getMonthlyTrackerEntries(this.currentMonthOffset);
+        console.log('Presenter: Loaded monthly entries:', result);
+        if (result.error) {
+            throw new Error(result.message);
         }
+
+        this.monthlyEntries = result.data.monthlyDetails || [];
+        return {
+            weekRange: result.data.monthRange || {
+                start: '',
+                end: '',
+                month: ''
+            },
+            entries: this.monthlyEntries || []
+        };
+    } catch (error) {
+        console.error('Presenter: Error loading monthly entries:', error);
+        return {
+            weekRange: { 
+                start: '', 
+                end: '', 
+                month: ''
+            },
+            entries: []
+        };
+    }
+}
+
+    async loadPreviousMonthEntries() {
+        this.currentMonthOffset -= 1;
+        return this.loadMonthlyEntries();
     }
 
-    async loadPreviousWeekEntries() {
-        this.currentWeekOffset -= 1;
-        return this.loadWeeklyEntries();
-    }
-
-    async loadNextWeekEntries() {
-        if (this.currentWeekOffset < 0) {
-            this.currentWeekOffset += 1;
-        } else if (this.currentWeekOffset === 0) {
-            // Don't allow going to future weeks
-            return this.loadWeeklyEntries();
+    async loadNextMonthEntries() {
+        if (this.currentMonthOffset < 0) {
+            this.currentMonthOffset += 1;
+        } else if (this.currentMonthOffset === 0) {
+            return this.loadMonthlyEntries();
         }
-        return this.loadWeeklyEntries();
+        return this.loadMonthlyEntries();
     }
 
-    getWeeklyEntries() {
-        return this.weeklyEntries;
+    getMonthlyEntries() {
+        return this.monthlyEntries;
     }
+
 
     getMoodEmoji(mood) {
         const moodMap = {

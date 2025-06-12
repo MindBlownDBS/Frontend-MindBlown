@@ -26,10 +26,10 @@ export default class ChatbotPage {
     async render() {
         return `
        <section class="ml-0 md:ml-8 lg:ml-16 min-h-screen flex">
-        <div class="w-full flex items-center pb-20"> 
+        <div class="w-full flex items-center pb-50"> 
             <div class="max-w-2xl w-full mx-auto text-center">
                 
-                <div id="chat-container" class="flex flex-col gap-2 px-6 lg:px-4 overflow-y-auto max-h-[75vh] md:max-h[80vh] lg:max-h-[75vh] pb-10">
+                <div id="chat-container" class="flex flex-col gap-2 px-6 lg:px-4 overflow-y-auto max-h-full md:max-h[80vh] lg:max-h-[75vh] pb-10">
                     <div id="connection-status" class="hidden text-center py-2 text-sm text-gray-500">
                         Menghubungkan ke MindBlown...
                     </div>

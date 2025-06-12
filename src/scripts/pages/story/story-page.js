@@ -88,7 +88,7 @@ export default class StoryPage {
                   </div>
                 </div>
                 
-                <textarea id="mobile-story-textarea" class="w-full border-0 focus:ring-0 text-gray-700 resize-none h-64 placeholder-gray-400" placeholder="Ada cerita apa?"></textarea>
+               <textarea id="mobile-story-textarea" class="w-full text-gray-700 resize-none h-64 placeholder-gray-400 border-0 focus:ring-0 focus:outline-none" placeholder="Ada cerita apa?"></textarea>
                 
                 <input type="checkbox" id="mobile-post-anonymously" class="hidden" value="false">
               </div>

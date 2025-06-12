@@ -21,8 +21,8 @@ export default class RegisterPage {
                     <input id="name-input" type="text" placeholder="Nama Lengkap" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
 
                     <input id="email-input" type="email" placeholder="Email" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
-                    <input id="password-input" type="password" placeholder="Kata sandi" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
-                    <input id="passwordConfirm-input" type="password" placeholder="Konfirmasi kata sandi" class="w-full mb-4 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" required>
+                    <input id="password-input" type="password" placeholder="Kata sandi" class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" minlength="6" required>
+                    <input id="passwordConfirm-input" type="password" placeholder="Konfirmasi kata sandi" class="w-full mb-4 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring" minlength="6" required>
 
                     <div id="errorMessage" class="hidden text-red-500 text-center text-sm" role="alert"></div>   
 
