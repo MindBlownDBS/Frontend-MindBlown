@@ -95,6 +95,8 @@ export default class MindTrackerPage {
             this.setupRegenerateButton();
 
             await this.loadAndRenderWeeklyEntries();
+
+            setTimeout(() => this.scrollToTodaysEntry(), 500);
         } catch (error) {
             console.error('Failed to load recommendations:', error);
         }
@@ -169,7 +171,7 @@ export default class MindTrackerPage {
                     }
                 });
 
-                
+
                 this.setupMobileCarousel();
 
                 const prevButton = weeklyContainer.querySelector('#moodPrevBtn');
@@ -311,53 +313,53 @@ export default class MindTrackerPage {
         };
     }
 
-goToDesktopSlide(index) {
-    const state = this.desktopCarouselState;
-    if (!state) return;
-    
-    if (index >= state.totalSlides) index = 0;
-    if (index < 0) index = state.totalSlides - 1;
-    
-    state.currentSlide = index;
-    
-    const desktopPointGap = 100; 
-    const slideOffset = index * (state.visibleDays * desktopPointGap);
-    
-    state.slides.style.transform = `translateX(-${slideOffset}px)`;
-    
-    state.dots.forEach((dot, i) => {
-        if (i === state.currentSlide) {
-            dot.classList.add('bg-third');
-            dot.classList.remove('bg-gray-300');
-        } else {
-            dot.classList.remove('bg-third');
-            dot.classList.add('bg-gray-300');
-        }
-    });
-    
-    const prevButton = document.querySelector('#moodPrevBtn');
-    const nextButton = document.querySelector('#moodNextBtn');
-    
-    if (window.innerWidth >= 1024) {
-        if (prevButton) {
-            prevButton.disabled = state.currentSlide === 0;
-            if (state.currentSlide === 0) {
-                prevButton.classList.add('opacity-50');
+    goToDesktopSlide(index) {
+        const state = this.desktopCarouselState;
+        if (!state) return;
+
+        if (index >= state.totalSlides) index = 0;
+        if (index < 0) index = state.totalSlides - 1;
+
+        state.currentSlide = index;
+
+        const desktopPointGap = 100;
+        const slideOffset = index * (state.visibleDays * desktopPointGap);
+
+        state.slides.style.transform = `translateX(-${slideOffset}px)`;
+
+        state.dots.forEach((dot, i) => {
+            if (i === state.currentSlide) {
+                dot.classList.add('bg-third');
+                dot.classList.remove('bg-gray-300');
             } else {
-                prevButton.classList.remove('opacity-50');
+                dot.classList.remove('bg-third');
+                dot.classList.add('bg-gray-300');
             }
-        }
-        
-        if (nextButton) {
-            nextButton.disabled = state.currentSlide === state.totalSlides - 1;
-            if (state.currentSlide === state.totalSlides - 1) {
-                nextButton.classList.add('opacity-50');
-            } else {
-                nextButton.classList.remove('opacity-50');
+        });
+
+        const prevButton = document.querySelector('#moodPrevBtn');
+        const nextButton = document.querySelector('#moodNextBtn');
+
+        if (window.innerWidth >= 1024) {
+            if (prevButton) {
+                prevButton.disabled = state.currentSlide === 0;
+                if (state.currentSlide === 0) {
+                    prevButton.classList.add('opacity-50');
+                } else {
+                    prevButton.classList.remove('opacity-50');
+                }
+            }
+
+            if (nextButton) {
+                nextButton.disabled = state.currentSlide === state.totalSlides - 1;
+                if (state.currentSlide === state.totalSlides - 1) {
+                    nextButton.classList.add('opacity-50');
+                } else {
+                    nextButton.classList.remove('opacity-50');
+                }
             }
         }
     }
-}
 
     desktopCarouselPrev() {
         const state = this.desktopCarouselState;
@@ -683,6 +685,7 @@ goToDesktopSlide(index) {
                         form.reset();
                         generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
                         await this.loadAndRenderWeeklyEntries();
+                        this.scrollToTodaysEntry();
                         showToast(result.message, 'success');
                     } else {
                         throw new Error(result.message);
@@ -697,6 +700,47 @@ goToDesktopSlide(index) {
 
                 return false;
             });
+        }
+    }
+
+    scrollToTodaysEntry() {
+        try {
+
+            const today = new Date();
+            const todayFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+           
+            const entries = this.presenter.getMonthlyEntries();
+            if (!entries || entries.length === 0) return;
+
+            
+            const todayIndex = entries.findIndex(entry => {
+               
+                return entry.date.split('T')[0] === todayFormatted;
+            });
+
+            if (todayIndex === -1) return;
+
+            const desktopSlideIndex = Math.floor(todayIndex / 7);
+            const mobileSlideIndex = Math.floor(todayIndex / 3);
+           
+            if (window.innerWidth >= 1024) {
+                this.goToDesktopSlide(desktopSlideIndex);
+            } else {
+                this.goToMobileSlide(mobileSlideIndex);
+            }
+
+            setTimeout(() => {
+                const entryElement = document.querySelector(`[data-date="${entries[todayIndex].date}"]`);
+                if (entryElement) {
+                    entryElement.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        entryElement.classList.remove('animate-pulse');
+                    }, 2000);
+                }
+            }, 300);
+        } catch (error) {
+            console.error('Error scrolling to today\'s entry:', error);
         }
     }
 }
