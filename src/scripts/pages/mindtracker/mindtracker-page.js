@@ -10,7 +10,7 @@ export default class MindTrackerPage {
 
     async render() {
         return `
-        <div class="p-4 lg:p-10 pb-20 lg:pb-10 md:pb-10">
+        <div class="md:ml-16 lg:ml-16 min-h-screen p-6 lg:p-10 pb-20 lg:pb-10">
         <div class="max-w-md md:max-w-[90%] ml-0 md:ml-16 lg:ml-16 mx-auto">
             <div class="mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900 mb-2">Mind Tracker</h1>
@@ -486,7 +486,7 @@ export default class MindTrackerPage {
         let displayDate = formattedDate;
         if (formattedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
             const dateParts = formattedDate.split('-');
-            const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); 
+            const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
             displayDate = dateObj.toLocaleDateString('id-ID', {
                 day: 'numeric',
                 month: 'long',
@@ -559,12 +559,17 @@ export default class MindTrackerPage {
 
                 const formData = new FormData(form);
                 const progressText = formData.get('progress');
-                const selectedMood = formData.get('mood');
 
                 if (!progressText || progressText.trim() === '') {
                     showToast('Silakan isi progress Anda hari ini.', 'error');
                     return false;
                 }
+
+                const submitButton = document.querySelector('#submit-mind-tracker button');
+                const originalButtonText = submitButton.innerHTML;
+
+                submitButton.disabled = true;
+                submitButton.innerHTML = `Memproses...`;
 
                 const data = {
                     date: this.presenter.parseDateString(formattedDate).toISOString(),
@@ -587,6 +592,9 @@ export default class MindTrackerPage {
                 } catch (error) {
                     console.error('Error saving mind tracker:', error);
                     showToast(error.message || 'Terjadi kesalahan server', 'error');
+
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
                 }
 
                 return false;

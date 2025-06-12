@@ -15,6 +15,7 @@ export default class MindTracakerPresenter {
     async checkTodayEntry() {
         try {
             const result = await checkTodayEntry();
+            console.log(result)
             return {
                 exists: result.exists,
                 formattedDate: this.formatDate(this.currentDate)

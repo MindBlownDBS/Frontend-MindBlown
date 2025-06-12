@@ -1,7 +1,7 @@
 import ChatbotPresenter from './chatbot-presenter';
 import { userChatBubble, botChatBubble, botTypingBubble, showToast } from '../templates';
 import { autoResize } from '../../utils';
-
+import { BASE_URL } from '../../config';
 
 export default class ChatbotPage {
     constructor() {
@@ -80,7 +80,6 @@ export default class ChatbotPage {
 
         try {
             const chatHistory = await this.presenter.loadChatHistory();
-            console.log('Chat history loaded:', chatHistory);
             const chatHistoryDivider = document.getElementById('chat-history-divider');
 
             if (chatHistory && chatHistory.length > 0) {
@@ -104,9 +103,9 @@ export default class ChatbotPage {
                             Chat baru
                         </span>
                     </div>`);
-                    
+
                 scrollToBottom();
-                
+
             }
         } catch (error) {
             console.error('Failed to load chat history:', error);
@@ -180,7 +179,8 @@ export default class ChatbotPage {
 
     connectWebSocket(chatContainer, connectionStatus, input, sendButton, scrollToBottom) {
         try {
-            this.socket = new WebSocket('ws://localhost:5000/chatbot-ws');
+            const wsUrl = BASE_URL.replace('https://', 'wss://').replace('http://', 'ws://');
+            this.socket = new WebSocket(`${wsUrl}/chatbot-ws`);
 
             this.socket.onopen = () => {
                 connectionStatus.classList.add('hidden');
@@ -188,7 +188,7 @@ export default class ChatbotPage {
                 sendButton.disabled = false;
 
                 const userData = JSON.parse(localStorage.getItem('user'));
-                console.log('User data for WebSocket auth:', userData);
+               
 
                 if (userData) {
                     const userId = userData.userId || userData.id;
@@ -198,11 +198,11 @@ export default class ChatbotPage {
                             const base64Url = userData.token.split('.')[1];
                             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
                             const decodedData = JSON.parse(window.atob(base64));
-                            console.log('Decoded token data:', decodedData);
+                           
 
                             if (decodedData.id || decodedData.sub) {
                                 const tokenId = decodedData.id || decodedData.sub;
-                                console.log('Using ID from token:', tokenId);
+                                
 
                                 this.socket.send(JSON.stringify({
                                     type: "auth",
@@ -216,7 +216,7 @@ export default class ChatbotPage {
                     }
 
                     if (userId) {
-                        console.log('Authenticating with userId:', userId);
+                       
                         this.socket.send(JSON.stringify({
                             type: "auth",
                             userId: userId

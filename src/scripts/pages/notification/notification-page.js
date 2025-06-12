@@ -119,12 +119,21 @@ export default class NotificationPage {
     
     try {
       if (action === 'subscribe') {
-        await subscribe();
+        const subscribeSuccess = await subscribe();
         this.showSuccessMessage('Push notification berhasil diaktifkan!');
         
-        btn.textContent = 'Nonaktifkan Push Notifikasi';
-        btn.className = 'px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors';
-        btn.dataset.action = 'unsubscribe';
+        if (subscribeSuccess) {
+          this.showSuccessMessage('Push notification berhasil diaktifkan!');
+          
+          btn.textContent = 'Nonaktifkan Push Notifikasi';
+          btn.className = 'px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors';
+          btn.dataset.action = 'unsubscribe';
+        } else {
+          
+          btn.textContent = 'Aktifkan Push Notifikasi';
+          btn.className = 'px-4 py-2 bg-third text-white text-sm rounded-lg hover:bg-third/90 transition-colors';
+          btn.dataset.action = 'subscribe';
+        }
         
       } else {
         await unsubscribe();

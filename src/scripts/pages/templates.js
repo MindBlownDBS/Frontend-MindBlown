@@ -46,7 +46,7 @@ export function mindTrackerModalTemplate(isViewMode = true, selectedMood = '') {
                   !isViewMode
                     ? `
                 <div id="submit-mind-tracker" class="flex justify-end">
-                    <button type="submit" class="w-25 bg-third text-white py-2 px-4 rounded-lg mt-2 justify-end">Kirim</button>
+                    <button type="submit" class="w-30 bg-third text-white py-2 px-4 rounded-lg mt-2 justify-end text-xs lg:text-sm">Kirim</button>
                 </div>
                 `
                     : ""
@@ -128,7 +128,7 @@ export function weeklyMoodTrackerGridTemplate(weeklyData = { weekRange: {}, entr
   
   
   const desktopPointGap = 100; 
-  const mobilePointGap = 80;    
+  const mobilePointGap = 60;    
   const height = 80;
   
   const entriesWithMood = entries.filter(entry => entry.hasEntry);
@@ -377,7 +377,7 @@ export function notificationItemTemplate({
 
 export function profileTemplate(userData) {
   return `
-  <div class="min-h-screen p-10 md:p-10 md:ml-16">
+  <div class="md:ml-16 lg:ml-16 min-h-screen p-6 lg:p-10 pb-20 lg:pb-10">
     <div class="max-w">
 
     <div class="flex justify-between items-center mb-10">

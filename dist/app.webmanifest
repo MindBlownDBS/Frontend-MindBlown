@@ -7,7 +7,7 @@
     "description": "Aplikasi Pendeteksi kesehatan mental yang membantu pengguna memahami kondisi mental mereka melalui curhatan di chatbot.",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "theme_color": "#d97706",
+    "theme_color": "#FFFFFF",
     "icons": [
         {
             "src": "images/icons/icon512_maskable.png",
@@ -20,6 +20,56 @@
             "type": "image/png",
             "sizes": "512x512",
             "purpose": "any"
+        }
+    ],
+     "screenshots": [
+        {
+            "src": "images/screenshots/Mindblown_001.png",
+            "sizes": "1366x768",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "images/screenshots/Mindblown_002.png",
+            "sizes": "1366x768",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "images/screenshots/Mindblown_003.png",
+            "sizes": "1366x768",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "images/screenshots/Mindblown_004.png",
+            "sizes": "1366x768",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "images/screenshots/Mindblown_005.png",
+            "sizes": "255x568",
+            "type": "image/png",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "images/screenshots/Mindblown_006.png",
+            "sizes": "255x568",
+            "type": "image/png",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "images/screenshots/Mindblown_007.png",
+            "sizes": "255x568",
+            "type": "image/png",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "images/screenshots/Mindblown_008.png",
+            "sizes": "255x568",
+            "type": "image/png",
+            "form_factor": "narrow"
         }
     ]
 }
