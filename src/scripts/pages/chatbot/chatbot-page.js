@@ -1,11 +1,17 @@
 import ChatbotPresenter from './chatbot-presenter';
-import { userChatBubble, botChatBubble, botTypingBubble, showToast } from '../templates';
+import {
+    userChatBubble,
+    botChatBubble,
+    botTypingBubble,
+    showToast,
+} from '../templates';
 import { autoResize } from '../../utils';
 import { BASE_URL } from '../../config';
 
 export default class ChatbotPage {
     constructor() {
-        this.sessionId = localStorage.getItem('sessionId') || this.#generateSessionId();
+        this.sessionId =
+            localStorage.getItem('sessionId') || this.#generateSessionId();
         localStorage.setItem('sessionId', this.sessionId);
         this.socket = null;
         this.connectionId = null;
@@ -16,11 +22,15 @@ export default class ChatbotPage {
     }
 
     #generateSessionId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+        return (
+            Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
+        );
     }
 
     #generateRequestId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        return (
+            Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
+        );
     }
 
     async render() {
@@ -59,53 +69,74 @@ export default class ChatbotPage {
         const input = document.getElementById('chat-input');
         const sendButton = document.getElementById('send-button');
 
-        chatContainer.insertAdjacentHTML('beforeend', `
+        chatContainer.insertAdjacentHTML(
+            'beforeend',
+            `
         <div id="chat-history-divider" class="hidden border-t border-gray-200 my-4 relative">
             <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-4 text-xs text-gray-400">
                 Riwayat chat sebelumnya
             </span>
         </div>
-    `);
+    `
+        );
 
         input.addEventListener('input', () => autoResize(input));
 
         const scrollToBottom = () => {
             requestAnimationFrame(() => {
-
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             });
         };
 
-        this.connectWebSocket(chatContainer, connectionStatus, input, sendButton, scrollToBottom);
+        this.connectWebSocket(
+            chatContainer,
+            connectionStatus,
+            input,
+            sendButton,
+            scrollToBottom
+        );
 
         try {
             const chatHistory = await this.presenter.loadChatHistory();
-            const chatHistoryDivider = document.getElementById('chat-history-divider');
+            const chatHistoryDivider = document.getElementById(
+                'chat-history-divider'
+            );
 
             if (chatHistory && chatHistory.length > 0) {
                 chatHistoryDivider.classList.remove('hidden');
 
-                chatHistory.forEach(chat => {
-                    const timestamp = this.presenter.formatChatDate(chat.timestamp);
+                chatHistory.forEach((chat) => {
+                    const timestamp = this.presenter.formatChatDate(
+                        chat.timestamp
+                    );
 
-                    chatContainer.insertAdjacentHTML('beforeend',
+                    chatContainer.insertAdjacentHTML(
+                        'beforeend',
                         `<div class="text-center my-2">
                             <span class="text-xs text-gray-400">${timestamp}</span>
-                        </div>`);
+                        </div>`
+                    );
 
-                    chatContainer.insertAdjacentHTML('beforeend', userChatBubble(chat.message));
-                    chatContainer.insertAdjacentHTML('beforeend', botChatBubble(chat.response));
+                    chatContainer.insertAdjacentHTML(
+                        'beforeend',
+                        userChatBubble(chat.message)
+                    );
+                    chatContainer.insertAdjacentHTML(
+                        'beforeend',
+                        botChatBubble(chat.response)
+                    );
                 });
 
-                chatContainer.insertAdjacentHTML('beforeend',
+                chatContainer.insertAdjacentHTML(
+                    'beforeend',
                     `<div class="border-t border-gray-200 my-4 relative">
                         <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-4 text-xs text-gray-400">
                             Chat baru
                         </span>
-                    </div>`);
+                    </div>`
+                );
 
                 scrollToBottom();
-
             }
         } catch (error) {
             console.error('Failed to load chat history:', error);
@@ -121,23 +152,34 @@ export default class ChatbotPage {
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     const requestId = this.#generateRequestId();
 
-                    chatContainer.insertAdjacentHTML('beforeend', userChatBubble(pendingMessage));
+                    chatContainer.insertAdjacentHTML(
+                        'beforeend',
+                        userChatBubble(pendingMessage)
+                    );
                     scrollToBottom();
 
                     this.pendingRequests.set(requestId, {
                         message: pendingMessage,
-                        timestamp: new Date()
+                        timestamp: new Date(),
                     });
 
-                    this.socket.send(JSON.stringify({
-                        type: "chatbot_request",
-                        message: pendingMessage,
-                        requestId: requestId
-                    }));
+                    this.socket.send(
+                        JSON.stringify({
+                            type: 'chatbot_request',
+                            message: pendingMessage,
+                            requestId: requestId,
+                        })
+                    );
                 } else {
-                    console.error('WebSocket not connected, cannot send message from homepage');
-                    chatContainer.insertAdjacentHTML('beforeend',
-                        botChatBubble("Maaf, koneksi terputus. Silakan coba lagi nanti."));
+                    console.error(
+                        'WebSocket not connected, cannot send message from homepage'
+                    );
+                    chatContainer.insertAdjacentHTML(
+                        'beforeend',
+                        botChatBubble(
+                            'Maaf, koneksi terputus. Silakan coba lagi nanti.'
+                        )
+                    );
                     scrollToBottom();
                 }
             }
@@ -161,25 +203,40 @@ export default class ChatbotPage {
             if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                 this.pendingRequests.set(requestId, {
                     message: text,
-                    timestamp: new Date()
+                    timestamp: new Date(),
                 });
 
-                this.socket.send(JSON.stringify({
-                    type: "chatbot_request",
-                    message: text,
-                    requestId: requestId
-                }));
+                this.socket.send(
+                    JSON.stringify({
+                        type: 'chatbot_request',
+                        message: text,
+                        requestId: requestId,
+                    })
+                );
             } else {
-                chatContainer.insertAdjacentHTML('beforeend',
-                    botChatBubble("Maaf, koneksi terputus. Silakan refresh halaman untuk mencoba lagi."));
+                chatContainer.insertAdjacentHTML(
+                    'beforeend',
+                    botChatBubble(
+                        'Maaf, koneksi terputus. Silakan refresh halaman untuk mencoba lagi.'
+                    )
+                );
                 scrollToBottom();
             }
         });
     }
 
-    connectWebSocket(chatContainer, connectionStatus, input, sendButton, scrollToBottom) {
+    connectWebSocket(
+        chatContainer,
+        connectionStatus,
+        input,
+        sendButton,
+        scrollToBottom
+    ) {
         try {
-            const wsUrl = BASE_URL.replace('https://', 'wss://').replace('http://', 'ws://');
+            const wsUrl = BASE_URL.replace('https://', 'wss://').replace(
+                'http://',
+                'ws://'
+            );
             this.socket = new WebSocket(`${wsUrl}/chatbot-ws`);
 
             this.socket.onopen = () => {
@@ -188,7 +245,6 @@ export default class ChatbotPage {
                 sendButton.disabled = false;
 
                 const userData = JSON.parse(localStorage.getItem('user'));
-               
 
                 if (userData) {
                     const userId = userData.userId || userData.id;
@@ -196,18 +252,21 @@ export default class ChatbotPage {
                     if (!userId && userData.token) {
                         try {
                             const base64Url = userData.token.split('.')[1];
-                            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                            const base64 = base64Url
+                                .replace(/-/g, '+')
+                                .replace(/_/g, '/');
                             const decodedData = JSON.parse(window.atob(base64));
-                           
 
                             if (decodedData.id || decodedData.sub) {
-                                const tokenId = decodedData.id || decodedData.sub;
-                                
+                                const tokenId =
+                                    decodedData.id || decodedData.sub;
 
-                                this.socket.send(JSON.stringify({
-                                    type: "auth",
-                                    userId: tokenId
-                                }));
+                                this.socket.send(
+                                    JSON.stringify({
+                                        type: 'auth',
+                                        userId: tokenId,
+                                    })
+                                );
                                 return;
                             }
                         } catch (error) {
@@ -216,11 +275,12 @@ export default class ChatbotPage {
                     }
 
                     if (userId) {
-                       
-                        this.socket.send(JSON.stringify({
-                            type: "auth",
-                            userId: userId
-                        }));
+                        this.socket.send(
+                            JSON.stringify({
+                                type: 'auth',
+                                userId: userId,
+                            })
+                        );
                     } else {
                         console.warn('No user ID found in user data');
                     }
@@ -254,33 +314,48 @@ export default class ChatbotPage {
                         case 'chatbot_processing':
                             const typingIndicatorId = `typing-${data.requestId}`;
                             if (!document.getElementById(typingIndicatorId)) {
-                                chatContainer.insertAdjacentHTML('beforeend',
-                                    botTypingBubble(data.message, data.requestId));
+                                chatContainer.insertAdjacentHTML(
+                                    'beforeend',
+                                    botTypingBubble(
+                                        data.message,
+                                        data.requestId
+                                    )
+                                );
                                 scrollToBottom();
                             }
                             break;
 
                         case 'chatbot_response':
-                            const typingElement = document.getElementById(`typing-${data.requestId}`);
+                            const typingElement = document.getElementById(
+                                `typing-${data.requestId}`
+                            );
                             if (typingElement) {
                                 typingElement.remove();
                             }
 
-                            chatContainer.insertAdjacentHTML('beforeend',
-                                botChatBubble(data.data.response));
+                            chatContainer.insertAdjacentHTML(
+                                'beforeend',
+                                botChatBubble(data.data.response)
+                            );
                             scrollToBottom();
 
                             this.pendingRequests.delete(data.requestId);
                             break;
 
                         case 'chatbot_error':
-                            const errorTypingElement = document.getElementById(`typing-${data.requestId}`);
+                            const errorTypingElement = document.getElementById(
+                                `typing-${data.requestId}`
+                            );
                             if (errorTypingElement) {
                                 errorTypingElement.remove();
                             }
 
-                            chatContainer.insertAdjacentHTML('beforeend',
-                                botChatBubble(`Maaf, terjadi kesalahan: ${data.message}`));
+                            chatContainer.insertAdjacentHTML(
+                                'beforeend',
+                                botChatBubble(
+                                    `Maaf, terjadi kesalahan: ${data.message}`
+                                )
+                            );
                             scrollToBottom();
 
                             this.pendingRequests.delete(data.requestId);
@@ -309,10 +384,17 @@ export default class ChatbotPage {
 
                 setTimeout(() => {
                     if (document.getElementById('chat-container')) {
-                        connectionStatus.textContent = 'Mencoba menghubungkan kembali...';
+                        connectionStatus.textContent =
+                            'Mencoba menghubungkan kembali...';
                         connectionStatus.classList.remove('text-red-500');
                         connectionStatus.classList.add('text-yellow-500');
-                        this.connectWebSocket(chatContainer, connectionStatus, input, sendButton, scrollToBottom);
+                        this.connectWebSocket(
+                            chatContainer,
+                            connectionStatus,
+                            input,
+                            sendButton,
+                            scrollToBottom
+                        );
                     }
                 }, 3000);
             };
@@ -324,7 +406,6 @@ export default class ChatbotPage {
                 connectionStatus.classList.remove('text-green-500');
                 connectionStatus.classList.add('text-red-500');
             };
-
         } catch (error) {
             console.error('Error connecting to WebSocket:', error);
             connectionStatus.classList.remove('hidden');

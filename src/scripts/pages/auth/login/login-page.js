@@ -6,7 +6,6 @@ export default class LoginPage {
     #presenter = null;
 
     async render() {
-
         return `
          <div class="flex items-center justify-center min-h-screen bg-white">
             <div class="w-full max-w-xs">
@@ -43,15 +42,18 @@ export default class LoginPage {
     }
 
     #setupForm() {
-        document.getElementById('login-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
+        document
+            .getElementById('login-form')
+            .addEventListener('submit', async (event) => {
+                event.preventDefault();
 
-            const data = {
-                usernameOrEmail: document.getElementById('email-input').value,
-                password: document.getElementById('password-input').value,
-            };
-            await this.#presenter.getLogin(data);
-        });
+                const data = {
+                    usernameOrEmail:
+                        document.getElementById('email-input').value,
+                    password: document.getElementById('password-input').value,
+                };
+                await this.#presenter.getLogin(data);
+            });
     }
 
     loginSuccessfully(message) {
@@ -83,5 +85,4 @@ export default class LoginPage {
             <button class="w-full bg-teal-500 text-white text-sm py-2 rounded hover:bg-teal-600 transition" type="submit">Masuk</button>
         `;
     }
-
 }

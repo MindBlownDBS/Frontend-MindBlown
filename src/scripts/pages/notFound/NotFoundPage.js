@@ -1,10 +1,10 @@
 export default class NotFoundPage {
-  constructor() {
-    this.title = '404 - Halaman Tidak Ditemukan';
-  }
+    constructor() {
+        this.title = '404 - Halaman Tidak Ditemukan';
+    }
 
-  async render() {
-    return `
+    async render() {
+        return `
       <section class="min-h-screen flex items-center justify-center bg-gray-50">
         <div class="text-center px-6 py-12 max-w-md mx-auto">
           <div class="mb-8">
@@ -35,30 +35,30 @@ export default class NotFoundPage {
         </div>
       </section>
     `;
-  }
-
-  async afterRender() {
-    this.attachEventListeners();
-  }
-
-  attachEventListeners() {
-    const goHomeBtn = document.getElementById('go-home');
-    const goBackBtn = document.getElementById('go-back');
-
-    if (goHomeBtn) {
-      goHomeBtn.addEventListener('click', () => {
-        window.location.hash = '#/';
-      });
     }
 
-    if (goBackBtn) {
-      goBackBtn.addEventListener('click', () => {
-        if (window.history.length > 1) {
-          window.history.back();
-        } else {
-          window.location.hash = '#/';
+    async afterRender() {
+        this.attachEventListeners();
+    }
+
+    attachEventListeners() {
+        const goHomeBtn = document.getElementById('go-home');
+        const goBackBtn = document.getElementById('go-back');
+
+        if (goHomeBtn) {
+            goHomeBtn.addEventListener('click', () => {
+                window.location.hash = '#/';
+            });
         }
-      });
+
+        if (goBackBtn) {
+            goBackBtn.addEventListener('click', () => {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.hash = '#/';
+                }
+            });
+        }
     }
-  }
 }

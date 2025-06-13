@@ -1,7 +1,11 @@
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
-import { NetworkFirst, CacheFirst, StaleWhileRevalidate } from 'workbox-strategies';
+import {
+    NetworkFirst,
+    CacheFirst,
+    StaleWhileRevalidate,
+} from 'workbox-strategies';
 import { BASE_URL } from './config';
 
 const manifest = self.__WB_MANIFEST;
@@ -14,7 +18,7 @@ registerRoute(
     },
     new NetworkFirst({
         cacheName: 'Mindblown-api',
-    }),
+    })
 );
 registerRoute(
     ({ request, url }) => {
@@ -23,9 +27,8 @@ registerRoute(
     },
     new StaleWhileRevalidate({
         cacheName: 'mindblown-api-images',
-    }),
+    })
 );
-
 
 self.addEventListener('push', (event) => {
     console.log('🔔 Service worker received push event');
@@ -39,8 +42,8 @@ self.addEventListener('push', (event) => {
                 console.log('📱 Push data from backend:', data);
             } else {
                 data = {
-                    title: "MindBlown Notification",
-                    body: "Anda memiliki notifikasi baru"
+                    title: 'MindBlown Notification',
+                    body: 'Anda memiliki notifikasi baru',
                 };
                 console.log('Using fallback data:', data);
             }
@@ -52,24 +55,23 @@ self.addEventListener('push', (event) => {
                 tag: 'mindblown-manual-test',
                 requireInteraction: true,
                 vibrate: [200, 100, 200],
-                data: data
+                data: data,
             };
 
-           await self.registration.showNotification(
-                data.title || 'MindBlown', 
+            await self.registration.showNotification(
+                data.title || 'MindBlown',
                 options
             );
-            
-            console.log('Notification shown successfully');
 
+            console.log('Notification shown successfully');
         } catch (error) {
-           console.error('Error in push notification handler:', error);
-            
+            console.error('Error in push notification handler:', error);
+
             await self.registration.showNotification('MindBlown', {
                 body: 'Anda memiliki notifikasi baru',
                 icon: '/images/logo.png',
                 badge: '/images/logo.png',
-                tag: 'mindblown-error'
+                tag: 'mindblown-error',
             });
         }
     }
@@ -84,12 +86,17 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(
         clients.matchAll({ type: 'window' }).then((clientList) => {
             for (const client of clientList) {
-                if (client.url.includes(self.location.origin) && 'focus' in client) {
+                if (
+                    client.url.includes(self.location.origin) &&
+                    'focus' in client
+                ) {
                     client.focus();
-                    return client.navigate(self.location.origin + '/#/notification');
+                    return client.navigate(
+                        self.location.origin + '/#/notification'
+                    );
                 }
             }
-            
+
             if (clients.openWindow) {
                 return clients.openWindow('/#/notification');
             }
@@ -106,4 +113,3 @@ self.addEventListener('activate', (event) => {
     console.log('Service worker activating');
     event.waitUntil(clients.claim());
 });
-

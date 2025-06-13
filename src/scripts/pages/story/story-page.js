@@ -1,30 +1,30 @@
-import { storyFormTemplate, storyItemTemplate } from "../templates.js";
-import StoryPresenter from "./story-presenter.js";
-import { setupStoryInteractions } from "./story-interactions.js";
-import { setupStoryActions } from "./story-actions.js";
-import { displayAndManageEditStoryModal } from "../story/editStoryModalManager.js";
+import { storyFormTemplate, storyItemTemplate } from '../templates.js';
+import StoryPresenter from './story-presenter.js';
+import { setupStoryInteractions } from './story-interactions.js';
+import { setupStoryActions } from './story-actions.js';
+import { displayAndManageEditStoryModal } from '../story/editStoryModalManager.js';
 
 export default class StoryPage {
-  _presenter = null;
-  _currentUser = null;
-  #editStoryModalRequestHandler = null;
-  #storyDataChangedHandler = null;
+    _presenter = null;
+    _currentUser = null;
+    #editStoryModalRequestHandler = null;
+    #storyDataChangedHandler = null;
 
-  constructor() {
-    this._presenter = new StoryPresenter(this);
-  }
+    constructor() {
+        this._presenter = new StoryPresenter(this);
+    }
 
-  async render() {
-    try {
-      this._currentUser = JSON.parse(localStorage.getItem("user")) || {};
-      const username = this._currentUser?.name || "Nama Pengguna";
-      const handle = this._currentUser?.username
-        ? `@${this._currentUser.username}`
-        : "@namapengguna";
-      const profilePicture =
-        this._currentUser?.profilePicture || "./images/image.png";
+    async render() {
+        try {
+            this._currentUser = JSON.parse(localStorage.getItem('user')) || {};
+            const username = this._currentUser?.name || 'Nama Pengguna';
+            const handle = this._currentUser?.username
+                ? `@${this._currentUser.username}`
+                : '@namapengguna';
+            const profilePicture =
+                this._currentUser?.profilePicture || './images/image.png';
 
-      return `
+            return `
         <div class="md:ml-16 lg:ml-16 min-h-screen p-6 lg:p-10 pb-20 lg:pb-10">
           <div class="mb-1">
             <h1 class="text-2xl font-semibold text-gray-900 mb-2">Story MindBlown</h1>
@@ -97,335 +97,374 @@ export default class StoryPage {
 
         </div>
       `;
-    } catch (error) {
-      console.error("Error rendering StoryPage:", error);
-      return `
+        } catch (error) {
+            console.error('Error rendering StoryPage:', error);
+            return `
         <div class="ml-16 min-h-screen p-10 flex justify-center items-center">
           <p class="text-red-500">Gagal memuat halaman cerita. Silakan coba lagi nanti.</p>
         </div>
       `;
-    }
-  }
-
-  async afterRender() {
-    try {
-      await this._presenter.loadStories();
-
-      this._setupFormSubmit();
-      this._setupMobileFormModal();
-      this.#setupEditStoryModalListener();
-      this.#setupStoryDataChangedListener();
-    } catch (error) {
-      console.error("Error in afterRender (StoryPage):", error);
-      this.showError(error.message || "Gagal memuat konten halaman cerita.");
-    }
-  }
-
-  _showLoading() {
-    this._isLoading = true;
-    const loader = document.getElementById('stories-loader');
-    const container = document.getElementById('stories-container');
-
-    if (loader) loader.classList.remove('hidden');
-    if (container) container.classList.add('hidden');
-  }
-
-  _hideLoading() {
-    this._isLoading = false;
-    const loader = document.getElementById('stories-loader');
-    const container = document.getElementById('stories-container');
-
-    if (loader) loader.classList.add('hidden');
-    if (container) container.classList.remove('hidden');
-  }
-
-  _setupMobileFormModal() {
-    const fabButton = document.getElementById("add-story-fab");
-    const mobileModal = document.getElementById("mobile-story-modal");
-    const closeModalBtn = document.getElementById("close-story-modal");
-    const submitBtn = document.getElementById("mobile-story-submit");
-    const dropdownToggle = document.querySelector(".dropdown-toggle");
-    const dropdownMenu = document.querySelector(".dropdown-menu");
-    const privacyOptions = document.querySelectorAll(".privacy-option");
-    const privacyDisplay = document.getElementById("privacy-display");
-    const anonymousCheckbox = document.getElementById("mobile-post-anonymously");
-
-    if (fabButton && mobileModal) {
-      fabButton.addEventListener("click", () => {
-        mobileModal.classList.remove("hidden");
-        mobileModal.classList.add("flex");
-      });
-    }
-
-    if (closeModalBtn && mobileModal) {
-      closeModalBtn.addEventListener("click", () => {
-        mobileModal.classList.add("hidden");
-        mobileModal.classList.remove("flex");
-        document.getElementById("mobile-story-textarea").value = "";
-      });
-    }
-
-    if (dropdownToggle && dropdownMenu) {
-      dropdownToggle.addEventListener("click", () => {
-        dropdownMenu.classList.toggle("hidden");
-      });
-
-      document.addEventListener("click", (event) => {
-        if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
-          dropdownMenu.classList.add("hidden");
         }
-      });
     }
 
-    privacyOptions.forEach(option => {
-      option.addEventListener("click", () => {
-        const isAnonymous = option.getAttribute("data-anonymous") === "true";
-        anonymousCheckbox.checked = isAnonymous;
-        privacyDisplay.textContent = isAnonymous ? "Anonim" : "Publik";
-        dropdownMenu.classList.add("hidden");
-      });
-    });
-
-    if (submitBtn) {
-      submitBtn.addEventListener("click", async () => {
-        const content = document.getElementById("mobile-story-textarea").value.trim();
-        const isAnonymous = anonymousCheckbox.checked;
-
-        if (!content) {
-          alert("Silakan masukkan konten cerita.");
-          return;
-        }
-
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Mengirim...";
-
+    async afterRender() {
         try {
-          if (this._presenter) {
-            const success = await this._presenter.postNewStory(content, isAnonymous);
-            if (success) {
-              document.getElementById("mobile-story-textarea").value = "";
-              mobileModal.classList.add("hidden");
-              mobileModal.classList.remove("flex");
-            }
-          }
+            await this._presenter.loadStories();
+
+            this._setupFormSubmit();
+            this._setupMobileFormModal();
+            this.#setupEditStoryModalListener();
+            this.#setupStoryDataChangedListener();
         } catch (error) {
-          console.error("Error submitting story:", error);
-          alert(error.message || "Gagal mengunggah cerita.");
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
-        }
-      });
-    }
-  }
-
-
-  async showStories(stories) {
-    const container = document.getElementById("stories-container");
-
-    if (!container) {
-      console.log("StoryPage: stories-container not found, possibly not on story page");
-      return;
-    }
-
-    if (!stories || stories.length === 0) {
-      container.innerHTML =
-        '<p class="text-gray-500 text-center py-8">Belum ada cerita untuk ditampilkan.</p>';
-      this._hideLoading();
-      return;
-    }
-
-    this._currentUser = this._currentUser?.username
-      ? this._currentUser
-      : JSON.parse(localStorage.getItem("user")) || {};
-
-    try {
-      const renderedStories = await Promise.all(
-        stories.map(async (story, index) => {
-          const storyId =
-            story.id || story._id || story.storyId || `story-${index}`;
-          const isOwner =
-            !story.isAnonymous &&
-            story.username === this._currentUser?.username;
-
-          let profilePicture = "./images/image.png";
-          let usernameDisplay = "Pengguna";
-          let handleDisplay = "Anonim";
-
-          if (!story.isAnonymous && story.username) {
-            try {
-              const userData = this._presenter?.getCompleteUserData
-                ? await this._presenter.getCompleteUserData(story.username)
-                : null;
-
-              if (userData) {
-                profilePicture = userData.profilePicture || profilePicture;
-                usernameDisplay =
-                  userData.name || story.name || usernameDisplay;
-                handleDisplay = `@${userData.username || story.username}`;
-              } else {
-                profilePicture = story.profilePicture || profilePicture;
-                usernameDisplay = story.name || usernameDisplay;
-                handleDisplay = `@${story.username}`;
-              }
-            } catch (error) {
-              console.error(
-                `Error fetching profile for ${story.username}:`,
-                error
-              );
-            }
-          }
-
-          return storyItemTemplate({
-            username: usernameDisplay,
-            handle: handleDisplay,
-            content: story.content,
-            isAnonymous: story.isAnonymous,
-            storyId: storyId,
-            likeCount: story.likeCount || story.likes?.length || 0,
-            commentCount: story.totalCommentCount,
-            viewCount: story.viewCount || story.views || 0,
-            profilePicture: profilePicture,
-            createdAt: story.createdAt,
-            isOwner: isOwner,
-            userLiked: story.userLiked || false,
-          });
-        })
-      );
-
-      container.innerHTML = renderedStories.join("");
-
-      if (this._presenter) {
-        setupStoryInteractions(this._presenter, "stories-container");
-        setupStoryActions(this._presenter, "stories-container");
-      }
-    } catch (error) {
-      console.error("Error rendering stories:", error);
-      container.innerHTML = "<div>Error loading stories</div>";
-    }
-  }
-
-  #setupEditStoryModalListener() {
-    this.#editStoryModalRequestHandler = (event) => {
-      const { storyId, currentContent } = event.detail;
-      if (this._presenter && typeof this._presenter.editStory === "function") {
-        displayAndManageEditStoryModal(
-          storyId,
-          currentContent,
-          this._presenter
-        );
-      } else {
-        console.error(
-          "StoryPage: Presenter or presenter.editStory method is not available."
-        );
-        alert("Tidak dapat mengedit cerita saat ini.");
-      }
-    };
-    document.addEventListener(
-      "showEditStoryModalRequest",
-      this.#editStoryModalRequestHandler
-    );
-  }
-
-  #setupStoryDataChangedListener() {
-    this.#storyDataChangedHandler = async (event) => {
-
-      const storiesContainer = document.getElementById("stories-container");
-      if (!storiesContainer) {
-        console.log("StoryPage: Not on story page, ignoring storyDataChanged");
-        return;
-      }
-
-      const { action, storyId } = event.detail;
-      if (
-        ["posted", "edited", "deleted", "liked", "commented"].includes(action)
-      ) {
-        console.log(
-          "StoryPage: Reloading stories due to storyDataChanged");
-        if (this._presenter) {
-          await this._presenter.loadStories();
-        }
-      }
-    };
-    document.addEventListener(
-      "storyDataChanged",
-      this.#storyDataChangedHandler
-    );
-  }
-  _setupFormSubmit() {
-    const chatForm = document.getElementById("chat-form");
-    if (chatForm) {
-      chatForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const input = document.getElementById("chat-input");
-        const isAnonymousCheckbox = document.getElementById("post-anonymously");
-        const isAnonymous = isAnonymousCheckbox
-          ? isAnonymousCheckbox.checked
-          : false;
-
-        const submitButton = chatForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.textContent;
-
-        if (!input || !input.value.trim()) {
-          alert("Silakan masukkan konten cerita.");
-          return;
-        }
-
-        submitButton.disabled = true;
-        submitButton.textContent = "Mengunggah...";
-        try {
-          if (this._presenter) {
-            const success = await this._presenter.postNewStory(
-              input.value.trim(),
-              isAnonymous
+            console.error('Error in afterRender (StoryPage):', error);
+            this.showError(
+                error.message || 'Gagal memuat konten halaman cerita.'
             );
-          }
-        } catch (error) {
-          console.error("Error submitting story:", error);
-          alert(error.message || "Gagal mengunggah cerita.");
-        } finally {
-          submitButton.disabled = false;
-          submitButton.textContent = originalButtonText;
         }
-      });
     }
-  }
 
-  async _getProfilePicture(username) {
-    if (!username) return "./images/image.png";
+    _showLoading() {
+        this._isLoading = true;
+        const loader = document.getElementById('stories-loader');
+        const container = document.getElementById('stories-container');
 
-    try {
-      const response = await getUserProfile(username);
-      return response.profilePicture || "./images/image.png";
-    } catch (error) {
-      console.error("Error getting profile picture:", error);
-      return "./images/image.png";
+        if (loader) loader.classList.remove('hidden');
+        if (container) container.classList.add('hidden');
     }
-  }
 
-  clearForm() {
-    try {
-      const input = document.getElementById("chat-input");
-      if (input) input.value = "";
-      const checkbox = document.getElementById("post-anonymously");
-      if (checkbox) checkbox.checked = false;
-    } catch (error) {
-      console.error("Error clearing form:", error);
-    }
-  }
+    _hideLoading() {
+        this._isLoading = false;
+        const loader = document.getElementById('stories-loader');
+        const container = document.getElementById('stories-container');
 
-  showError(message) {
-    const container = document.getElementById("stories-container");
-    if (container) {
-      container.innerHTML = `<p class="text-red-500 p-4 text-center">${message}</p>`;
-    } else {
-      const pageContainer = document.querySelector(".ml-16.min-h-screen.p-10");
-      if (pageContainer) {
-        pageContainer.innerHTML = `<p class="text-red-500 p-6 text-center">${message}</p>`;
-      } else {
-        console.log(message);
-      }
+        if (loader) loader.classList.add('hidden');
+        if (container) container.classList.remove('hidden');
     }
-  }
+
+    _setupMobileFormModal() {
+        const fabButton = document.getElementById('add-story-fab');
+        const mobileModal = document.getElementById('mobile-story-modal');
+        const closeModalBtn = document.getElementById('close-story-modal');
+        const submitBtn = document.getElementById('mobile-story-submit');
+        const dropdownToggle = document.querySelector('.dropdown-toggle');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+        const privacyOptions = document.querySelectorAll('.privacy-option');
+        const privacyDisplay = document.getElementById('privacy-display');
+        const anonymousCheckbox = document.getElementById(
+            'mobile-post-anonymously'
+        );
+
+        if (fabButton && mobileModal) {
+            fabButton.addEventListener('click', () => {
+                mobileModal.classList.remove('hidden');
+                mobileModal.classList.add('flex');
+            });
+        }
+
+        if (closeModalBtn && mobileModal) {
+            closeModalBtn.addEventListener('click', () => {
+                mobileModal.classList.add('hidden');
+                mobileModal.classList.remove('flex');
+                document.getElementById('mobile-story-textarea').value = '';
+            });
+        }
+
+        if (dropdownToggle && dropdownMenu) {
+            dropdownToggle.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (
+                    !dropdownToggle.contains(event.target) &&
+                    !dropdownMenu.contains(event.target)
+                ) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+        }
+
+        privacyOptions.forEach((option) => {
+            option.addEventListener('click', () => {
+                const isAnonymous =
+                    option.getAttribute('data-anonymous') === 'true';
+                anonymousCheckbox.checked = isAnonymous;
+                privacyDisplay.textContent = isAnonymous ? 'Anonim' : 'Publik';
+                dropdownMenu.classList.add('hidden');
+            });
+        });
+
+        if (submitBtn) {
+            submitBtn.addEventListener('click', async () => {
+                const content = document
+                    .getElementById('mobile-story-textarea')
+                    .value.trim();
+                const isAnonymous = anonymousCheckbox.checked;
+
+                if (!content) {
+                    alert('Silakan masukkan konten cerita.');
+                    return;
+                }
+
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Mengirim...';
+
+                try {
+                    if (this._presenter) {
+                        const success = await this._presenter.postNewStory(
+                            content,
+                            isAnonymous
+                        );
+                        if (success) {
+                            document.getElementById(
+                                'mobile-story-textarea'
+                            ).value = '';
+                            mobileModal.classList.add('hidden');
+                            mobileModal.classList.remove('flex');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error submitting story:', error);
+                    alert(error.message || 'Gagal mengunggah cerita.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            });
+        }
+    }
+
+    async showStories(stories) {
+        const container = document.getElementById('stories-container');
+
+        if (!container) {
+            console.log(
+                'StoryPage: stories-container not found, possibly not on story page'
+            );
+            return;
+        }
+
+        if (!stories || stories.length === 0) {
+            container.innerHTML =
+                '<p class="text-gray-500 text-center py-8">Belum ada cerita untuk ditampilkan.</p>';
+            this._hideLoading();
+            return;
+        }
+
+        this._currentUser = this._currentUser?.username
+            ? this._currentUser
+            : JSON.parse(localStorage.getItem('user')) || {};
+
+        try {
+            const renderedStories = await Promise.all(
+                stories.map(async (story, index) => {
+                    const storyId =
+                        story.id ||
+                        story._id ||
+                        story.storyId ||
+                        `story-${index}`;
+                    const isOwner =
+                        !story.isAnonymous &&
+                        story.username === this._currentUser?.username;
+
+                    let profilePicture = './images/image.png';
+                    let usernameDisplay = 'Pengguna';
+                    let handleDisplay = 'Anonim';
+
+                    if (!story.isAnonymous && story.username) {
+                        try {
+                            const userData = this._presenter
+                                ?.getCompleteUserData
+                                ? await this._presenter.getCompleteUserData(
+                                      story.username
+                                  )
+                                : null;
+
+                            if (userData) {
+                                profilePicture =
+                                    userData.profilePicture || profilePicture;
+                                usernameDisplay =
+                                    userData.name ||
+                                    story.name ||
+                                    usernameDisplay;
+                                handleDisplay = `@${userData.username || story.username}`;
+                            } else {
+                                profilePicture =
+                                    story.profilePicture || profilePicture;
+                                usernameDisplay = story.name || usernameDisplay;
+                                handleDisplay = `@${story.username}`;
+                            }
+                        } catch (error) {
+                            console.error(
+                                `Error fetching profile for ${story.username}:`,
+                                error
+                            );
+                        }
+                    }
+
+                    return storyItemTemplate({
+                        username: usernameDisplay,
+                        handle: handleDisplay,
+                        content: story.content,
+                        isAnonymous: story.isAnonymous,
+                        storyId: storyId,
+                        likeCount: story.likeCount || story.likes?.length || 0,
+                        commentCount: story.totalCommentCount,
+                        viewCount: story.viewCount || story.views || 0,
+                        profilePicture: profilePicture,
+                        createdAt: story.createdAt,
+                        isOwner: isOwner,
+                        userLiked: story.userLiked || false,
+                    });
+                })
+            );
+
+            container.innerHTML = renderedStories.join('');
+
+            if (this._presenter) {
+                setupStoryInteractions(this._presenter, 'stories-container');
+                setupStoryActions(this._presenter, 'stories-container');
+            }
+        } catch (error) {
+            console.error('Error rendering stories:', error);
+            container.innerHTML = '<div>Error loading stories</div>';
+        }
+    }
+
+    #setupEditStoryModalListener() {
+        this.#editStoryModalRequestHandler = (event) => {
+            const { storyId, currentContent } = event.detail;
+            if (
+                this._presenter &&
+                typeof this._presenter.editStory === 'function'
+            ) {
+                displayAndManageEditStoryModal(
+                    storyId,
+                    currentContent,
+                    this._presenter
+                );
+            } else {
+                console.error(
+                    'StoryPage: Presenter or presenter.editStory method is not available.'
+                );
+                alert('Tidak dapat mengedit cerita saat ini.');
+            }
+        };
+        document.addEventListener(
+            'showEditStoryModalRequest',
+            this.#editStoryModalRequestHandler
+        );
+    }
+
+    #setupStoryDataChangedListener() {
+        this.#storyDataChangedHandler = async (event) => {
+            const storiesContainer =
+                document.getElementById('stories-container');
+            if (!storiesContainer) {
+                console.log(
+                    'StoryPage: Not on story page, ignoring storyDataChanged'
+                );
+                return;
+            }
+
+            const { action, storyId } = event.detail;
+            if (
+                ['posted', 'edited', 'deleted', 'liked', 'commented'].includes(
+                    action
+                )
+            ) {
+                console.log(
+                    'StoryPage: Reloading stories due to storyDataChanged'
+                );
+                if (this._presenter) {
+                    await this._presenter.loadStories();
+                }
+            }
+        };
+        document.addEventListener(
+            'storyDataChanged',
+            this.#storyDataChangedHandler
+        );
+    }
+    _setupFormSubmit() {
+        const chatForm = document.getElementById('chat-form');
+        if (chatForm) {
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const input = document.getElementById('chat-input');
+                const isAnonymousCheckbox =
+                    document.getElementById('post-anonymously');
+                const isAnonymous = isAnonymousCheckbox
+                    ? isAnonymousCheckbox.checked
+                    : false;
+
+                const submitButton = chatForm.querySelector(
+                    'button[type="submit"]'
+                );
+                const originalButtonText = submitButton.textContent;
+
+                if (!input || !input.value.trim()) {
+                    alert('Silakan masukkan konten cerita.');
+                    return;
+                }
+
+                submitButton.disabled = true;
+                submitButton.textContent = 'Mengunggah...';
+                try {
+                    if (this._presenter) {
+                        const success = await this._presenter.postNewStory(
+                            input.value.trim(),
+                            isAnonymous
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error submitting story:', error);
+                    alert(error.message || 'Gagal mengunggah cerita.');
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }
+            });
+        }
+    }
+
+    async _getProfilePicture(username) {
+        if (!username) return './images/image.png';
+
+        try {
+            const response = await getUserProfile(username);
+            return response.profilePicture || './images/image.png';
+        } catch (error) {
+            console.error('Error getting profile picture:', error);
+            return './images/image.png';
+        }
+    }
+
+    clearForm() {
+        try {
+            const input = document.getElementById('chat-input');
+            if (input) input.value = '';
+            const checkbox = document.getElementById('post-anonymously');
+            if (checkbox) checkbox.checked = false;
+        } catch (error) {
+            console.error('Error clearing form:', error);
+        }
+    }
+
+    showError(message) {
+        const container = document.getElementById('stories-container');
+        if (container) {
+            container.innerHTML = `<p class="text-red-500 p-4 text-center">${message}</p>`;
+        } else {
+            const pageContainer = document.querySelector(
+                '.ml-16.min-h-screen.p-10'
+            );
+            if (pageContainer) {
+                pageContainer.innerHTML = `<p class="text-red-500 p-6 text-center">${message}</p>`;
+            } else {
+                console.log(message);
+            }
+        }
+    }
 }

@@ -12,7 +12,10 @@ export default class LoginPresenter {
     async getLogin({ usernameOrEmail, password }) {
         this.#view.showSubmitLoadingButton();
         try {
-            const response = await this.#model.getLogin(usernameOrEmail, password);
+            const response = await this.#model.getLogin(
+                usernameOrEmail,
+                password
+            );
 
             if (response.error || response.status >= 400) {
                 this.#view.loginFailed(response.message);
@@ -32,4 +35,3 @@ export default class LoginPresenter {
         }
     }
 }
-

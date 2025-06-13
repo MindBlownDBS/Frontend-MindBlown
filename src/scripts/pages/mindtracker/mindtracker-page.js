@@ -1,4 +1,8 @@
-import { mindTrackerModalTemplate, activityRecommendationsTemplate, showToast } from '../templates';
+import {
+    mindTrackerModalTemplate,
+    activityRecommendationsTemplate,
+    showToast,
+} from '../templates';
 import { generateCalendar } from '../../utils/generate-calendar';
 import { weeklyMoodTrackerGridTemplate } from '../templates';
 import MindTrackerPresenter from './mindtracker-presenter';
@@ -87,7 +91,10 @@ export default class MindTrackerPage {
     }
 
     async afterRender() {
-        generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
+        generateCalendar(
+            this.presenter.getCurrentDate(),
+            this.presenter.getMonthNames()
+        );
 
         try {
             const recommendations = await this.presenter.loadRecommendations();
@@ -119,73 +126,103 @@ export default class MindTrackerPage {
 
         document.getElementById('todayBtn').addEventListener('click', () => {
             this.presenter.setCurrentDate(new Date());
-            generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
+            generateCalendar(
+                this.presenter.getCurrentDate(),
+                this.presenter.getMonthNames()
+            );
             this.updateTodayButtonState();
         });
 
-        document.getElementById('trackTodayBtn').addEventListener('click', async () => {
-            try {
-                const result = await this.presenter.checkTodayEntry();
+        document
+            .getElementById('trackTodayBtn')
+            .addEventListener('click', async () => {
+                try {
+                    const result = await this.presenter.checkTodayEntry();
 
-                if (result.exists) {
-                    showToast('Anda sudah mengisi Mind Tracker untuk hari ini.', 'error');
-                    return;
+                    if (result.exists) {
+                        showToast(
+                            'Anda sudah mengisi Mind Tracker untuk hari ini.',
+                            'error'
+                        );
+                        return;
+                    }
+
+                    this.showModal(result.formattedDate, null, false);
+                } catch (error) {
+                    console.error('Error checking mind tracker entry:', error);
+                    showToast(
+                        error.message || 'Terjadi kesalahan server',
+                        'error'
+                    );
                 }
+            });
 
-                this.showModal(result.formattedDate, null, false);
-            } catch (error) {
-                console.error('Error checking mind tracker entry:', error);
-                showToast(error.message || 'Terjadi kesalahan server', 'error');
-            }
-        });
-
-        document.getElementById('calendarDays').addEventListener('click', async (e) => {
-            const dayElement = e.target.closest('div[data-date]');
-            if (dayElement) {
-                this.handleDayClick(dayElement);
-            }
-        });
+        document
+            .getElementById('calendarDays')
+            .addEventListener('click', async (e) => {
+                const dayElement = e.target.closest('div[data-date]');
+                if (dayElement) {
+                    this.handleDayClick(dayElement);
+                }
+            });
     }
 
     async loadAndRenderWeeklyEntries() {
         try {
             const monthlyData = await this.presenter.loadMonthlyEntries();
-            const weeklyContainer = document.querySelector('.weekly-tracker-container');
+            const weeklyContainer = document.querySelector(
+                '.weekly-tracker-container'
+            );
 
             if (weeklyContainer) {
-                weeklyContainer.innerHTML = weeklyMoodTrackerGridTemplate(monthlyData);
+                weeklyContainer.innerHTML =
+                    weeklyMoodTrackerGridTemplate(monthlyData);
 
-                const moodPoints = weeklyContainer.querySelectorAll('[data-date][data-mood]');
-                moodPoints.forEach(point => {
+                const moodPoints = weeklyContainer.querySelectorAll(
+                    '[data-date][data-mood]'
+                );
+                moodPoints.forEach((point) => {
                     if (point.classList.contains('cursor-pointer')) {
                         point.addEventListener('click', () => {
                             const date = point.dataset.date;
                             const mood = point.dataset.mood;
                             const progress = point.dataset.progress;
 
-                            this.showModal(date.split('T')[0], {
-                                mood: mood,
-                                progress: progress
-                            }, true);
+                            this.showModal(
+                                date.split('T')[0],
+                                {
+                                    mood: mood,
+                                    progress: progress,
+                                },
+                                true
+                            );
                         });
                     }
                 });
 
-
                 this.setupMobileCarousel();
 
-                const prevButton = weeklyContainer.querySelector('#moodPrevBtn');
-                const nextButton = weeklyContainer.querySelector('#moodNextBtn');
+                const prevButton =
+                    weeklyContainer.querySelector('#moodPrevBtn');
+                const nextButton =
+                    weeklyContainer.querySelector('#moodNextBtn');
 
                 if (prevButton) {
                     prevButton.addEventListener('click', async (event) => {
-                        const mobileCarousel = document.querySelector('.mood-mobile-carousel');
-                        const desktopCarousel = document.querySelector('.mood-desktop-carousel');
+                        const mobileCarousel = document.querySelector(
+                            '.mood-mobile-carousel'
+                        );
+                        const desktopCarousel = document.querySelector(
+                            '.mood-desktop-carousel'
+                        );
 
                         if (mobileCarousel && window.innerWidth < 1024) {
                             event.preventDefault();
                             this.mobileCarouselPrev();
-                        } else if (desktopCarousel && window.innerWidth >= 1024) {
+                        } else if (
+                            desktopCarousel &&
+                            window.innerWidth >= 1024
+                        ) {
                             event.preventDefault();
                             this.desktopCarouselPrev();
                         } else {
@@ -197,13 +234,20 @@ export default class MindTrackerPage {
 
                 if (nextButton) {
                     nextButton.addEventListener('click', async (event) => {
-                        const mobileCarousel = document.querySelector('.mood-mobile-carousel');
-                        const desktopCarousel = document.querySelector('.mood-desktop-carousel');
+                        const mobileCarousel = document.querySelector(
+                            '.mood-mobile-carousel'
+                        );
+                        const desktopCarousel = document.querySelector(
+                            '.mood-desktop-carousel'
+                        );
 
                         if (mobileCarousel && window.innerWidth < 1024) {
                             event.preventDefault();
                             this.mobileCarouselNext();
-                        } else if (desktopCarousel && window.innerWidth >= 1024) {
+                        } else if (
+                            desktopCarousel &&
+                            window.innerWidth >= 1024
+                        ) {
                             event.preventDefault();
                             this.desktopCarouselNext();
                         } else {
@@ -215,7 +259,9 @@ export default class MindTrackerPage {
             }
         } catch (error) {
             console.error('Failed to load monthly entries:', error);
-            const weeklyContainer = document.querySelector('.weekly-tracker-container');
+            const weeklyContainer = document.querySelector(
+                '.weekly-tracker-container'
+            );
             if (weeklyContainer) {
                 weeklyContainer.innerHTML = `
                 <div class="bg-white rounded-xl border border-gray-200 p-4 text-center text-red-500">
@@ -229,15 +275,21 @@ export default class MindTrackerPage {
     setupMobileCarousel() {
         const mobileCarousel = document.querySelector('.mood-mobile-carousel');
         if (mobileCarousel) {
-            const mobileSlides = mobileCarousel.querySelector('.mood-mobile-carousel-slides');
-            const mobileDots = mobileCarousel.querySelectorAll('.mobile-carousel-dot');
+            const mobileSlides = mobileCarousel.querySelector(
+                '.mood-mobile-carousel-slides'
+            );
+            const mobileDots = mobileCarousel.querySelectorAll(
+                '.mobile-carousel-dot'
+            );
 
             this.mobileCarouselState = {
                 slides: mobileSlides,
                 dots: mobileDots,
                 currentSlide: 0,
                 visibleDays: 3,
-                totalSlides: Math.ceil(this.presenter.getMonthlyEntries().length / 3)
+                totalSlides: Math.ceil(
+                    this.presenter.getMonthlyEntries().length / 3
+                ),
             };
 
             mobileDots.forEach((dot, i) => {
@@ -247,17 +299,25 @@ export default class MindTrackerPage {
             this.goToMobileSlide(0);
         }
 
-        const desktopCarousel = document.querySelector('.mood-desktop-carousel');
+        const desktopCarousel = document.querySelector(
+            '.mood-desktop-carousel'
+        );
         if (desktopCarousel) {
-            const desktopSlides = desktopCarousel.querySelector('.mood-desktop-carousel-slides');
-            const desktopDots = desktopCarousel.querySelectorAll('.desktop-carousel-dot');
+            const desktopSlides = desktopCarousel.querySelector(
+                '.mood-desktop-carousel-slides'
+            );
+            const desktopDots = desktopCarousel.querySelectorAll(
+                '.desktop-carousel-dot'
+            );
 
             this.desktopCarouselState = {
                 slides: desktopSlides,
                 dots: desktopDots,
                 currentSlide: 0,
                 visibleDays: 7,
-                totalSlides: Math.ceil(this.presenter.getMonthlyEntries().length / 7)
+                totalSlides: Math.ceil(
+                    this.presenter.getMonthlyEntries().length / 7
+                ),
             };
 
             desktopDots.forEach((dot, i) => {
@@ -270,28 +330,48 @@ export default class MindTrackerPage {
         let touchStartX = 0;
         let touchEndX = 0;
 
-        const mobileCarouselInner = document.querySelector('.mood-mobile-carousel-inner');
+        const mobileCarouselInner = document.querySelector(
+            '.mood-mobile-carousel-inner'
+        );
         if (mobileCarouselInner) {
-            mobileCarouselInner.addEventListener('touchstart', (e) => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
+            mobileCarouselInner.addEventListener(
+                'touchstart',
+                (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                },
+                { passive: true }
+            );
 
-            mobileCarouselInner.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            }, { passive: true });
+            mobileCarouselInner.addEventListener(
+                'touchend',
+                (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                },
+                { passive: true }
+            );
         }
 
-        const desktopCarouselInner = document.querySelector('.mood-desktop-carousel-inner');
+        const desktopCarouselInner = document.querySelector(
+            '.mood-desktop-carousel-inner'
+        );
         if (desktopCarouselInner) {
-            desktopCarouselInner.addEventListener('touchstart', (e) => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
+            desktopCarouselInner.addEventListener(
+                'touchstart',
+                (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                },
+                { passive: true }
+            );
 
-            desktopCarouselInner.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            }, { passive: true });
+            desktopCarouselInner.addEventListener(
+                'touchend',
+                (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                },
+                { passive: true }
+            );
         }
 
         const handleSwipe = () => {
@@ -351,7 +431,8 @@ export default class MindTrackerPage {
             }
 
             if (nextButton) {
-                nextButton.disabled = state.currentSlide === state.totalSlides - 1;
+                nextButton.disabled =
+                    state.currentSlide === state.totalSlides - 1;
                 if (state.currentSlide === state.totalSlides - 1) {
                     nextButton.classList.add('opacity-50');
                 } else {
@@ -411,7 +492,8 @@ export default class MindTrackerPage {
             }
 
             if (nextButton) {
-                nextButton.disabled = state.currentSlide === state.totalSlides - 1;
+                nextButton.disabled =
+                    state.currentSlide === state.totalSlides - 1;
                 if (state.currentSlide === state.totalSlides - 1) {
                     nextButton.classList.add('opacity-50');
                 } else {
@@ -432,7 +514,6 @@ export default class MindTrackerPage {
         if (!state || state.currentSlide >= state.totalSlides - 1) return;
         this.goToMobileSlide(state.currentSlide + 1);
     }
-
 
     renderWeeklyEntries(container, { weekRange, entries }) {
         if (!entries || entries.length === 0) {
@@ -456,12 +537,16 @@ export default class MindTrackerPage {
         <div class="grid grid-cols-7 gap-2">
     `;
 
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
             const date = new Date(entry.date);
             const dayNumber = date.getDate();
-            const moodEmoji = entry.hasEntry ? this.presenter.getMoodEmoji(entry.mood) : '—';
+            const moodEmoji = entry.hasEntry
+                ? this.presenter.getMoodEmoji(entry.mood)
+                : '—';
             const bgColor = entry.hasEntry ? 'bg-third/10' : 'bg-gray-100';
-            const textColor = entry.hasEntry ? 'text-gray-800' : 'text-gray-400';
+            const textColor = entry.hasEntry
+                ? 'text-gray-800'
+                : 'text-gray-400';
 
             html += `
             <div class="${bgColor} rounded-lg p-2 text-center ${textColor}">
@@ -474,7 +559,7 @@ export default class MindTrackerPage {
 
         html += `</div>`;
 
-        if (entries.some(entry => entry.hasEntry)) {
+        if (entries.some((entry) => entry.hasEntry)) {
             html += `
             <div class="mt-3 text-xs text-gray-500 text-right">
                 <span>Tap tanggal untuk melihat detail</span>
@@ -486,22 +571,31 @@ export default class MindTrackerPage {
         const moodCells = container.querySelectorAll('.grid > div');
         entries.forEach((entry, index) => {
             if (entry.hasEntry) {
-                moodCells[index].classList.add('cursor-pointer', 'hover:bg-third/20');
+                moodCells[index].classList.add(
+                    'cursor-pointer',
+                    'hover:bg-third/20'
+                );
                 moodCells[index].addEventListener('click', () => {
-                    this.showModal(entry.date.split('T')[0], {
-                        progress: entry.progress,
-                        mood: entry.mood
-                    }, true);
+                    this.showModal(
+                        entry.date.split('T')[0],
+                        {
+                            progress: entry.progress,
+                            mood: entry.mood,
+                        },
+                        true
+                    );
                 });
             }
         });
     }
 
-
     updateRecommendationsSection(recommendations) {
-        const recommendationsContainer = document.getElementById('recommendations-container');
+        const recommendationsContainer = document.getElementById(
+            'recommendations-container'
+        );
         if (recommendationsContainer) {
-            recommendationsContainer.innerHTML = activityRecommendationsTemplate(recommendations);
+            recommendationsContainer.innerHTML =
+                activityRecommendationsTemplate(recommendations);
         }
     }
 
@@ -509,8 +603,9 @@ export default class MindTrackerPage {
         document.addEventListener('click', async (e) => {
             if (e.target.closest('#regenerate-recommendations')) {
                 try {
-
-                    const button = e.target.closest('#regenerate-recommendations');
+                    const button = e.target.closest(
+                        '#regenerate-recommendations'
+                    );
                     const originalText = button.innerHTML;
                     button.innerHTML = `
                     <svg class="animate-spin h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -521,36 +616,45 @@ export default class MindTrackerPage {
                     `;
                     button.disabled = true;
 
-                    const recommendations = await this.presenter.regenerateRecommendations();
+                    const recommendations =
+                        await this.presenter.regenerateRecommendations();
                     this.updateRecommendationsSection(recommendations);
 
                     showToast('Rekomendasi aktivitas baru telah dimuat!');
                 } catch (error) {
-                    console.error('Failed to regenerate recommendations:', error);
-                    showToast(error.message || 'Gagal memuat rekomendasi baru', 'error');
+                    console.error(
+                        'Failed to regenerate recommendations:',
+                        error
+                    );
+                    showToast(
+                        error.message || 'Gagal memuat rekomendasi baru',
+                        'error'
+                    );
                 }
             }
         });
     }
-
 
     updateTodayButtonState() {
         const todayBtn = document.getElementById('todayBtn');
         const currentDate = this.presenter.getCurrentDate();
         const today = new Date();
 
-        const isCurrentMonth = currentDate.getMonth() === today.getMonth() &&
+        const isCurrentMonth =
+            currentDate.getMonth() === today.getMonth() &&
             currentDate.getFullYear() === today.getFullYear();
 
         if (isCurrentMonth) {
-            todayBtn.className = "bg-gray-200 text-gray-400 text-sm px-4 py-2 rounded-md";
+            todayBtn.className =
+                'bg-gray-200 text-gray-400 text-sm px-4 py-2 rounded-md';
         } else {
-            todayBtn.className = "bg-third text-white text-sm px-4 py-2 rounded-md hover:bg-third/80 transition-colors";
+            todayBtn.className =
+                'bg-third text-white text-sm px-4 py-2 rounded-md hover:bg-third/80 transition-colors';
         }
     }
 
     async handleDayClick(dayElement) {
-        document.querySelectorAll('div[data-date]').forEach(el => {
+        document.querySelectorAll('div[data-date]').forEach((el) => {
             el.classList.remove('bg-blue-100');
         });
         dayElement.classList.add('bg-blue-100');
@@ -571,12 +675,17 @@ export default class MindTrackerPage {
             existingModal.remove();
         }
 
-        const isCalendarView = document.getElementById('calendarDays').contains(document.activeElement);
+        const isCalendarView = document
+            .getElementById('calendarDays')
+            .contains(document.activeElement);
         const finalViewMode = isCalendarView ? true : isViewMode;
 
         const selectedMood = existingData?.mood || '';
 
-        document.body.insertAdjacentHTML('beforeend', mindTrackerModalTemplate(finalViewMode, selectedMood));
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            mindTrackerModalTemplate(finalViewMode, selectedMood)
+        );
 
         const modal = document.getElementById('mindTrackerModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -586,11 +695,15 @@ export default class MindTrackerPage {
         let displayDate = formattedDate;
         if (formattedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
             const dateParts = formattedDate.split('-');
-            const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+            const dateObj = new Date(
+                dateParts[0],
+                dateParts[1] - 1,
+                dateParts[2]
+            );
             displayDate = dateObj.toLocaleDateString('id-ID', {
                 day: 'numeric',
                 month: 'long',
-                year: 'numeric'
+                year: 'numeric',
             });
         }
 
@@ -599,7 +712,8 @@ export default class MindTrackerPage {
         modal.classList.add('flex');
 
         if (existingData) {
-            document.querySelector('textarea[name="progress"]').value = existingData.progress || '';
+            document.querySelector('textarea[name="progress"]').value =
+                existingData.progress || '';
 
             const moodInput = document.getElementById('selected-mood');
             if (moodInput && existingData.mood) {
@@ -626,10 +740,9 @@ export default class MindTrackerPage {
         const moodInput = document.getElementById('selected-mood');
 
         if (!form.querySelector('textarea[name="progress"]').readOnly) {
-            moodOptions.forEach(option => {
+            moodOptions.forEach((option) => {
                 option.addEventListener('click', () => {
-
-                    moodOptions.forEach(m => {
+                    moodOptions.forEach((m) => {
                         m.querySelector('span').classList.remove('scale-125');
                     });
 
@@ -665,15 +778,19 @@ export default class MindTrackerPage {
                     return false;
                 }
 
-                const submitButton = document.querySelector('#submit-mind-tracker button');
+                const submitButton = document.querySelector(
+                    '#submit-mind-tracker button'
+                );
                 const originalButtonText = submitButton.innerHTML;
 
                 submitButton.disabled = true;
                 submitButton.innerHTML = `Memproses...`;
 
                 const data = {
-                    date: this.presenter.parseDateString(formattedDate).toISOString(),
-                    progress: formData.get('progress')
+                    date: this.presenter
+                        .parseDateString(formattedDate)
+                        .toISOString(),
+                    progress: formData.get('progress'),
                 };
 
                 try {
@@ -683,7 +800,10 @@ export default class MindTrackerPage {
                         modal.classList.add('hidden');
                         modal.classList.remove('flex');
                         form.reset();
-                        generateCalendar(this.presenter.getCurrentDate(), this.presenter.getMonthNames());
+                        generateCalendar(
+                            this.presenter.getCurrentDate(),
+                            this.presenter.getMonthNames()
+                        );
                         await this.loadAndRenderWeeklyEntries();
                         this.scrollToTodaysEntry();
                         showToast(result.message, 'success');
@@ -692,7 +812,10 @@ export default class MindTrackerPage {
                     }
                 } catch (error) {
                     console.error('Error saving mind tracker:', error);
-                    showToast(error.message || 'Terjadi kesalahan server', 'error');
+                    showToast(
+                        error.message || 'Terjadi kesalahan server',
+                        'error'
+                    );
 
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
@@ -705,17 +828,13 @@ export default class MindTrackerPage {
 
     scrollToTodaysEntry() {
         try {
-
             const today = new Date();
             const todayFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-           
             const entries = this.presenter.getMonthlyEntries();
             if (!entries || entries.length === 0) return;
 
-            
-            const todayIndex = entries.findIndex(entry => {
-               
+            const todayIndex = entries.findIndex((entry) => {
                 return entry.date.split('T')[0] === todayFormatted;
             });
 
@@ -723,7 +842,7 @@ export default class MindTrackerPage {
 
             const desktopSlideIndex = Math.floor(todayIndex / 7);
             const mobileSlideIndex = Math.floor(todayIndex / 3);
-           
+
             if (window.innerWidth >= 1024) {
                 this.goToDesktopSlide(desktopSlideIndex);
             } else {
@@ -731,7 +850,9 @@ export default class MindTrackerPage {
             }
 
             setTimeout(() => {
-                const entryElement = document.querySelector(`[data-date="${entries[todayIndex].date}"]`);
+                const entryElement = document.querySelector(
+                    `[data-date="${entries[todayIndex].date}"]`
+                );
                 if (entryElement) {
                     entryElement.classList.add('animate-pulse');
                     setTimeout(() => {
@@ -740,7 +861,7 @@ export default class MindTrackerPage {
                 }
             }, 300);
         } catch (error) {
-            console.error('Error scrolling to today\'s entry:', error);
+            console.error("Error scrolling to today's entry:", error);
         }
     }
 }

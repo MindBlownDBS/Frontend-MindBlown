@@ -1,29 +1,29 @@
-import { commentItemTemplate, replyFormTemplate } from "../templates.js";
-import StoryPresenter from "./story-presenter.js";
-import { setupCommentInteractions } from "./comment-interactions.js";
-import { setupCommentActions } from "./comment-actions.js";
+import { commentItemTemplate, replyFormTemplate } from '../templates.js';
+import StoryPresenter from './story-presenter.js';
+import { setupCommentInteractions } from './comment-interactions.js';
+import { setupCommentActions } from './comment-actions.js';
 
 export default class CommentDetailPage {
-  _commentId = null;
-  _presenter = null;
-  _commentDataChangedHandler = null;
-  _currentUser = null;
+    _commentId = null;
+    _presenter = null;
+    _commentDataChangedHandler = null;
+    _currentUser = null;
 
-  constructor(commentId) {
-    this._commentId = commentId;
-    this._presenter = new StoryPresenter(this);
-    this._currentUser = this._presenter.getCurrentUser();
-  }
+    constructor(commentId) {
+        this._commentId = commentId;
+        this._presenter = new StoryPresenter(this);
+        this._currentUser = this._presenter.getCurrentUser();
+    }
 
-  async render() {
-    const username = this._currentUser?.name || "Nama Pengguna";
-    const handle = this._currentUser?.username
-      ? `@${this._currentUser.username}`
-      : "@namapengguna";
-    const profilePicture =
-      this._currentUser?.profilePicture || "./images/image.png";
+    async render() {
+        const username = this._currentUser?.name || 'Nama Pengguna';
+        const handle = this._currentUser?.username
+            ? `@${this._currentUser.username}`
+            : '@namapengguna';
+        const profilePicture =
+            this._currentUser?.profilePicture || './images/image.png';
 
-    return `
+        return `
       <div class="md:ml-16 lg:ml-16 min-h-screen lg:p-10 p-6 pb-20 lg:pb-10">
         <div class="mb-1">
             <h1 class="text-2xl font-semibold text-gray-900 mb-2">Detail Komentar</h1>
@@ -44,10 +44,10 @@ export default class CommentDetailPage {
             <div class="hidden lg:p-6 lg:block">
             <div class="lg:space-y-6 mt-4">
                 ${replyFormTemplate({
-                  parentCommentId: this._commentId,
-                  username,
-                  handle,
-                  profilePicture,
+                    parentCommentId: this._commentId,
+                    username,
+                    handle,
+                    profilePicture,
                 })}
             </div>
             </div>
@@ -85,242 +85,267 @@ export default class CommentDetailPage {
 
         </div>
     `;
-  }
-
-  async afterRender() {
-    if (!this._presenter) return;
-    await this._presenter.loadCommentDetail(this._commentId);
-    this._setupReplyFormSubmit();
-    this._setupMobileReplyForm();
-    this._setupCommentDataChangedListener();
-  }
-
-  _setupMobileReplyForm() {
-    const fabButton = document.getElementById("add-reply-fab");
-    const mobileModal = document.getElementById("mobile-reply-modal");
-    const closeModalBtn = document.getElementById("close-reply-modal");
-    const submitBtn = document.getElementById("mobile-reply-submit");
-    
-    if (fabButton && mobileModal) {
-      fabButton.addEventListener("click", () => {
-        mobileModal.classList.remove("hidden");
-        mobileModal.classList.add("flex");
-      });
-    }
-    
-    if (closeModalBtn && mobileModal) {
-      closeModalBtn.addEventListener("click", () => {
-        mobileModal.classList.add("hidden");
-        mobileModal.classList.remove("flex");
-        document.getElementById("mobile-reply-input").value = "";
-      });
     }
 
-     if (submitBtn) {
-      submitBtn.addEventListener("click", async () => {
-        const replyInput = document.getElementById("mobile-reply-input");
-        if (!replyInput || !replyInput.value.trim()) {
-          alert("Silakan masukkan balasan.");
-          return;
-        }
-        
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Mengirim...";
-        
-        try {
-          const successResponse = await this._presenter.addReplyToComment(
-            this._commentId,
-            replyInput.value.trim()
-          );
-          
-          if (!successResponse.error) {
-            replyInput.value = "";
-            mobileModal.classList.add("hidden");
-            mobileModal.classList.remove("flex");
-          } else {
-            alert(`Gagal mengirim balasan: ${successResponse.message}`);
-          }
-           } catch (error) {
-          console.error("Error submitting reply:", error);
-          alert(
-            "Gagal mengirim balasan: " + (error.message || "Terjadi kesalahan")
-          );
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
-        }
-      });
+    async afterRender() {
+        if (!this._presenter) return;
+        await this._presenter.loadCommentDetail(this._commentId);
+        this._setupReplyFormSubmit();
+        this._setupMobileReplyForm();
+        this._setupCommentDataChangedListener();
     }
-  }
 
-  _setupReplyFormSubmit() {
-    const replyForm = document.getElementById(`reply-form-${this._commentId}`);
-    if (replyForm) {
-      replyForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const input = document.getElementById(`reply-input-${this._commentId}`);
-        const submitButton = replyForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.textContent;
+    _setupMobileReplyForm() {
+        const fabButton = document.getElementById('add-reply-fab');
+        const mobileModal = document.getElementById('mobile-reply-modal');
+        const closeModalBtn = document.getElementById('close-reply-modal');
+        const submitBtn = document.getElementById('mobile-reply-submit');
 
-        if (!input || !input.value.trim()) {
-          alert("Silakan masukkan balasan.");
-          return;
+        if (fabButton && mobileModal) {
+            fabButton.addEventListener('click', () => {
+                mobileModal.classList.remove('hidden');
+                mobileModal.classList.add('flex');
+            });
         }
 
-        submitButton.disabled = true;
-        submitButton.textContent = "Mengirim...";
-
-        try {
-          const successResponse = await this._presenter.addReplyToComment(
-            this._commentId,
-            input.value.trim()
-          );
-          if (!successResponse.error) {
-            input.value = "";
-          } else {
-            alert(`Gagal mengirim balasan: ${successResponse.message}`);
-          }
-        } catch (error) {
-          console.error("Error submitting reply:", error);
-          alert(
-            "Gagal mengirim balasan: " + (error.message || "Terjadi kesalahan")
-          );
-        } finally {
-          submitButton.disabled = false;
-          submitButton.textContent = originalButtonText;
+        if (closeModalBtn && mobileModal) {
+            closeModalBtn.addEventListener('click', () => {
+                mobileModal.classList.add('hidden');
+                mobileModal.classList.remove('flex');
+                document.getElementById('mobile-reply-input').value = '';
+            });
         }
-      });
+
+        if (submitBtn) {
+            submitBtn.addEventListener('click', async () => {
+                const replyInput =
+                    document.getElementById('mobile-reply-input');
+                if (!replyInput || !replyInput.value.trim()) {
+                    alert('Silakan masukkan balasan.');
+                    return;
+                }
+
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Mengirim...';
+
+                try {
+                    const successResponse =
+                        await this._presenter.addReplyToComment(
+                            this._commentId,
+                            replyInput.value.trim()
+                        );
+
+                    if (!successResponse.error) {
+                        replyInput.value = '';
+                        mobileModal.classList.add('hidden');
+                        mobileModal.classList.remove('flex');
+                    } else {
+                        alert(
+                            `Gagal mengirim balasan: ${successResponse.message}`
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error submitting reply:', error);
+                    alert(
+                        'Gagal mengirim balasan: ' +
+                            (error.message || 'Terjadi kesalahan')
+                    );
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            });
+        }
     }
-  }
 
-  _setupCommentDataChangedListener() {
-    this._commentDataChangedHandler = async (event) => {
-      const { entityId, action, parentId } = event.detail;
-
-      if (
-        entityId === this._commentId ||
-        parentId === this._commentId ||
-        (action === "replied" && event.detail.storyId === this._commentId)
-      ) {
-        console.log(
-          "CommentDetailPage: commentDataChanged event for current comment or its replies, reloading.",
-          event.detail
+    _setupReplyFormSubmit() {
+        const replyForm = document.getElementById(
+            `reply-form-${this._commentId}`
         );
-        if (this._presenter) {
-          await this._presenter.loadCommentDetail(this._commentId);
+        if (replyForm) {
+            replyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const input = document.getElementById(
+                    `reply-input-${this._commentId}`
+                );
+                const submitButton = replyForm.querySelector(
+                    'button[type="submit"]'
+                );
+                const originalButtonText = submitButton.textContent;
+
+                if (!input || !input.value.trim()) {
+                    alert('Silakan masukkan balasan.');
+                    return;
+                }
+
+                submitButton.disabled = true;
+                submitButton.textContent = 'Mengirim...';
+
+                try {
+                    const successResponse =
+                        await this._presenter.addReplyToComment(
+                            this._commentId,
+                            input.value.trim()
+                        );
+                    if (!successResponse.error) {
+                        input.value = '';
+                    } else {
+                        alert(
+                            `Gagal mengirim balasan: ${successResponse.message}`
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error submitting reply:', error);
+                    alert(
+                        'Gagal mengirim balasan: ' +
+                            (error.message || 'Terjadi kesalahan')
+                    );
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }
+            });
         }
-      }
-    };
-    document.addEventListener(
-      "commentDataChanged",
-      this._commentDataChangedHandler
-    );
-  }
-
-  showCommentDetail(commentData) {
-    const parentContainer = document.getElementById("parent-comment-container");
-    const repliesContainer = document.getElementById("replies-list-container");
-
-    if (!parentContainer || !repliesContainer) {
-      console.error("Comment detail page containers not found.");
-      return;
     }
 
-    this._currentUser = this._presenter.getCurrentUser();
+    _setupCommentDataChangedListener() {
+        this._commentDataChangedHandler = async (event) => {
+            const { entityId, action, parentId } = event.detail;
 
-    const parentIsOwner =
-      !commentData.isCommentAnonymous &&
-      this._currentUser?.username === commentData.authorActualUsername;
-    parentContainer.innerHTML = commentItemTemplate({
-      commentId: commentData._id,
-      username: commentData.name || "Pengguna",
-      handle: commentData.username || "Anonim",
-      content: commentData.content,
-      profilePicture: commentData.profilePicture || "./images/image.png",
-      createdAt: commentData.createdAt,
-      likeCount: commentData.likes?.length || commentData.likeCount || 0,
-      replyCount: commentData.replies?.length || commentData.replyCount || 0,
-      isOwner: this._currentUser?.username === commentData.username,
-      userLiked: commentData.userLiked || false,
-    });
-
-    if (commentData.replies && commentData.replies.length > 0) {
-      this._renderCommentsRecursive(commentData.replies, repliesContainer, 1);
-    } else {
-      repliesContainer.innerHTML =
-        '<p class="text-gray-500 text-sm">Belum ada balasan untuk komentar ini.</p>';
-    }
-
-    setupCommentInteractions(this._presenter, parentContainer.id);
-    setupCommentActions(this._presenter, parentContainer.id);
-
-    setupCommentInteractions(this._presenter, repliesContainer.id);
-    setupCommentActions(this._presenter, repliesContainer.id);
-  }
-
-  _renderCommentsRecursive(commentsArray, parentElement, level) {
-    if (!commentsArray || commentsArray.length === 0) {
-      parentElement.innerHTML =
-        level === 1
-          ? '<p class="text-gray-500 text-sm">Belum ada balasan.</p>'
-          : "";
-      return;
-    }
-
-    let allCommentsHTML = "";
-    commentsArray.forEach((comment) => {
-      const isOwner = this._currentUser?.username === comment.username;
-      const commentHTML = commentItemTemplate({
-        commentId: comment._id,
-        username: comment.name || "Pengguna",
-        handle: comment.username,
-        content: comment.content,
-        profilePicture: comment.profilePicture || "./images/image.png",
-        createdAt: comment.createdAt,
-        likeCount: comment.likes?.length || comment.likeCount || 0,
-        replyCount: comment.replies?.length || comment.replyCount || 0,
-        isOwner: isOwner,
-        userLiked: comment.userLiked || false,
-      });
-
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = commentHTML;
-      const nestedRepliesContainer =
-        tempDiv.querySelector(".replies-container");
-
-      if (
-        nestedRepliesContainer &&
-        comment.replies &&
-        comment.replies.length > 0
-      ) {
-        this._renderCommentsRecursive(
-          comment.replies,
-          nestedRepliesContainer,
-          level + 1
+            if (
+                entityId === this._commentId ||
+                parentId === this._commentId ||
+                (action === 'replied' &&
+                    event.detail.storyId === this._commentId)
+            ) {
+                console.log(
+                    'CommentDetailPage: commentDataChanged event for current comment or its replies, reloading.',
+                    event.detail
+                );
+                if (this._presenter) {
+                    await this._presenter.loadCommentDetail(this._commentId);
+                }
+            }
+        };
+        document.addEventListener(
+            'commentDataChanged',
+            this._commentDataChangedHandler
         );
-      }
-      allCommentsHTML += tempDiv.innerHTML;
-    });
-    parentElement.innerHTML = allCommentsHTML;
-  }
-
-  showError(message) {
-    const container = document.getElementById("parent-comment-container");
-    if (container) {
-      container.innerHTML = `<p class="text-red-500 p-4 text-center">${message}</p>`;
-    } else {
-      alert(message);
     }
-  }
 
-  destroy() {
-    if (this._commentDataChangedHandler) {
-      document.removeEventListener(
-        "commentDataChanged",
-        this._commentDataChangedHandler
-      );
-      this._commentDataChangedHandler = null;
+    showCommentDetail(commentData) {
+        const parentContainer = document.getElementById(
+            'parent-comment-container'
+        );
+        const repliesContainer = document.getElementById(
+            'replies-list-container'
+        );
+
+        if (!parentContainer || !repliesContainer) {
+            console.error('Comment detail page containers not found.');
+            return;
+        }
+
+        this._currentUser = this._presenter.getCurrentUser();
+
+        const parentIsOwner =
+            !commentData.isCommentAnonymous &&
+            this._currentUser?.username === commentData.authorActualUsername;
+        parentContainer.innerHTML = commentItemTemplate({
+            commentId: commentData._id,
+            username: commentData.name || 'Pengguna',
+            handle: commentData.username || 'Anonim',
+            content: commentData.content,
+            profilePicture: commentData.profilePicture || './images/image.png',
+            createdAt: commentData.createdAt,
+            likeCount: commentData.likes?.length || commentData.likeCount || 0,
+            replyCount:
+                commentData.replies?.length || commentData.replyCount || 0,
+            isOwner: this._currentUser?.username === commentData.username,
+            userLiked: commentData.userLiked || false,
+        });
+
+        if (commentData.replies && commentData.replies.length > 0) {
+            this._renderCommentsRecursive(
+                commentData.replies,
+                repliesContainer,
+                1
+            );
+        } else {
+            repliesContainer.innerHTML =
+                '<p class="text-gray-500 text-sm">Belum ada balasan untuk komentar ini.</p>';
+        }
+
+        setupCommentInteractions(this._presenter, parentContainer.id);
+        setupCommentActions(this._presenter, parentContainer.id);
+
+        setupCommentInteractions(this._presenter, repliesContainer.id);
+        setupCommentActions(this._presenter, repliesContainer.id);
     }
-  }
+
+    _renderCommentsRecursive(commentsArray, parentElement, level) {
+        if (!commentsArray || commentsArray.length === 0) {
+            parentElement.innerHTML =
+                level === 1
+                    ? '<p class="text-gray-500 text-sm">Belum ada balasan.</p>'
+                    : '';
+            return;
+        }
+
+        let allCommentsHTML = '';
+        commentsArray.forEach((comment) => {
+            const isOwner = this._currentUser?.username === comment.username;
+            const commentHTML = commentItemTemplate({
+                commentId: comment._id,
+                username: comment.name || 'Pengguna',
+                handle: comment.username,
+                content: comment.content,
+                profilePicture: comment.profilePicture || './images/image.png',
+                createdAt: comment.createdAt,
+                likeCount: comment.likes?.length || comment.likeCount || 0,
+                replyCount: comment.replies?.length || comment.replyCount || 0,
+                isOwner: isOwner,
+                userLiked: comment.userLiked || false,
+            });
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = commentHTML;
+            const nestedRepliesContainer =
+                tempDiv.querySelector('.replies-container');
+
+            if (
+                nestedRepliesContainer &&
+                comment.replies &&
+                comment.replies.length > 0
+            ) {
+                this._renderCommentsRecursive(
+                    comment.replies,
+                    nestedRepliesContainer,
+                    level + 1
+                );
+            }
+            allCommentsHTML += tempDiv.innerHTML;
+        });
+        parentElement.innerHTML = allCommentsHTML;
+    }
+
+    showError(message) {
+        const container = document.getElementById('parent-comment-container');
+        if (container) {
+            container.innerHTML = `<p class="text-red-500 p-4 text-center">${message}</p>`;
+        } else {
+            alert(message);
+        }
+    }
+
+    destroy() {
+        if (this._commentDataChangedHandler) {
+            document.removeEventListener(
+                'commentDataChanged',
+                this._commentDataChangedHandler
+            );
+            this._commentDataChangedHandler = null;
+        }
+    }
 }

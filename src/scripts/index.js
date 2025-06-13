@@ -12,10 +12,10 @@ function handleNavbarVisibility() {
     const hash = window.location.hash.replace('#', '') || '/';
     const navbar = document.getElementById('navbar-container');
     const mobileNavbar = document.getElementById('mobile-navbar');
-    
+
     const activeRoute = getActiveRoute();
     const isValidRoute = routes[activeRoute] !== undefined;
-    
+
     const shouldHideNavbar = hideNavbarRoutes.includes(hash) || !isValidRoute;
 
     if (shouldHideNavbar) {
@@ -23,21 +23,21 @@ function handleNavbarVisibility() {
         if (mobileNavbar) mobileNavbar.style.display = 'none';
     } else {
         if (navbar) navbar.style.display = '';
-        if (mobileNavbar) mobileNavbar.style.display = ''; 
+        if (mobileNavbar) mobileNavbar.style.display = '';
     }
 }
 
 function setupSmartNavigation() {
     const logoDesktop = document.querySelector('#sidebar a.block');
     const logoMobile = document.querySelector('#logo-mobile');
-    
+
     const handleLogoClick = (e) => {
         if (localStorage.getItem('hasInteractedWithChatbot') === 'true') {
             e.preventDefault();
-            window.location.href = "#/chatbot";
+            window.location.href = '#/chatbot';
         }
     };
-    
+
     if (logoDesktop) logoDesktop.addEventListener('click', handleLogoClick);
     if (logoMobile) logoMobile.addEventListener('click', handleLogoClick);
 }
@@ -48,7 +48,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         sidebar: document.querySelector('#sidebar'),
         sidebarToggle: document.querySelector('#sidebar-toggle'),
         sidebarToggleIcon: document.querySelector('#sidebar-toggle-icon'),
-        sidebarToggleContainer: document.querySelector('#sidebar-toggle-container'),
+        sidebarToggleContainer: document.querySelector(
+            '#sidebar-toggle-container'
+        ),
     });
     await app.renderPage();
     await registerServiceWorker();

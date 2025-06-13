@@ -1,6 +1,9 @@
 import { convertBase64ToUint8Array } from './index';
 import { VAPID_PUBLIC_KEY } from '../config';
-import { subscribePushNotification, unsubscribePushNotification } from '../data/api';
+import {
+    subscribePushNotification,
+    unsubscribePushNotification,
+} from '../data/api';
 
 export function isNotificationAvailable() {
     return 'Notification' in window;
@@ -63,12 +66,16 @@ export async function subscribe() {
 
     console.log('Mulai berlangganan push notification...');
 
-    const failureSubscribeMessage = 'Langganan push notification gagal diaktifkan.';
-    const successSubscribeMessage = 'Langganan push notification berhasil diaktifkan.';
+    const failureSubscribeMessage =
+        'Langganan push notification gagal diaktifkan.';
+    const successSubscribeMessage =
+        'Langganan push notification berhasil diaktifkan.';
     let pushSubscription;
     try {
         const registration = await navigator.serviceWorker.getRegistration();
-        pushSubscription = await registration.pushManager.subscribe(generateSubscribeOptions());
+        pushSubscription = await registration.pushManager.subscribe(
+            generateSubscribeOptions()
+        );
         const { endpoint, keys } = pushSubscription.toJSON();
         const response = await subscribePushNotification({ endpoint, keys });
         console.log({ endpoint, keys });
@@ -89,12 +96,16 @@ export async function subscribe() {
 }
 
 export async function unsubscribe() {
-    const failureUnsubscribeMessage = 'Langganan push notification gagal dinonaktifkan.';
-    const successUnsubscribeMessage = 'Langganan push notification berhasil dinonaktifkan.';
+    const failureUnsubscribeMessage =
+        'Langganan push notification gagal dinonaktifkan.';
+    const successUnsubscribeMessage =
+        'Langganan push notification berhasil dinonaktifkan.';
     try {
         const pushSubscription = await getPushSubscription();
         if (!pushSubscription) {
-            alert('Tidak bisa memutus langganan push notification karena belum berlangganan sebelumnya.');
+            alert(
+                'Tidak bisa memutus langganan push notification karena belum berlangganan sebelumnya.'
+            );
             return;
         }
         const { endpoint, keys } = pushSubscription.toJSON();
@@ -116,4 +127,3 @@ export async function unsubscribe() {
         console.error('unsubscribe: error:', error);
     }
 }
-

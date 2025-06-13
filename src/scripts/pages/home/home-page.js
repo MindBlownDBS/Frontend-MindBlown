@@ -1,14 +1,18 @@
-import { autoResize } from "../../utils";
-import { welcomeModalTemplate,userChatBubble, botTypingBubble } from "../templates";
-import { getAccessToken } from "../../utils/auth";
+import { autoResize } from '../../utils';
+import {
+    welcomeModalTemplate,
+    userChatBubble,
+    botTypingBubble,
+} from '../templates';
+import { getAccessToken } from '../../utils/auth';
 
 export default class HomePage {
-  constructor() {
-    this.isProcessing = false; 
-  }
+    constructor() {
+        this.isProcessing = false;
+    }
 
-  async render() {
-    return `
+    async render() {
+        return `
       <section class="md:ml-16 h-150 md:h-screen lg:min-h-screen flex items-center">
         <div class="w-full flex items-center pb-20"> 
             <div class="max-w-2xl w-full mx-auto text-center">
@@ -33,90 +37,90 @@ export default class HomePage {
         </div>
       </section>
     `;
-  }
-
-  async afterRender() {
-
-    if (!getAccessToken() && !sessionStorage.getItem('welcomeModalShown')) {
-      this.#showWelcomeModal();
     }
 
-    const input = document.getElementById('chat-input');
-    const form = document.getElementById('chat-form');
-    const chatContainer = document.getElementById('chat-container');
+    async afterRender() {
+        if (!getAccessToken() && !sessionStorage.getItem('welcomeModalShown')) {
+            this.#showWelcomeModal();
+        }
 
-    input.addEventListener('input', () => autoResize(input));
+        const input = document.getElementById('chat-input');
+        const form = document.getElementById('chat-form');
+        const chatContainer = document.getElementById('chat-container');
 
-    const pendingMessage = localStorage.getItem('pendingChatMessage');
-    if (pendingMessage) {
-      localStorage.removeItem('pendingChatMessage');
+        input.addEventListener('input', () => autoResize(input));
+
+        const pendingMessage = localStorage.getItem('pendingChatMessage');
+        if (pendingMessage) {
+            localStorage.removeItem('pendingChatMessage');
+        }
+
+        this.#setupForm(chatContainer, input, form);
     }
 
-    this.#setupForm(chatContainer, input, form);
-  }
+    #setupForm(chatContainer, input, form) {
+        const scrollToBottom = () => {
+            requestAnimationFrame(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+        };
 
-  #setupForm(chatContainer, input, form) {
-    const scrollToBottom = () => {
-      requestAnimationFrame(() => {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      });
-    };
-    
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      if (this.isProcessing) return;
-      
-      const text = input.value.trim();
-      if (!text) return;
-      
-      this.isProcessing = true;
-      input.disabled = true;
-      
-      const sendButton = form.querySelector('button');
-      if (sendButton) {
-        sendButton.disabled = true;
-      }
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
 
-      chatContainer.insertAdjacentHTML('beforeend', userChatBubble(text));
-      scrollToBottom();
-      
-      input.value = '';
-      input.style.height = '';
-      
-      chatContainer.insertAdjacentHTML('beforeend', botTypingBubble('Mengarahkan ke chatbot...'));
-      scrollToBottom();
-      
-      localStorage.setItem('pendingChatMessage', text);
-      localStorage.setItem('hasInteractedWithChatbot', 'true');
+            if (this.isProcessing) return;
 
-      
-      window.location.hash = '/chatbot';
-    });
-  }
-      
+            const text = input.value.trim();
+            if (!text) return;
 
-  #showWelcomeModal() {
-    if (document.getElementById('welcome-modal')) return;
+            this.isProcessing = true;
+            input.disabled = true;
 
-    const modalWrapper = document.createElement('div');
-    modalWrapper.id = 'welcome-modal';
-    modalWrapper.innerHTML = welcomeModalTemplate();
-    document.body.appendChild(modalWrapper);
+            const sendButton = form.querySelector('button');
+            if (sendButton) {
+                sendButton.disabled = true;
+            }
 
-    sessionStorage.setItem('welcomeModalShown', 'true');
+            chatContainer.insertAdjacentHTML('beforeend', userChatBubble(text));
+            scrollToBottom();
 
-    document.getElementById('welcome-login').onclick = () => {
-      modalWrapper.remove();
-      window.location.hash = '/login';
-    };
-    document.getElementById('welcome-signup').onclick = () => {
-      modalWrapper.remove();
-      window.location.hash = '/register';
-    };
-    document.getElementById('welcome-stay-logged-out').onclick = (e) => {
-      e.preventDefault();
-      modalWrapper.remove();
-    };
-  }
+            input.value = '';
+            input.style.height = '';
+
+            chatContainer.insertAdjacentHTML(
+                'beforeend',
+                botTypingBubble('Mengarahkan ke chatbot...')
+            );
+            scrollToBottom();
+
+            localStorage.setItem('pendingChatMessage', text);
+            localStorage.setItem('hasInteractedWithChatbot', 'true');
+
+            window.location.hash = '/chatbot';
+        });
+    }
+
+    #showWelcomeModal() {
+        if (document.getElementById('welcome-modal')) return;
+
+        const modalWrapper = document.createElement('div');
+        modalWrapper.id = 'welcome-modal';
+        modalWrapper.innerHTML = welcomeModalTemplate();
+        document.body.appendChild(modalWrapper);
+
+        sessionStorage.setItem('welcomeModalShown', 'true');
+
+        document.getElementById('welcome-login').onclick = () => {
+            modalWrapper.remove();
+            window.location.hash = '/login';
+        };
+        document.getElementById('welcome-signup').onclick = () => {
+            modalWrapper.remove();
+            window.location.hash = '/register';
+        };
+        document.getElementById('welcome-stay-logged-out').onclick = (e) => {
+            e.preventDefault();
+            modalWrapper.remove();
+        };
+    }
 }

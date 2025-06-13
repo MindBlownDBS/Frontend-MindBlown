@@ -24,7 +24,8 @@ export function generateCalendar(date, monthNames) {
     }
 
     for (let i = 1; i <= lastDate; i++) {
-        const isToday = i === new Date().getDate() &&
+        const isToday =
+            i === new Date().getDate() &&
             month === new Date().getMonth() &&
             year === new Date().getFullYear();
 

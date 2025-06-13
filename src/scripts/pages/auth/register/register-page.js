@@ -67,83 +67,119 @@ export default class RegisterPage {
     }
 
     #setupForm() {
-        document.getElementById('register-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
+        document
+            .getElementById('register-form')
+            .addEventListener('submit', async (event) => {
+                event.preventDefault();
 
-            const username = document.getElementById('username-input').value;
-            const name = document.getElementById('name-input').value;
-            const email = document.getElementById('email-input').value;
-            const password = document.getElementById('password-input').value;
-            const passwordConfirm = document.getElementById('passwordConfirm-input').value;
+                const username =
+                    document.getElementById('username-input').value;
+                const name = document.getElementById('name-input').value;
+                const email = document.getElementById('email-input').value;
+                const password =
+                    document.getElementById('password-input').value;
+                const passwordConfirm = document.getElementById(
+                    'passwordConfirm-input'
+                ).value;
 
-            if (password !== passwordConfirm) {
-                this.registeredFailed('Konfirmasi kata sandi tidak sama dengan kata sandi!')
-                return;
-            }
+                if (password !== passwordConfirm) {
+                    this.registeredFailed(
+                        'Konfirmasi kata sandi tidak sama dengan kata sandi!'
+                    );
+                    return;
+                }
 
-            this.#userData = {
-                username,
-                name,
-                preferences: [],
-                email,
-                password
-            };
+                this.#userData = {
+                    username,
+                    name,
+                    preferences: [],
+                    email,
+                    password,
+                };
 
-            this.#showPreferencesModal();
-        });
+                this.#showPreferencesModal();
+            });
     }
 
     #setupPreferencesModal() {
         const validPreferences = [
-            "Olahraga", "Belajar", "Produktivitas", "Relaksasi", 
-            "Hiburan", "Kesehatan", "Sosial", 
-            "Kreativitas", "Hobi", "Rumah Tangga" ,"Pengembangan Diri",
+            'Olahraga',
+            'Belajar',
+            'Produktivitas',
+            'Relaksasi',
+            'Hiburan',
+            'Kesehatan',
+            'Sosial',
+            'Kreativitas',
+            'Hobi',
+            'Rumah Tangga',
+            'Pengembangan Diri',
         ];
 
-        const preferencesContainer = document.getElementById('preferences-container');
+        const preferencesContainer = document.getElementById(
+            'preferences-container'
+        );
         if (preferencesContainer) {
-            preferencesContainer.innerHTML = validPreferences.map(pref => `
+            preferencesContainer.innerHTML = validPreferences
+                .map(
+                    (pref) => `
                 <div class="preference-option">
                     <label class="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50 cursor-pointer transition-colors">
                         <input type="checkbox" name="preference" value="${pref}" class="h-4 w-4 text-teal-500 focus:ring-teal-400">
                         <span class="text-sm">${pref}</span>
                     </label>
                 </div>
-            `).join('');
+            `
+                )
+                .join('');
         }
 
-        document.getElementById('preferences-submit')?.addEventListener('click', () => {
-            const selectedPreferences = Array.from(
-                document.querySelectorAll('input[name="preference"]:checked')
-            ).map(checkbox => checkbox.value);
+        document
+            .getElementById('preferences-submit')
+            ?.addEventListener('click', () => {
+                const selectedPreferences = Array.from(
+                    document.querySelectorAll(
+                        'input[name="preference"]:checked'
+                    )
+                ).map((checkbox) => checkbox.value);
 
-            if (selectedPreferences.length === 0) {
-                document.getElementById('preferences-error').textContent = 'Pilih minimal satu preferensi untuk melanjutkan.';
-                document.getElementById('preferences-error').classList.remove('hidden');
-                return;
-            }
+                if (selectedPreferences.length === 0) {
+                    document.getElementById('preferences-error').textContent =
+                        'Pilih minimal satu preferensi untuk melanjutkan.';
+                    document
+                        .getElementById('preferences-error')
+                        .classList.remove('hidden');
+                    return;
+                }
 
-            if (selectedPreferences.length > 3) {
-                document.getElementById('preferences-error').textContent = 'Maksimal tiga preferensi yang bisa dipilih.';
-                document.getElementById('preferences-error').classList.remove('hidden');
-                return;
-            }
+                if (selectedPreferences.length > 3) {
+                    document.getElementById('preferences-error').textContent =
+                        'Maksimal tiga preferensi yang bisa dipilih.';
+                    document
+                        .getElementById('preferences-error')
+                        .classList.remove('hidden');
+                    return;
+                }
 
-            document.getElementById('preferences-error').classList.add('hidden');
+                document
+                    .getElementById('preferences-error')
+                    .classList.add('hidden');
 
-            this.#userData.preferences = selectedPreferences;
-            
-            document.getElementById('preferences-modal').classList.add('hidden');
-            
-            this.#registerUser();
-        });
+                this.#userData.preferences = selectedPreferences;
+
+                document
+                    .getElementById('preferences-modal')
+                    .classList.add('hidden');
+
+                this.#registerUser();
+            });
     }
 
     #showPreferencesModal() {
         const modal = document.getElementById('preferences-modal');
         if (modal) {
             modal.classList.remove('hidden');
-            
+
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
                     event.stopPropagation();
@@ -154,7 +190,7 @@ export default class RegisterPage {
 
     async #registerUser() {
         if (!this.#userData || !this.#userData.preferences.length) return;
-        
+
         await this.#presenter.getRegistered(this.#userData);
     }
 
@@ -167,7 +203,7 @@ export default class RegisterPage {
         const errorMessageElement = document.getElementById('errorMessage');
         errorMessageElement.textContent = message;
         errorMessageElement.classList.remove('hidden');
-        
+
         setTimeout(() => {
             errorMessageElement.classList.add('hidden');
         }, 3000);
@@ -180,7 +216,7 @@ export default class RegisterPage {
             </button>
         `;
     }
-    
+
     hideSubmitLoadingButton() {
         document.getElementById('submit-button-container').innerHTML = `
             <button class="w-full bg-teal-500 text-white text-sm py-2 rounded hover:bg-teal-600 transition" type="submit">
